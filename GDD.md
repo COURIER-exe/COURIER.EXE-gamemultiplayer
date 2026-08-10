@@ -1,300 +1,509 @@
-# LIGHTRACE 3D - Game Design Document
+Sim KKKKK. Agora vamos deixar **um GDD de verdade**, enxuto e útil pra programação. Mantive as decisões importantes do Courier.exe e tirei tudo que era repetição ou detalhe que podemos definir depois.
+
+# COURIER.EXE - Game Design Document
 
 ## Visão Geral
-**LightRace 3D** é um jogo de ação arcade competitivo inspirado no conceito das Light Cycles de TRON, porém com mecânicas próprias, modos de jogo variados e uma arena dinâmica.
 
-O jogador controla uma moto futurista que deixa um rastro sólido de energia. Colidir com qualquer obstáculo resulta em eliminação imediata.
+**Courier.exe** é um jogo 2D multiplayer competitivo de ação e raciocínio, ambientado em uma rede digital controlada por grandes corporações.
 
-O jogo deve proporcionar partidas rápidas, estratégicas e altamente competitivas.
+De 2 a 8 jogadores assumem o papel de **Couriers**, invasores responsáveis por encontrar e roubar um **Data Core** protegido por criptografia.
+
+O jogador precisa encontrar um terminal, resolver uma criptografia simples e, caso seja o primeiro, roubar o Data Core.
+
+A partir desse momento, começa uma perseguição: o portador precisa chegar ao **Extraction Point**, enquanto os demais jogadores tentam interceptá-lo.
+
+O jogo foi projetado para partidas rápidas e competitivas em uma **feira de jogos**, onde os vencedores recebem **tijolinhos**, a moeda utilizada para trocar por recompensas.
 
 ## Gênero
-- Arcade
-- Ação
-- Competitivo
-- Multiplayer
-- Estratégia em Tempo Real
+
+* Ação
+* Arcade
+* Puzzle
+* Multiplayer
+* Cyberpunk
 
 ## Plataforma
-Inicialmente:
-- Windows
 
-Arquitetura preparada para:
-- Linux
-- macOS
-- Android
+* PC
+* Navegador
 
-## Engine
-- Unity 6
-- C#
-- Universal Render Pipeline (URP)
+## Tecnologia
 
-## Estilo Visual
-Visual futurista inspirado em Tron Legacy, Cyberpunk e Synthwave.
-Características:
-- iluminação emissiva
-- bloom intenso
-- partículas futuristas
-- ambiente escuro
-- piso reflexivo
-- contraste elevado
+* **Engine:** Phaser 3.90.0
+* **Linguagem:** TypeScript
+* **Build:** Vite
+* **Editor:** Visual Studio Code
+* **Versionamento:** Git + GitHub
+* **Multiplayer:** WebSocket / Colyseus
 
-## História
-No ano de 2148, pilotos disputam torneios dentro de uma arena digital onde motos de energia criam barreiras de luz capazes de desintegrar qualquer veículo que as toque.
+# Universo
 
-Cada partida é uma simulação em tempo real onde apenas um piloto pode sobreviver.
+## Contexto
 
-## Objetivo
-Ser o último jogador vivo.
+Grandes corporações controlam uma enorme rede digital e protegem informações valiosas através de sistemas de segurança e criptografia.
 
-## Jogadores
-- Mínimo: 2
-- Máximo: 8
+Os **Couriers** são invasores que trabalham transportando informações ilegais através dessa rede.
 
-Suporte para:
-- Multiplayer Online
-- Multiplayer LAN
-- Partida Local
-- Contra IA
+O jogador precisa invadir o sistema, roubar os dados e escapar antes de ser interceptado.
 
-## Arena
-Formato: quadrada
-Tamanho: 150m × 150m
+## Referências
 
-Características:
-- piso metálico preto
-- linhas luminosas
-- paredes invisíveis
-- iluminação neon
-- reflexos
+### Filmes
 
-## Limites
-Ao tocar parede ou borda: eliminação instantânea.
+* TRON (1982)
+* TRON: O Legado (2010)
+* TRON: Ares (2025)
 
-## Moto
-Características:
-- baixa
-- futurista
-- rodas fechadas
-- iluminação neon
-- efeitos de energia
+### Jogos
 
-## Cores disponíveis
-- Azul
-- Vermelho
-- Verde
-- Amarelo
-- Roxo
-- Laranja
-- Branco
-- Ciano
+* TRON Light Cycles
+* Neon White
+* Hotline Miami
+* Mirror's Edge
 
-A cor do jogador aparece na moto, rastro, HUD, explosão e nome.
+## Estilo
 
-## Movimentação
-- Movimento arcade
-- Sem física realista
-- Sem derrapagem
-- Curvas instantâneas de 90°
+* Cyberpunk
+* Synthwave
+* Neon
+* Tecnologia futurista
+* Ambientes digitais
+* Fundo escuro
+* Alto contraste
+
+# Personagens
+
+## Courier
+
+Todos os jogadores controlam o mesmo tipo de personagem.
+
+Não existem habilidades ou atributos exclusivos.
+
+O diferencial visual é a cor escolhida antes da partida.
+
+### Cores
+
+* Rosa
+* Vermelho
+* Verde
+* Amarelo
+* Roxo
+* Laranja
+* Branco
+* Ciano
+
+Cada jogador utiliza uma cor diferente.
+
+# Mapa
+
+## Estrutura
+
+O jogo utiliza uma arena **2D Top-Down** representando uma área da rede digital.
+
+O mapa possui:
+
+* Corredores
+* Paredes
+* Áreas abertas
+* Atalhos
+* Obstáculos
+* Terminais
+* Data Lanes
+* Pontos de Spawn
+* Extraction Point
+
+O mapa deve possuir múltiplas rotas para permitir perseguições e estratégias diferentes.
+
+# Gameplay
+
+## Fluxo da Partida
+
+```text
+Lobby
+↓
+Escolha da cor
+↓
+Countdown
+↓
+Exploração
+↓
+Encontrar o Terminal
+↓
+Resolver a Criptografia
+↓
+Obter o Data Core
+↓
+Perseguição
+↓
+Extração
+↓
+Vitória
+↓
+Recompensa
+```
+
+## Exploração
+
+Todos os jogadores começam em pontos diferentes do mapa.
+
+Após o countdown, precisam procurar o terminal que contém o Data Core.
+
+O objetivo inicial é:
+
+> **FIND THE TERMINAL**
+
+## Crypto Break
+
+Ao encontrar o terminal, o jogador precisa resolver uma criptografia simples.
+
+Os desafios podem utilizar:
+
+* Sequências numéricas
+* Códigos
+* Símbolos
+* Padrões
+
+O desafio deve durar aproximadamente **5 a 30 segundos**.
+
+Caso o jogador erre, pode tentar novamente.
+
+Enquanto isso, outros jogadores podem chegar ao terminal.
+
+## Data Core
+
+O primeiro jogador que resolver corretamente a criptografia obtém o Data Core.
+
+A partir desse momento:
+
+> **DATA CORE STOLEN**
+
+O objetivo do portador passa a ser chegar ao Extraction Point.
+
+Os demais jogadores recebem o objetivo:
+
+> **INTERCEPT THE COURIER**
+
+## Perseguição
+
+Os jogadores podem utilizar:
+
+* Rotas alternativas
+* Atalhos
+* Data Lanes
+* Dash
+* Antecipação de movimento
+
+O Data Core pode mudar de dono caso o portador seja interceptado.
+
+## Extraction Point
+
+Após o Data Core ser obtido, um Extraction Point aparece no mapa.
+
+O portador precisa chegar até ele e permanecer na área durante uma pequena contagem.
+
+Ao concluir:
+
+> **DATA DELIVERED**
+
+O jogador vence a partida.
+
+# Movimentação
+
+O Courier possui movimentação rápida em quatro direções.
 
 ### Controles
-- W: acelerar
-- S: frear
-- A: virar esquerda
-- D: virar direita
-- Shift: turbo
-- Espaço: freio de emergência
-- ESC: menu
 
-### Velocidades
-- Velocidade padrão: 40 km/h
-- Turbo: 55 km/h
-- Freio: 25 km/h
+* **WASD:** Movimento
+* **Setas:** Movimento alternativo
+* **Espaço:** Dash
 
-## Sistema de Turbo
-- Energia máxima: 100
-- Consumo: 20/s
-- Recuperação: 10/s
-- HUD deve mostrar a barra
+## Dash
 
-## Mecânica Principal — Rastro de Energia
-Cada moto gera automaticamente um muro sólido de energia enquanto se movimenta.
+O Dash permite realizar um deslocamento rápido.
 
-Características:
-- largura: 0,30 m
-- altura: 2 m
-- iluminação emissiva
-- colisão ativa
-- mesma cor da moto
-- criado continuamente durante o movimento
+Pode ser utilizado para:
 
-Qualquer jogador que tocar o rastro ativo é eliminado instantaneamente.
+* Escapar de perseguidores
+* Alcançar atalhos
+* Evitar colisões
+* Criar distância
 
-## Sistema de Rastros
-O jogo possui dois modos oficiais, cada um alterando completamente a estratégia da partida.
+Possui cooldown para evitar uso constante.
 
-### Modo Clássico
-- rastros permanentes
-- nunca desaparecem
-- arena vai ficando cada vez mais fechada
-- estratégia baseada em cercar os adversários
-- partidas mais tensas conforme o espaço diminui
+# Data Lanes
 
-### Modo Fluxo (Decay Mode)
-- rastros possuem tempo de vida
-- cada segmento permanece ativo por 10 segundos antes de desaparecer
-- aviso visual 2 segundos antes de desaparecer
-- brilho reduz gradualmente
-- neon começa a piscar
-- pequenas partículas digitais surgem
-- transparência aumenta
-- colisão é removida após o fim
+As **Data Lanes** são corredores especiais que aumentam temporariamente a velocidade do Courier.
 
-### Modo Cobra
-- limite máximo de comprimento do rastro
-- segmentos antigos começam a desaparecer ao atingir o limite
-- rastro funciona como cauda móvel
-- exemplo: 120 segmentos de comprimento máximo
+Podem possuir limitações de movimentação.
 
-## Colisão
-O jogador perde imediatamente ao tocar:
-- qualquer rastro ativo
-- qualquer parede
-- borda da arena
-- obstáculos futuros
+Isso cria uma escolha entre:
 
-## Explosão
-Ao morrer:
-- explosão neon
-- partículas digitais
-- efeito de desintegração
-- fade da moto
-- duração: 2 segundos
+**Velocidade x Segurança**
 
-## IA
-Quatro dificuldades:
-- Fácil: pouca previsão, muitos erros, curvas simples
-- Média: evita colisões, tenta sobreviver
-- Difícil: cria armadilhas, fecha caminhos, usa turbo estrategicamente
-- Insana: analisa arena, calcula espaço livre, direção dos adversários, melhores rotas e armadilhas
+Uma rota rápida pode ser previsível e facilitar a interceptação.
 
-## HUD
-Mostrar:
-- velocidade
-- energia
-- jogadores vivos
-- tempo da partida
-- FPS
-- ping
-- mini mapa
-- posição
+# Multiplayer
 
-## Mini Mapa
-- vista superior
-- mostra jogadores, rastros e arena
-- atualização em tempo real
+## Jogadores
 
-## Modos de Jogo
-- Clássico: último sobrevivente, rastros permanentes
-- Fluxo: último sobrevivente, rastros temporários
-- Contra IA: seleciona quantidade e dificuldade
-- Equipes: 2x2, 3x3, 4x4, última equipe viva vence
-- Sobrevivência: IAs aparecem continuamente, objetivo sobreviver o máximo possível
-- Corrida: sem rastros, apenas velocidade, circuitos futuristas
+* Mínimo: **2**
+* Máximo: **8**
 
-## Power-ups (Opcional)
-- Turbo Infinito
-- Escudo
-- Invisibilidade do rastro
-- Rastro duplo
-- Rastro mais largo
-- EMP
-- Teleporte curto
-- Congelamento do turbo inimigo
+Todos participam da mesma partida simultaneamente.
 
-## Sons
-- Motor
-- Turbo
-- Explosão
-- Menu
-- Cliques
-- Vitória
-- Derrota
-- Power-ups
+## Sincronização
+
+O multiplayer deve sincronizar:
+
+* Posição
+* Movimento
+* Cor
+* Dash
+* Terminal
+* Crypto Break
+* Data Core
+* Interceptação
+* Extraction Point
+* Estado da partida
+
+## Arquitetura
+
+```text
+Cliente
+   ↓
+Servidor
+   ↓
+Clientes
+```
+
+O servidor mantém o estado oficial da partida.
+
+# Duração
+
+As partidas devem durar aproximadamente:
+
+**3 a 5 minutos.**
+
+O jogo precisa ser rápido o suficiente para permitir que vários visitantes joguem durante a feira.
+
+# Vitória
+
+O jogador vence ao concluir a extração do Data Core.
+
+Não existem vantagens permanentes entre jogadores.
+
+A vitória depende de:
+
+* Reflexo
+* Raciocínio
+* Estratégia
+* Conhecimento do mapa
+
+# Recompensas
+
+A feira utiliza **tijolinhos** como moeda para trocar por recompensas.
+
+| Resultado    | Tijolinhos |
+| ------------ | ---------: |
+| 1º lugar     |   **5 🧱** |
+| 2º lugar     |   **3 🧱** |
+| 3º lugar     |   **2 🧱** |
+| Participação |   **1 🧱** |
+
+Os valores podem ser alterados durante os testes da feira.
+
+# Direção de Arte
+
+## Visual
+
+* Cyberpunk
+* Synthwave
+* Neon
+* Fundo escuro
+* Circuitos
+* Hologramas
+* Partículas
+* Efeitos luminosos
+
+## Courier
+
+Design simples e facilmente identificável.
+
+Cada jogador possui uma cor diferente.
+
+## Data Core
+
+O Data Core deve ser visualmente chamativo, utilizando brilho e partículas para indicar seu estado.
+
+# Áudio
 
 ## Música
-- Synthwave
-- Cyberpunk
-- Eletrônica
-- Volume independente
 
-## Interface
-Menu Principal:
-- Jogar
-- Multiplayer
-- Contra IA
-- Personalizar
-- Configurações
-- Créditos
-- Sair
+Estilo:
 
-## Estatísticas
-Registrar:
-- vitórias
-- derrotas
-- kills
-- mortes
-- tempo jogado
-- maior sequência de vitórias
-- maior sobrevivência
-- uso de turbo
-- distância percorrida
-- curvas realizadas
+* Synthwave
+* Darksynth
+* Electronic
 
-## Arquitetura do Projeto
-Scripts independentes:
-- GameManager
-- MatchManager
-- PlayerController
-- BikeController
-- TrailManager
-- TrailSegment
-- TrailPool
-- TrailRenderer
-- CameraController
-- InputManager
-- NetworkManager
-- LobbyManager
-- SpawnManager
-- AIController
-- GameModeManager
-- PowerUpManager
-- AudioManager
-- EffectsManager
-- UIManager
-- SettingsManager
-- SaveManager
-- StatisticsManager
-- MiniMapManager
+## Efeitos
 
-## Organização das Pastas
-Veja a estrutura de pastas padrão no repositório.
+* Countdown
+* Terminal
+* Crypto Break
+* Acerto
+* Erro
+* Data Core
+* Dash
+* Interceptação
+* Extração
+* Vitória
 
-## Multiplayer
-- Netcode for GameObjects ou Mirror Networking
-- arquitetura preparada para servidor dedicado
-- criação de sala
-- entrada por código
-- matchmaking rápido
-- lobby
-- reconexão
-- sincronização dos rastros e efeitos
+# Design para a Feira
 
-## Otimização
-- Object Pooling para segmentos de rastro
-- GPU Instancing
-- LOD
-- Occlusion Culling
-- URP Batcher
-- Iluminação otimizada
-- sincronização eficiente de rede
-- meta 60 FPS estáveis em hardware intermediário
+O jogo deve seguir quatro princípios:
+
+### Fácil de entender
+
+O jogador deve compreender o objetivo em poucos segundos.
+
+### Rápido
+
+Uma partida deve durar poucos minutos.
+
+### Competitivo
+
+Os jogadores devem sentir vontade de vencer seus amigos.
+
+### Recompensador
+
+A vitória deve gerar mais tijolinhos.
+
+# Monetização
+
+A versão da feira não possui monetização tradicional.
+
+Caso o jogo seja transformado em um produto comercial futuramente, poderão existir itens cosméticos:
+
+* Skins
+* Efeitos de Dash
+* Efeitos de partículas
+* Rastros
+* Mapas
+
+Nenhum item deve oferecer vantagem competitiva.
+
+# Objetivos do Projeto
+
+## Objetivo Principal
+
+Criar um jogo multiplayer 2D rápido, competitivo e fácil de aprender para uma feira de jogos.
+
+## Objetivos Técnicos
+
+* Desenvolver um jogo utilizando Phaser 3.
+* Utilizar TypeScript.
+* Implementar multiplayer.
+* Trabalhar sincronização em tempo real.
+* Criar um sistema simples de puzzle.
+* Criar uma experiência multiplayer competitiva.
+
+# Roadmap
+
+## Fase 1 - Protótipo
+
+* [x] Conceito
+* [x] GDD
+* [x] Phaser instalado
+* [x] TypeScript instalado
+* [x] Vite instalado
+* [ ] Configurar Phaser
+* [ ] Criar cena principal
+* [ ] Criar Courier
+* [ ] Criar movimentação
+* [ ] Criar arena
+* [ ] Criar colisões
+* [ ] Criar Dash
+
+## Fase 2 - Gameplay
+
+* [ ] Criar Terminal
+* [ ] Criar Crypto Break
+* [ ] Criar Data Core
+* [ ] Criar Extraction Point
+* [ ] Criar sistema de interceptação
+* [ ] Criar condição de vitória
+* [ ] Criar tela de resultado
+* [ ] Criar sistema de recompensas
+
+## Fase 3 - Multiplayer
+
+* [ ] Criar servidor
+* [ ] Criar lobby
+* [ ] Conectar jogadores
+* [ ] Sincronizar movimentação
+* [ ] Sincronizar Data Core
+* [ ] Suportar 2 jogadores
+* [ ] Testar até 8 jogadores
+
+## Fase 4 - Polimento
+
+* [ ] Arte final
+* [ ] Efeitos neon
+* [ ] Partículas
+* [ ] HUD
+* [ ] Sons
+* [ ] Música
+* [ ] Balanceamento
+* [ ] Testes com jogadores
+
+## Fase 5 - Feira
+
+* [ ] Build final
+* [ ] Teste multiplayer
+* [ ] Teste de recompensas
+* [ ] Correção de bugs
+* [ ] Otimização
+* [ ] Preparação dos computadores
+* [ ] Teste final
+
+# Identidade
+
+## Nome
+
+**Courier.exe**
+
+## Slogan
+
+> **BREAK THE CODE. RUN THE NETWORK.**
+
+## Frase de Impacto
+
+> **Pense rápido. Corra mais rápido. Entregue os dados.**
+
+## Loop Principal
+
+**Explorar → Encontrar → Decifrar → Roubar → Fugir → Extrair → Recompensa**
+
+# Status
+
+**Em desenvolvimento**
+
+## Stack Atual
+
+* Phaser 3.90.0
+* TypeScript 7
+* Vite 8
+* Visual Studio Code
+* Git
+* GitHub
+
+## Próxima Etapa
+
+Criar o primeiro protótipo jogável com:
+
+* Arena
+* Courier
+* Movimentação
+* Colisões
+* Câmera
+* Dash

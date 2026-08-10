@@ -1,12 +1,18 @@
-# AXON-CyberTrail
+# COURIER.EXE
 
 ## Premissa
 
-Acelere na velocidade da luz dentro de um cérebro cibernético. Deixe um rastro elétrico mortal, enfrente seus amigos e domine a rede neural para vencer.
+Invada uma rede digital controlada por grandes corporações. Encontre o terminal, quebre a criptografia e roube o Data Core antes dos seus adversários.
 
-## Universo 
+Assim que os dados forem obtidos, começa a fuga.
 
-### Referências 
+Corra até o Extraction Point enquanto os outros Couriers tentam interceptá-lo e roubar o Data Core.
+
+Pense rápido, corra mais rápido e entregue os dados antes que alguém consiga pará-lo.
+
+## Universo
+
+### Referências
 
 #### Filmes
 
@@ -14,118 +20,313 @@ Acelere na velocidade da luz dentro de um cérebro cibernético. Deixe um rastro
 
 °TRON: O Legado (2010)
 
-°TRON: Ares (2025) 
+°TRON: Ares (2025)
 
-#### Estilos 
+#### Jogos
+
+°TRON Light Cycles
+
+°Neon White
+
+°Hotline Miami
+
+°Mirror's Edge
+
+#### Estilos
 
 °Cyberpunk
 
 °Synthwave
 
-#### Nomenclatura 
+°Darksynth
 
-##### AXON: 
+°Cyber Minimalism
 
-Vem de AXÔNIO, faz referência ao prolongamento único do neurônio responsavél por conduzir os impulsos elétricos do corpo celular para as demais celulas e outros neurônios.
+#### Nomenclatura
 
-##### Cyber Trail:
+##### Courier:
 
- Trilha Cibernética.
+É o jogador responsável por invadir a rede, recuperar o Data Core e transportá-lo até o ponto de extração.
+
+##### Data Core:
+
+É o núcleo de dados protegido pela rede corporativa. O principal objetivo da partida.
+
+##### Crypto Break:
+
+É o pequeno desafio de criptografia que precisa ser resolvido para desbloquear o Data Core.
+
+##### Terminal:
+
+É o equipamento espalhado pelo mapa onde o jogador encontra o acesso ao Data Core.
+
+##### Extraction Point:
+
+É o ponto de extração para onde o portador precisa levar o Data Core para vencer.
+
+##### Data Lane:
+
+São corredores especiais da rede que permitem ao Courier se movimentar em alta velocidade.
 
 #### Personagens
 
-(OBS:É um jogo multiplayers de 2 á 8 jogadores, ele não possui personagens com estilos e personalidades proṕrias, o que diferencia os jogadores são as cores, escolhidas pelos próprios jogadores antes da partida).
+(OBS: É um jogo multiplayer de 2 a 8 jogadores. Não existem personagens com estilos, personalidades ou habilidades próprias. O que diferencia os jogadores são as cores escolhidas antes da partida.)
 
 O primeiro jogador poderá escolher entre todas as cores disponíveis, o segundo terá as opções restantes e assim sucessivamente.
 
 Cores:
+
 -Rosa
+
 -Vermelho
+
 -Verde
+
 -Amarelo
+
 -Roxo
+
 -Laranja
+
 -Branco
+
 -Ciano
 
 #### Mapa
 
-##### Nível Base/Neo Cortex
+##### Network District
 
-  A arena da precisão e de alta performance. Inspirado na estética elegante e minimalista do primeiro TRON (1982), é 100% previsível. O mapa é desenhado em uma grade ortogonal em tons de azul e lilás luminosos sobre um fundo preto, estes ficam dentro de um enorme formato cérebro. Possui uma distribuição de nós, existem 8 núcleos neurais periféricos (dois em cada quadrante) e 1 Grande Núcleo Central. Tem visibilidade total, não há áreas cegas ou obstáculos imprevisíveis, você consegue ver o movimento de todos os adversários na tela o tempo todo, transformando o jogo em uma partida de xadrez de alta velocidade.
+A arena representa uma região da rede digital controlada por uma grande corporação.
 
-°Low / Técnico               <=     Nível de Caos
+O mapa possui uma visão superior 2D e é construído para permitir que todos os jogadores tenham diversas opções de rota.
 
-°Precisão e Velocidade       <=     Foco de Gameplay
+Existem corredores, áreas abertas, atalhos, obstáculos, terminais e Data Lanes espalhados pela arena.
 
-°Classic Synthwave (TRON 82) <=    Estilo Visual
+O mapa precisa ser fácil de compreender visualmente, mas possuir rotas suficientes para criar perseguições e decisões estratégicas.
 
-## Funcionamento 
+A localização do Data Core não deve ser conhecida imediatamente pelos jogadores.
 
-### A Mecânica do Mapa 
+Todos começam em pontos diferentes da arena e precisam explorar o mapa para encontrar o Terminal.
 
-O grande diferencial do Neo-Cortex são os quatro grandes canais vetoriais reta-lineares que cruzam a arena de ponta a ponta:
+°Exploração <= Foco Inicial
 
-#### O Boost de Velocidade:
+°Velocidade e Raciocínio <= Foco de Gameplay
 
- Ao alinhar o seu impulso elétrico e entrar em uma Rodovia Axonial, seu rastro ganha um brilho azul intenso e sua velocidade salta em +50%.
+°Cyberpunk / Synthwave <= Estilo Visual
 
-#### Trava de Direção (O Risco): 
+## Funcionamento
 
-O preço dessa velocidade é a perda de manobra: você não pode fazer curvas de 90° enquanto estiver dentro do trilho da rodovia. Você só pode rodar em linha reta até sair dela no próximo cruzamento.
+### A Mecânica Principal
+
+O grande diferencial do Courier.exe é a mudança de objetivo durante a partida.
+
+Inicialmente, todos os jogadores estão procurando o mesmo objetivo.
+
+Após um jogador conseguir desbloquear o Data Core, todos passam a persegui-lo.
+
+O jogo possui três momentos principais:
+
+#### 1. Localização:
+
+Os jogadores exploram a arena procurando pelo Terminal.
+
+#### 2. Criptografia:
+
+O primeiro jogador que encontrar o Terminal precisa resolver o Crypto Break para desbloquear o Data Core.
+
+#### 3. Fuga:
+
+Após obter o Data Core, o jogador precisa chegar ao Extraction Point enquanto os outros jogadores tentam interceptá-lo.
+
+### Crypto Break
+
+Ao interagir com o Terminal, o jogador encontra uma criptografia simples.
+
+O desafio pode utilizar:
+
+°Sequências numéricas
+
+°Códigos
+
+°Símbolos
+
+°Padrões
+
+°Combinações
+
+O objetivo é que o jogador consiga resolver o desafio rapidamente, mas sob pressão.
+
+#### O Risco:
+
+Enquanto um jogador está resolvendo o Crypto Break, os outros continuam livres para chegar ao Terminal.
+
+Caso o jogador erre, poderá tentar novamente.
+
+Isso cria uma disputa pelo acesso ao Data Core.
+
+### A Disputa Pelo Data Core
+
+O primeiro jogador que resolver corretamente a criptografia obtém o Data Core.
+
+Nesse momento, a partida muda completamente.
+
+O portador recebe:
+
+> DATA CORE ACQUIRED
+
+Enquanto os demais jogadores recebem:
+
+> INTERCEPT THE COURIER
+
+A posição do portador passa a ser uma informação importante para todos.
+
+### A Fuga
+
+O jogador que possui o Data Core precisa chegar ao Extraction Point.
+
+O ponto de extração aparece no mapa assim que o Data Core é obtido.
+
+O portador deve escolher sua rota enquanto tenta evitar os outros jogadores.
+
+#### O Risco:
+
+O jogador mais rápido nem sempre possui a melhor rota.
+
+Uma rota curta pode ser previsível.
+
+Uma rota longa pode oferecer mais possibilidades de fuga.
+
+Uma Data Lane pode aumentar a velocidade, mas também tornar o movimento mais fácil de prever.
+
+### Interceptação
+
+Quando os jogadores conseguem alcançar o portador, o Data Core pode ser transferido.
+
+O antigo portador perde os dados.
+
+O novo jogador passa a ser o Courier responsável pela fuga.
+
+Isso permite que o objetivo mude de jogador várias vezes durante uma partida.
+
+### Data Lanes
+
+As Data Lanes são corredores especiais que aumentam temporariamente a velocidade do Courier.
+
+#### O Boost:
+
+Ao entrar em uma Data Lane, o jogador recebe um aumento temporário de velocidade.
+
+#### O Risco:
+
+Algumas Data Lanes possuem trajetórias previsíveis ou limitações de movimentação.
+
+Um jogador pode ganhar velocidade, mas também facilitar a própria interceptação.
 
 #### O Uso Tático:
 
- Servem para realizar travessias relâmpago do mapa e cortar a frente de adversários que estejam tentando fechar territórios lentos do outro lado do grid.
+Podem ser utilizadas para:
 
+°Escapar de perseguidores
 
-### Disputa Pelo Núcleo Central 
+°Alcançar rapidamente outra região do mapa
 
-O Núcleo Central é o ponto mais valioso do mapa e a chave para vitórias dominantes no modo Synaptic Control:
+°Cortar caminho
 
-#### O Maior Prêmio: 
+°Antecipar adversários
 
-Mielinizar (fechar um polígono que inclua) o Núcleo Central concede o triplo de Pontos de Domínio por segundo comparado aos núcleos normais.
+### Dash
 
-#### A Zona de Fogo Cruzado:
+O Dash permite ao Courier realizar um deslocamento rápido.
 
- Como o Núcleo Central fica exatamente na interseção das quatro Rodovias Axoniais, tentar capturá-lo é extremamente perigoso. Qualquer jogador vindo em alta velocidade por uma das rodovias pode cruzar o seu caminho e destruir o seu Axônio antes que você feche a conexão.
+Pode ser utilizado para:
 
-### Táticas de Elite 
+°Escapar
 
-#### Armadilha do Término de Rodovia (Highway Trap): 
+°Desviar
 
-Um jogador experiente percebe que um rival entrou na Rodovia Axonial, corre para o ponto de saída dessa rodovia e cruza sua Cyber Trail bem na boca do canal. Como o rival preso na rodovia não consegue virar, ele é forçado a colidir de frente com o rastro e ser eliminado.
+°Alcançar atalhos
 
-#### Consolidação por Quadrantes:
+°Criar distância
 
- A melhor estratégia de Mielinização aqui é metódica: fechar primeiro um quadrante periférico inteiro (conectando 3 núcleos da ponta), garantindo uma "fortaleza" de área segura para depois estender os axônios em direção ao centro.
+°Evitar uma interceptação
 
-### Estilo de Partida
+O Dash possui cooldown e deve ser utilizado de maneira estratégica.
 
-#### Duração:
+### Táticas de Elite
 
- Partidas mais táticas de 3 a 5 minutos.
+#### Antecipação de Rota:
 
-#### Ritmo: 
+Um perseguidor experiente pode observar a direção do portador e tentar chegar ao Extraction Point antes dele.
 
-Controlado e tenso, onde cada curva errada de 90° pode significar a perda de um território vital.
+Em vez de perseguir diretamente, o jogador tenta cortar o caminho.
 
-#### Sensação: 
+#### Fuga Imprevisível:
 
-A essência do TRON clássico, a sensação de estar dentro de uma placa de circuito integrado superpotente onde apenas a lógica e o reflexo puro vencem.
+O portador pode utilizar rotas alternativas e mudar de direção para dificultar a previsão de seus movimentos.
+
+#### Armadilha de Data Lane:
+
+Um perseguidor pode esperar próximo à saída de uma Data Lane e interceptar o portador quando ele sair do corredor de alta velocidade.
+
+#### Controle do Terminal:
+
+Durante a fase inicial, controlar a região próxima ao Terminal pode ser vantajoso.
+
+Um jogador pode encontrar o Terminal e tentar resolver o Crypto Break antes que os adversários consigam chegar.
+
+## Estilo de Partida
+
+### Duração:
+
+Partidas rápidas de aproximadamente 3 a 5 minutos.
+
+### Ritmo:
+
+A partida começa com exploração e raciocínio, evolui para uma disputa pelo Data Core e termina em uma perseguição de alta velocidade.
+
+### Sensação:
+
+A sensação desejada é de estar participando de uma invasão digital.
+
+Primeiro o jogador precisa pensar.
+
+Depois precisa correr.
+
+Por fim, precisa escapar.
+
+O jogo deve transmitir tensão, velocidade e competitividade sem possuir regras excessivamente complexas.
 
 ## Objetivo
 
-O objetivo do jogador é exercer domínio tático sobre o grid, usando precisão para controlar a rede antes dos adversários.
+O objetivo do jogador é encontrar o Terminal, resolver a criptografia, obter o Data Core e realizar a extração antes dos adversários.
+
+O jogador precisa utilizar:
+
+°Raciocínio
+
+°Reflexos
+
+°Velocidade
+
+°Conhecimento do mapa
+
+°Estratégia
+
+## Recompensas
+
+Como o jogo será utilizado em uma feira de jogos, os jogadores recebem **tijolinhos** de acordo com seu desempenho.
+
+### Distribuição
+
+°1º lugar: x tijolinhos
+
+°2º lugar: x tijolinhos
+
+°3º lugar: x tijolinhos
+
+°Participação: x tijolinho
+
 
 ## Monetização
 
-Venda de novos mapas, designer de motos e manobras que são desbloqueados com compras no game.
-
-
-
-
-
-
-
+A versão desenvolvida para a feira não possui monetização tradicional.
