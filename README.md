@@ -2,13 +2,11 @@
 
 ## Premissa
 
-Invada uma rede digital controlada por grandes corporações. Encontre o terminal, quebre a criptografia e roube o Data Core antes dos seus adversários.
+Invada uma rede digital controlada por grandes corporações. Encontre o terminal, quebre a criptografia e entregue o Data Core antes dos seus adversários.
 
-Assim que os dados forem obtidos, começa a fuga.
+Assim que os dados forem obtidos, corra para realizar a entrega antes dos seus adversários. Mas cuidado com os obstáculos que iram aparecer no seu caminho.
 
-Corra até o Extraction Point enquanto os outros Couriers tentam interceptá-lo e roubar o Data Core.
-
-Pense rápido, corra mais rápido e entregue os dados antes que alguém consiga pará-lo.
+Quebre a criptografia, seja rápido e entregue os dados antes dos seus adversários.
 
 ## Universo
 
@@ -70,21 +68,13 @@ São corredores especiais da rede que permitem ao Courier se movimentar em alta 
 
 #### Personagens
 
-(OBS: É um jogo multiplayer de 2 a 8 jogadores. Não existem personagens com estilos, personalidades ou habilidades próprias. O que diferencia os jogadores são as cores escolhidas antes da partida.)
+(OBS: É um jogo multiplayer de 2 a 4 jogadores. Não existem personagens com estilos, personalidades ou habilidades próprias. O que diferencia os jogadores são as cores escolhidas antes da partida.)
 
 O primeiro jogador poderá escolher entre todas as cores disponíveis, o segundo terá as opções restantes e assim sucessivamente.
 
 Cores:
 
 -Rosa
-
--Vermelho
-
--Verde
-
--Amarelo
-
--Roxo
 
 -Laranja
 
@@ -96,9 +86,9 @@ Cores:
 
 ##### Network District
 
-A arena representa uma região da rede digital controlada por uma grande corporação.
+A cidade representa uma região da rede digital controlada por uma grande corporação.
 
-O mapa possui uma visão superior 2D e é construído para permitir que todos os jogadores tenham diversas opções de rota.
+O mapa possui uma visão superior (top-down) 2D e é construído para permitir que todos os jogadores tenham diversas opções de rota.
 
 Existem corredores, áreas abertas, atalhos, obstáculos, terminais e Data Lanes espalhados pela arena.
 
@@ -122,21 +112,21 @@ O grande diferencial do Courier.exe é a mudança de objetivo durante a partida.
 
 Inicialmente, todos os jogadores estão procurando o mesmo objetivo.
 
-Após um jogador conseguir desbloquear o Data Core, todos passam a persegui-lo.
+Após o jogador conseguir desbloquear o Data Core, os robôs passam a persegui-lo e seu objetivo se torna chegar ao Extraction Point antes dos seus adversaŕios e sem ser impedido.
 
-O jogo possui três momentos principais:
+#### O jogo possui três momentos principais:
 
-#### 1. Localização:
+##### 1. Localização:
 
-Os jogadores exploram a arena procurando pelo Terminal.
+Os jogadores exploram a cidade procurando pelo Terminal.
 
-#### 2. Criptografia:
+##### 2. Criptografia:
 
-O primeiro jogador que encontrar o Terminal precisa resolver o Crypto Break para desbloquear o Data Core.
+Após o jogador encontrar o Terminal precisa resolver o Crypto Break para desbloquear o Data Core.
 
-#### 3. Fuga:
+##### 3. Fuga:
 
-Após obter o Data Core, o jogador precisa chegar ao Extraction Point enquanto os outros jogadores tentam interceptá-lo.
+Após obter o Data Core, o jogador precisa chegar ao Extraction Point antes dos outros jogadores, sem ser interceptádo.
 
 ### Crypto Break
 
@@ -158,27 +148,13 @@ O objetivo é que o jogador consiga resolver o desafio rapidamente, mas sob pres
 
 #### O Risco:
 
-Enquanto um jogador está resolvendo o Crypto Break, os outros continuam livres para chegar ao Terminal.
+Enquanto um jogador está resolvendo o Crypto Break, os seu adversários continuam livres para chegar a outros Terminais e resolverem o Crypto Break também.
 
 Caso o jogador erre, poderá tentar novamente.
-
-Isso cria uma disputa pelo acesso ao Data Core.
 
 ### A Disputa Pelo Data Core
 
 O primeiro jogador que resolver corretamente a criptografia obtém o Data Core.
-
-Nesse momento, a partida muda completamente.
-
-O portador recebe:
-
-> DATA CORE ACQUIRED
-
-Enquanto os demais jogadores recebem:
-
-> INTERCEPT THE COURIER
-
-A posição do portador passa a ser uma informação importante para todos.
 
 ### A Fuga
 
@@ -186,7 +162,7 @@ O jogador que possui o Data Core precisa chegar ao Extraction Point.
 
 O ponto de extração aparece no mapa assim que o Data Core é obtido.
 
-O portador deve escolher sua rota enquanto tenta evitar os outros jogadores.
+O portador deve escolher sua rota enquanto tenta evitar os obstáculos
 
 #### O Risco:
 
@@ -200,17 +176,15 @@ Uma Data Lane pode aumentar a velocidade, mas também tornar o movimento mais f�
 
 ### Interceptação
 
-Quando os jogadores conseguem alcançar o portador, o Data Core pode ser transferido.
+Quando os robos conseguem alcançar o portador, o Data Core é perdido.
 
 O antigo portador perde os dados.
 
-O novo jogador passa a ser o Courier responsável pela fuga.
-
-Isso permite que o objetivo mude de jogador várias vezes durante uma partida.
+se o jogador perder o Data Core, ele continua de onde parou, e pode pegar um outro Data Core em outro ponto.
 
 ### Data Lanes
 
-As Data Lanes são corredores especiais que aumentam temporariamente a velocidade do Courier.
+As Data Lanes são corredores especiais que aumentam temporariamente a velocidade do Courier. Eles ficam em determinadas ruas.
 
 #### O Boost:
 
@@ -254,25 +228,9 @@ O Dash possui cooldown e deve ser utilizado de maneira estratégica.
 
 ### Táticas de Elite
 
-#### Antecipação de Rota:
-
-Um perseguidor experiente pode observar a direção do portador e tentar chegar ao Extraction Point antes dele.
-
-Em vez de perseguir diretamente, o jogador tenta cortar o caminho.
-
 #### Fuga Imprevisível:
 
 O portador pode utilizar rotas alternativas e mudar de direção para dificultar a previsão de seus movimentos.
-
-#### Armadilha de Data Lane:
-
-Um perseguidor pode esperar próximo à saída de uma Data Lane e interceptar o portador quando ele sair do corredor de alta velocidade.
-
-#### Controle do Terminal:
-
-Durante a fase inicial, controlar a região próxima ao Terminal pode ser vantajoso.
-
-Um jogador pode encontrar o Terminal e tentar resolver o Crypto Break antes que os adversários consigam chegar.
 
 ## Estilo de Partida
 
@@ -329,4 +287,6 @@ Como o jogo será utilizado em uma feira de jogos, os jogadores recebem **tijoli
 
 ## Monetização
 
-A versão desenvolvida para a feira não possui monetização tradicional.
+### Para vender o jogo: Venda de mapas, habilidades e acessórios de sobrevivências.
+
+### Orçamento do jogo: 
