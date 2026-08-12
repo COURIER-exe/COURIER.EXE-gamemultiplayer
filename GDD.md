@@ -1,16 +1,14 @@
-Sim KKKKK. Agora vamos deixar **um GDD de verdade**, enxuto e útil pra programação. Mantive as decisões importantes do Courier.exe e tirei tudo que era repetição ou detalhe que podemos definir depois.
-
 # COURIER.EXE - Game Design Document
 
 ## Visão Geral
 
-**Courier.exe** é um jogo 2D multiplayer competitivo de ação e raciocínio, ambientado em uma rede digital controlada por grandes corporações.
+**Courier.exe** é um jogo 2D multiplayer competitivo de ação e raciocínio, ambientado em uma cidade controlada por grandes corporações.
 
-De 2 a 8 jogadores assumem o papel de **Couriers**, invasores responsáveis por encontrar e roubar um **Data Core** protegido por criptografia.
+De 2 a 4 jogadores assumem o papel de **Couriers**, invasores responsáveis por encontrar e roubar um **Data Core** protegido por criptografia.
 
-O jogador precisa encontrar um terminal, resolver uma criptografia simples e, caso seja o primeiro, roubar o Data Core.
+O jogador precisa encontrar um terminal, resolver uma criptografia simples e roubar o Data Core.
 
-A partir desse momento, começa uma perseguição: o portador precisa chegar ao **Extraction Point**, enquanto os demais jogadores tentam interceptá-lo.
+A partir desse momento, começa uma perseguição: o jogador que já obter o Data Core precisa chegar ao **Extraction Point**.
 
 O jogo foi projetado para partidas rápidas e competitivas em uma **feira de jogos**, onde os vencedores recebem **tijolinhos**, a moeda utilizada para trocar por recompensas.
 
