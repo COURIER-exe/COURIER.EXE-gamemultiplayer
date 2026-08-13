@@ -82,7 +82,6 @@ O diferencial visual é a cor escolhida antes da partida.
 ### Cores
 
 * Rosa
-* Roxo
 * Laranja
 * Branco
 * Ciano
@@ -93,12 +92,12 @@ Cada jogador utiliza uma cor diferente.
 
 ## Estrutura
 
-O jogo utiliza uma arena **2D Top-Down** representando uma área da rede digital.
+O jogo utiliza uma arena **2D Top-Down** representando uma área da cidade.
 
 O mapa possui:
 
 * Corredores
-* Paredes
+* Prédios
 * Áreas abertas
 * Atalhos
 * Obstáculos
@@ -128,7 +127,7 @@ Resolver a Criptografia
 ↓
 Obter o Data Core
 ↓
-Perseguição
+Fuga
 ↓
 Extração
 ↓
@@ -158,25 +157,19 @@ Os desafios podem utilizar:
 * Símbolos
 * Padrões
 
-O desafio deve durar aproximadamente **5 a 30 segundos**.
-
 Caso o jogador erre, pode tentar novamente.
 
-Enquanto isso, outros jogadores podem chegar ao terminal.
+Enquanto isso, outros jogadores podem chegar a outros terminais e resolverem outras criptogrias.
 
 ## Data Core
 
-O primeiro jogador que resolver corretamente a criptografia obtém o Data Core.
+O jogador que resolver corretamente a criptografia obtém o Data Core.
 
 A partir desse momento:
 
 > **DATA CORE STOLEN**
 
 O objetivo do portador passa a ser chegar ao Extraction Point.
-
-Os demais jogadores recebem o objetivo:
-
-> **INTERCEPT THE COURIER**
 
 ## Perseguição
 
@@ -188,7 +181,7 @@ Os jogadores podem utilizar:
 * Dash
 * Antecipação de movimento
 
-O Data Core pode mudar de dono caso o portador seja interceptado.
+O Data Core pode ser perdido caso o portador seja interceptado.
 
 ## Extraction Point
 
@@ -235,14 +228,14 @@ Isso cria uma escolha entre:
 
 **Velocidade x Segurança**
 
-Uma rota rápida pode ser previsível e facilitar a interceptação.
+Uma rota rápida pode ser previsível e facilitar a interceptação pelos robôs seguranças da rede.
 
 # Multiplayer
 
 ## Jogadores
 
 * Mínimo: **2**
-* Máximo: **8**
+* Máximo: **4**
 
 Todos participam da mesma partida simultaneamente.
 
@@ -277,13 +270,13 @@ O servidor mantém o estado oficial da partida.
 
 As partidas devem durar aproximadamente:
 
-**3 a 5 minutos.**
+**5 minutos**
 
 O jogo precisa ser rápido o suficiente para permitir que vários visitantes joguem durante a feira.
 
 # Vitória
 
-O jogador vence ao concluir a extração do Data Core.
+O jogador vence ao concluir a extração do Data Core e entrega-lá ao Extration ponte.
 
 Não existem vantagens permanentes entre jogadores.
 
@@ -377,15 +370,14 @@ A vitória deve gerar mais tijolinhos.
 
 A versão da feira não possui monetização tradicional.
 
-Caso o jogo seja transformado em um produto comercial futuramente, poderão existir itens cosméticos:
+Caso o jogo seja transformado em um produto comercial futuramente, poderão existir itens:
 
-* Skins
+* Habilidades
+* Acessórios de sobrevivências.
 * Efeitos de Dash
 * Efeitos de partículas
 * Rastros
 * Mapas
-
-Nenhum item deve oferecer vantagem competitiva.
 
 # Objetivos do Projeto
 
@@ -415,7 +407,7 @@ Criar um jogo multiplayer 2D rápido, competitivo e fácil de aprender para uma 
 * [ ] Criar cena principal
 * [ ] Criar Courier
 * [ ] Criar movimentação
-* [ ] Criar arena
+* [ ] Criar mapa
 * [ ] Criar colisões
 * [ ] Criar Dash
 
@@ -465,7 +457,7 @@ Criar um jogo multiplayer 2D rápido, competitivo e fácil de aprender para uma 
 
 ## Nome
 
-**Courier.exe**
+**COURIER.EXE**
 
 ## Slogan
 
@@ -473,32 +465,8 @@ Criar um jogo multiplayer 2D rápido, competitivo e fácil de aprender para uma 
 
 ## Frase de Impacto
 
-> **Pense rápido. Corra mais rápido. Entregue os dados.**
+> **Quebre a criptografia, seja rápido e entregue os dados antes dos seus adversários.**
 
 ## Loop Principal
 
 **Explorar → Encontrar → Decifrar → Roubar → Fugir → Extrair → Recompensa**
-
-# Status
-
-**Em desenvolvimento**
-
-## Stack Atual
-
-* Phaser 3.90.0
-* TypeScript 7
-* Vite 8
-* Visual Studio Code
-* Git
-* GitHub
-
-## Próxima Etapa
-
-Criar o primeiro protótipo jogável com:
-
-* Arena
-* Courier
-* Movimentação
-* Colisões
-* Câmera
-* Dash
