@@ -42,7 +42,7 @@ Grandes corporações controlam uma enorme rede digital e protegem informações
 
 Os **Couriers** são invasores que trabalham transportando informações ilegais através dessa rede.
 
-O jogador precisa invadir o sistema, roubar os dados e escapar antes de ser interceptado.
+O jogador precisa invadir o sistema, roubar os dados e entrega-los antes de ser interceptado.
 
 ## Referências
 
@@ -82,9 +82,6 @@ O diferencial visual é a cor escolhida antes da partida.
 ### Cores
 
 * Rosa
-* Vermelho
-* Verde
-* Amarelo
 * Roxo
 * Laranja
 * Branco
