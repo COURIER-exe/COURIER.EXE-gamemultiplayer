@@ -60,3 +60,4 @@ crash.log
 /[Pp]rojectSettings/GraphicsSettings.asset
 /[Pp]rojectSettings/AudioManager.asset
 /[Pp]rojectSettings/ProjectSettings.asset
+node_modules/

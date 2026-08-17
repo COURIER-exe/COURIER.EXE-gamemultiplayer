@@ -1,8 +1,8 @@
 import Phaser from "phaser";
 import "./style.css";
-import { GameScene } from "./scenes/GameScene";
+import { GameScene } from "./scenes/GameScene.js";
 
-const config: Phaser.Types.Core.GameConfig = {
+const config = {
     type: Phaser.AUTO,
 
     width: 1280,
@@ -15,6 +15,13 @@ const config: Phaser.Types.Core.GameConfig = {
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH
+    },
+
+    physics: {
+        default: "arcade",
+        arcade: {
+            debug: false
+        }
     },
 
     scene: [GameScene]
