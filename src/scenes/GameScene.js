@@ -34,6 +34,37 @@ export class GameScene extends Phaser.Scene {
             0x00ffff
         );
 
+        // Ponto de entrega
+        this.delivery = this.add.rectangle(
+            1100,
+            600,
+            40,
+            40,
+            0xff00ff
+        );
+
+        this.deliveryGroup =
+            this.physics.add.staticGroup();
+
+        this.deliveryGroup.add(
+            this.delivery
+        );
+        // Ponto de coleta do pacote
+this.pickup = this.add.rectangle(
+    180,
+    120,
+    40,
+    40,
+    0xffff00
+);
+
+this.pickupGroup =
+    this.physics.add.staticGroup();
+
+this.pickupGroup.add(
+    this.pickup
+);
+
         this.physics.add.existing(this.player);
 
         this.playerBody = this.player.body;
@@ -49,6 +80,23 @@ export class GameScene extends Phaser.Scene {
             this.player,
             this.walls
         );
+
+        // Colisão Courier x ponto de entrega
+        this.physics.add.overlap(
+            this.player,
+            this.deliveryGroup,
+            this.completeDelivery,
+            null,
+            this
+        );
+        // Colisão Courier x ponto de coleta
+this.physics.add.overlap(
+    this.player,
+    this.pickupGroup,
+    this.collectPackage,
+    null,
+    this
+);
 
         // Controles
         this.cursors =
@@ -79,7 +127,7 @@ export class GameScene extends Phaser.Scene {
         let velocityX = 0;
         let velocityY = 0;
 
-        // Movimento
+        // Movimento para esquerda
         if (
             this.cursors.left.isDown ||
             this.wasd.A.isDown
@@ -87,6 +135,7 @@ export class GameScene extends Phaser.Scene {
             velocityX = -speed;
         }
 
+        // Movimento para direita
         if (
             this.cursors.right.isDown ||
             this.wasd.D.isDown
@@ -94,6 +143,7 @@ export class GameScene extends Phaser.Scene {
             velocityX = speed;
         }
 
+        // Movimento para cima
         if (
             this.cursors.up.isDown ||
             this.wasd.W.isDown
@@ -101,6 +151,7 @@ export class GameScene extends Phaser.Scene {
             velocityY = -speed;
         }
 
+        // Movimento para baixo
         if (
             this.cursors.down.isDown ||
             this.wasd.S.isDown
@@ -108,20 +159,23 @@ export class GameScene extends Phaser.Scene {
             velocityY = speed;
         }
 
+        // Aplica velocidade
         this.playerBody.setVelocity(
             velocityX,
             velocityY
         );
 
-        // Distância percorrida desde o último pedaço do rastro
-        const distance = Phaser.Math.Distance.Between(
-            this.lastTrailX,
-            this.lastTrailY,
-            this.player.x,
-            this.player.y
-        );
+        // Distância desde o último pedaço do rastro
+        const distance =
+            Phaser.Math.Distance.Between(
+                this.lastTrailX,
+                this.lastTrailY,
+                this.player.x,
+                this.player.y
+            );
 
-        // Cria um novo segmento a cada 12 pixels
+        // Cria um novo pedaço do rastro
+        // a cada 12 pixels
         if (
             distance >= 12 &&
             (velocityX !== 0 || velocityY !== 0)
@@ -134,34 +188,110 @@ export class GameScene extends Phaser.Scene {
     }
 
     createTrail() {
-        // Cria uma linha entre a posição anterior
-        // e a posição atual do Courier
-        const trail = this.add.graphics();
-
-        trail.lineStyle(
-            8,
-            0x00ffff,
-            1
-        );
-
-        trail.lineBetween(
+        const trail = this.add.rectangle(
             this.lastTrailX,
             this.lastTrailY,
-            this.player.x,
-            this.player.y
+            12,
+            12,
+            0x00ffff
         );
 
-        // Faz o segmento desaparecer depois de 2 segundos
+        // Adiciona à lista de rastros
+        this.trail.push(trail);
+
+        // Faz o rastro desaparecer
+        // depois de 2 segundos
         this.tweens.add({
             targets: trail,
             alpha: 0,
             duration: 2000,
+
             onComplete: () => {
                 trail.destroy();
+
+                const index =
+                    this.trail.indexOf(trail);
+
+                if (index !== -1) {
+                    this.trail.splice(index, 1);
+                }
             }
         });
+    }
+collectPackage() {
+    console.log("Pacote coletado!");
 
-        this.trail.push(trail);
+    // Remove o ponto de coleta
+    this.pickup.destroy();
+
+    // Texto principal
+    const pickupText = this.add.text(
+        640,
+        300,
+        "PACOTE COLETADO!",
+        {
+            fontFamily: "Arial",
+            fontSize: "48px",
+            fontStyle: "bold",
+            color: "#ffff00"
+        }
+    ).setOrigin(0.5);
+
+    // Texto secundário
+    const pickupSubText = this.add.text(
+        640,
+        355,
+        "Leve o pacote até o destino.",
+        {
+            fontFamily: "Arial",
+            fontSize: "22px",
+            color: "#ffffff"
+        }
+    ).setOrigin(0.5);
+
+    // Remove as mensagens depois de 2 segundos
+    this.time.delayedCall(2000, () => {
+        pickupText.destroy();
+        pickupSubText.destroy();
+    });
+}
+
+    completeDelivery() {
+        console.log("Entrega concluída!");
+
+        // Remove o ponto de entrega
+        this.delivery.destroy();
+
+        // Texto principal
+        const deliveryText = this.add.text(
+            640,
+            300,
+            "ENTREGA CONCLUÍDA!",
+            {
+                fontFamily: "Arial",
+                fontSize: "48px",
+                fontStyle: "bold",
+                color: "#00ffff"
+            }
+        ).setOrigin(0.5);
+
+        // Texto secundário
+        const deliverySubText = this.add.text(
+            640,
+            355,
+            "Pacote entregue com sucesso.",
+            {
+                fontFamily: "Arial",
+                fontSize: "22px",
+                color: "#ffffff"
+            }
+        ).setOrigin(0.5);
+
+        // Remove as mensagens depois de 2 segundos
+        this.time.delayedCall(2000, () => {
+            deliveryText.destroy();
+            deliverySubText.destroy();
+        });
     }
 
     createGrid() {
@@ -175,6 +305,7 @@ export class GameScene extends Phaser.Scene {
 
         const gridSize = 40;
 
+        // Linhas verticais
         for (
             let x = 0;
             x <= 1280;
@@ -188,6 +319,7 @@ export class GameScene extends Phaser.Scene {
             );
         }
 
+        // Linhas horizontais
         for (
             let y = 0;
             y <= 720;
