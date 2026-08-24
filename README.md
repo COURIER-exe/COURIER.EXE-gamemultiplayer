@@ -72,14 +72,22 @@ São corredores especiais da rede que permitem ao Courier se movimentar em alta 
 
 O primeiro jogador poderá escolher entre todas as cores disponíveis, o segundo terá as opções restantes e assim sucessivamente.
 
-Cores:
+Hair:
 
--Rosa
+-Short
+-Long
 
--Laranja
+Cores (pele):
 
+-Light
+-Taupe
+-Black
+
+Cores (roupa/cabelo):
+
+-Roxo
+-Vermelho
 -Branco
-
 -Ciano
 
 #### Mapa

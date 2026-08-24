@@ -58,7 +58,7 @@ O jogador precisa invadir o sistema, roubar os dados e entrega-los antes de ser 
 * Neon White
 * Hotline Miami
 * Mirror's Edge
-
+3456
 ## Estilo
 
 * Cyberpunk
@@ -81,8 +81,8 @@ O diferencial visual é a cor escolhida antes da partida.
 
 ### Cores
 
-* Rosa
-* Laranja
+* Roxo
+* Vermelho
 * Branco
 * Ciano
 
