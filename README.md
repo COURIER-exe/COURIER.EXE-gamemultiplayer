@@ -62,26 +62,11 @@ Quebre a criptografia, seja rápido e entregue os dados antes dos seus adversár
 
 É o ponto de extração para onde o portador precisa levar o Data Core para vencer.
 
-##### Data Lane:
-
-São corredores especiais da rede que permitem ao Courier se movimentar em alta velocidade.
-
 #### Personagens
 
 (OBS: É um jogo multiplayer de 2 a 4 jogadores. Não existem personagens com estilos, personalidades ou habilidades próprias. O que diferencia os jogadores são as cores escolhidas antes da partida.)
 
 O primeiro jogador poderá escolher entre todas as cores disponíveis, o segundo terá as opções restantes e assim sucessivamente.
-
-Hair:
-
--Short
--Long
-
-Cores (pele):
-
--Light
--Taupe
--Black
 
 Cores (roupa/cabelo):
 

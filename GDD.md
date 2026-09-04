@@ -22,7 +22,6 @@ O jogo foi projetado para partidas rápidas e competitivas em uma **feira de jog
 
 ## Plataforma
 
-* PC
 * Navegador
 
 ## Tecnologia
@@ -34,9 +33,9 @@ O jogo foi projetado para partidas rápidas e competitivas em uma **feira de jog
 * **Versionamento:** Git + GitHub
 * **Multiplayer:** WebSocket / Colyseus
 
-# Universo
+## Universo
 
-## Contexto
+### Contexto
 
 Grandes corporações controlam uma enorme rede digital e protegem informações valiosas através de sistemas de segurança e criptografia.
 
@@ -44,22 +43,22 @@ Os **Couriers** são invasores que trabalham transportando informações ilegais
 
 O jogador precisa invadir o sistema, roubar os dados e entrega-los antes de ser interceptado.
 
-## Referências
+### Referências
 
-### Filmes
+#### Filmes
 
 * TRON (1982)
 * TRON: O Legado (2010)
 * TRON: Ares (2025)
 
-### Jogos
+#### Jogos
 
 * TRON Light Cycles
 * Neon White
 * Hotline Miami
 * Mirror's Edge
-3456
-## Estilo
+
+### Estilo
 
 * Cyberpunk
 * Synthwave
@@ -69,9 +68,9 @@ O jogador precisa invadir o sistema, roubar os dados e entrega-los antes de ser 
 * Fundo escuro
 * Alto contraste
 
-# Personagens
+## Personagens
 
-## Courier
+### Courier
 
 Todos os jogadores controlam o mesmo tipo de personagem.
 
@@ -88,9 +87,9 @@ O diferencial visual é a cor escolhida antes da partida.
 
 Cada jogador utiliza uma cor diferente.
 
-# Mapa
+## Mapa
 
-## Estrutura
+### Estrutura
 
 O jogo utiliza uma arena **2D Top-Down** representando uma área da cidade.
 
@@ -108,9 +107,9 @@ O mapa possui:
 
 O mapa deve possuir múltiplas rotas para permitir perseguições e estratégias diferentes.
 
-# Gameplay
+## Gameplay
 
-## Fluxo da Partida
+### Fluxo da Partida
 
 ```text
 Lobby
@@ -136,7 +135,7 @@ Vitória
 Recompensa
 ```
 
-## Exploração
+### Exploração
 
 Todos os jogadores começam em pontos diferentes do mapa.
 
@@ -146,7 +145,7 @@ O objetivo inicial é:
 
 > **FIND THE TERMINAL**
 
-## Crypto Break
+### Crypto Break
 
 Ao encontrar o terminal, o jogador precisa resolver uma criptografia simples.
 
@@ -161,7 +160,7 @@ Caso o jogador erre, pode tentar novamente.
 
 Enquanto isso, outros jogadores podem chegar a outros terminais e resolverem outras criptogrias.
 
-## Data Core
+### Data Core
 
 O jogador que resolver corretamente a criptografia obtém o Data Core.
 
@@ -171,19 +170,18 @@ A partir desse momento:
 
 O objetivo do portador passa a ser chegar ao Extraction Point.
 
-## Perseguição
+### Perseguição
 
 Os jogadores podem utilizar:
 
 * Rotas alternativas
 * Atalhos
-* Data Lanes
 * Dash
 * Antecipação de movimento
 
 O Data Core pode ser perdido caso o portador seja interceptado.
 
-## Extraction Point
+### Extraction Point
 
 Após o Data Core ser obtido, um Extraction Point aparece no mapa.
 
@@ -195,17 +193,11 @@ Ao concluir:
 
 O jogador vence a partida.
 
-# Movimentação
+## Movimentação
 
 O Courier possui movimentação rápida em quatro direções.
 
-### Controles
-
-* **WASD:** Movimento
-* **Setas:** Movimento alternativo
-* **Espaço:** Dash
-
-## Dash
+### Dash
 
 O Dash permite realizar um deslocamento rápido.
 
@@ -218,28 +210,16 @@ Pode ser utilizado para:
 
 Possui cooldown para evitar uso constante.
 
-# Data Lanes
+## Multiplayer
 
-As **Data Lanes** são corredores especiais que aumentam temporariamente a velocidade do Courier.
-
-Podem possuir limitações de movimentação.
-
-Isso cria uma escolha entre:
-
-**Velocidade x Segurança**
-
-Uma rota rápida pode ser previsível e facilitar a interceptação pelos robôs seguranças da rede.
-
-# Multiplayer
-
-## Jogadores
+### Jogadores
 
 * Mínimo: **2**
 * Máximo: **4**
 
 Todos participam da mesma partida simultaneamente.
 
-## Sincronização
+### Sincronização
 
 O multiplayer deve sincronizar:
 
@@ -254,7 +234,7 @@ O multiplayer deve sincronizar:
 * Extraction Point
 * Estado da partida
 
-## Arquitetura
+### Arquitetura
 
 ```text
 Cliente
@@ -266,7 +246,7 @@ Clientes
 
 O servidor mantém o estado oficial da partida.
 
-# Duração
+## Duração
 
 As partidas devem durar aproximadamente:
 
@@ -274,7 +254,7 @@ As partidas devem durar aproximadamente:
 
 O jogo precisa ser rápido o suficiente para permitir que vários visitantes joguem durante a feira.
 
-# Vitória
+## Vitória
 
 O jogador vence ao concluir a extração do Data Core e entrega-lá ao Extration ponte.
 
@@ -287,7 +267,7 @@ A vitória depende de:
 * Estratégia
 * Conhecimento do mapa
 
-# Recompensas
+## Recompensas
 
 A feira utiliza **tijolinhos** como moeda para trocar por recompensas.
 
@@ -300,9 +280,9 @@ A feira utiliza **tijolinhos** como moeda para trocar por recompensas.
 
 Os valores podem ser alterados durante os testes da feira.
 
-# Direção de Arte
+## Direção de Arte
 
-## Visual
+### Visual
 
 * Cyberpunk
 * Synthwave
@@ -313,19 +293,19 @@ Os valores podem ser alterados durante os testes da feira.
 * Partículas
 * Efeitos luminosos
 
-## Courier
+### Courier
 
 Design simples e facilmente identificável.
 
 Cada jogador possui uma cor diferente.
 
-## Data Core
+### Data Core
 
 O Data Core deve ser visualmente chamativo, utilizando brilho e partículas para indicar seu estado.
 
-# Áudio
+### Áudio
 
-## Música
+#### Música
 
 Estilo:
 
@@ -333,7 +313,7 @@ Estilo:
 * Darksynth
 * Electronic
 
-## Efeitos
+### Efeitos
 
 * Countdown
 * Terminal
@@ -346,27 +326,27 @@ Estilo:
 * Extração
 * Vitória
 
-# Design para a Feira
+### Design para a Feira
 
 O jogo deve seguir quatro princípios:
 
-### Fácil de entender
+#### Fácil de entender
 
 O jogador deve compreender o objetivo em poucos segundos.
 
-### Rápido
+#### Rápido
 
 Uma partida deve durar poucos minutos.
 
-### Competitivo
+#### Competitivo
 
 Os jogadores devem sentir vontade de vencer seus amigos.
 
-### Recompensador
+#### Recompensador
 
 A vitória deve gerar mais tijolinhos.
 
-# Monetização
+## Monetização
 
 A versão da feira não possui monetização tradicional.
 
@@ -379,13 +359,13 @@ Caso o jogo seja transformado em um produto comercial futuramente, poderão exis
 * Rastros
 * Mapas
 
-# Objetivos do Projeto
+## Objetivos do Projeto
 
-## Objetivo Principal
+### Objetivo Principal
 
 Criar um jogo multiplayer 2D rápido, competitivo e fácil de aprender para uma feira de jogos.
 
-## Objetivos Técnicos
+### Objetivos Técnicos
 
 * Desenvolver um jogo utilizando Phaser 3.
 * Utilizar TypeScript.
@@ -394,9 +374,9 @@ Criar um jogo multiplayer 2D rápido, competitivo e fácil de aprender para uma 
 * Criar um sistema simples de puzzle.
 * Criar uma experiência multiplayer competitiva.
 
-# Roadmap
+## Roadmap
 
-## Fase 1 - Protótipo
+### Fase 1 - Protótipo
 
 * [x] Conceito
 * [x] GDD
@@ -411,7 +391,7 @@ Criar um jogo multiplayer 2D rápido, competitivo e fácil de aprender para uma 
 * [ ] Criar colisões
 * [ ] Criar Dash
 
-## Fase 2 - Gameplay
+### Fase 2 - Gameplay
 
 * [ ] Criar Terminal
 * [ ] Criar Crypto Break
@@ -422,7 +402,7 @@ Criar um jogo multiplayer 2D rápido, competitivo e fácil de aprender para uma 
 * [ ] Criar tela de resultado
 * [ ] Criar sistema de recompensas
 
-## Fase 3 - Multiplayer
+### Fase 3 - Multiplayer
 
 * [ ] Criar servidor
 * [ ] Criar lobby
@@ -432,7 +412,7 @@ Criar um jogo multiplayer 2D rápido, competitivo e fácil de aprender para uma 
 * [ ] Suportar 2 jogadores
 * [ ] Testar até 8 jogadores
 
-## Fase 4 - Polimento
+### Fase 4 - Polimento
 
 * [ ] Arte final
 * [ ] Efeitos neon
@@ -443,7 +423,7 @@ Criar um jogo multiplayer 2D rápido, competitivo e fácil de aprender para uma 
 * [ ] Balanceamento
 * [ ] Testes com jogadores
 
-## Fase 5 - Feira
+### Fase 5 - Feira
 
 * [ ] Build final
 * [ ] Teste multiplayer
@@ -453,20 +433,20 @@ Criar um jogo multiplayer 2D rápido, competitivo e fácil de aprender para uma 
 * [ ] Preparação dos computadores
 * [ ] Teste final
 
-# Identidade
+## Identidade
 
-## Nome
+### Nome
 
 **COURIER.EXE**
 
-## Slogan
+### Slogan
 
 > **BREAK THE CODE. RUN THE NETWORK.**
 
-## Frase de Impacto
+### Frase de Impacto
 
 > **Quebre a criptografia, seja rápido e entregue os dados antes dos seus adversários.**
 
-## Loop Principal
+### Loop Principal
 
 **Explorar → Encontrar → Decifrar → Roubar → Fugir → Extrair → Recompensa**
