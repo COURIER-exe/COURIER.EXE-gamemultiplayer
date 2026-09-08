@@ -106,6 +106,12 @@ export class Preloader extends Phaser.Scene {
       "parking_striped",
       "assets/map/Roads/parking_striped.png",
     );
+
+    this.load.spritesheet(
+      "player-ciano",
+      "assets/personagens/character Ciano-ShortHair-Light.png",
+      { frameWidth: 64, frameHeight: 64 },
+    );
   }
 
   create() {

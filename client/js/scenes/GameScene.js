@@ -326,35 +326,60 @@ export class GameScene extends Phaser.Scene {
       parkingStripedTileset,
     ]);
 
+    // O mapa infinito possui chunks que começam em -32 e terminam em 96 tiles.
+    const tileSize = this.map.tileWidth;
+    const mapLeft = -32 * tileSize;
+    const mapTop = -32 * tileSize;
+    const mapWidth = 128 * tileSize;
+    const mapHeight = 128 * tileSize;
 
-   
+    this.physics.world.setBounds(mapLeft, mapTop, mapWidth, mapHeight);
+    this.cameras.main.setBounds(mapLeft, mapTop, mapWidth, mapHeight);
+    this.cameras.main.setZoom(1.5);
 
-    
+    const mapRight = mapLeft + mapWidth;
+    const mapBottom = mapTop + mapHeight;
+    const positionMargin = 64;
+    const deliveryX = mapLeft + mapWidth / 2;
+    const deliveryY = mapTop + mapHeight / 2;
+    const randomMapPosition = () => ({
+      x: Phaser.Math.Between(mapLeft + positionMargin, mapRight - positionMargin),
+      y: Phaser.Math.Between(mapTop + positionMargin, mapBottom - positionMargin),
+    });
 
-    this.physics.world.setBounds(0, 0, 1280, 720);
+    const playerPosition = randomMapPosition();
+    let pickupPosition = randomMapPosition();
+
+    while (
+      Phaser.Math.Distance.Between(
+        pickupPosition.x,
+        pickupPosition.y,
+        deliveryX,
+        deliveryY,
+      ) < 160
+    ) {
+      pickupPosition = randomMapPosition();
+    }
 
     // Fundo
     //this.add.rectangle(640, 360, 1280, 720, 0x05050a);
 
     // Courier
-    this.player = this.add.rectangle(640, 360, 32, 32, 0x00ffff);
+    this.player = this.add.sprite(
+      playerPosition.x,
+      playerPosition.y,
+      "player-ciano",
+      0,
+    );
+    this.player.setScale(0.5);
 
     // Ponto de entrega
-    this.delivery = this.add.rectangle(640, 360, 40, 40, 0xff00ff);
+    this.delivery = this.add.rectangle(deliveryX, deliveryY, 37, 45, 0xff00ff);
 
     this.deliveryGroup = this.physics.add.staticGroup();
 
     this.deliveryGroup.add(this.delivery);
     // Ponto de coleta do pacote
-    const housePositions = [
-      { x: 416, y: 112 },
-      { x: 576, y: 240 },
-      { x: 176, y: 496 },
-      { x: 992, y: 464 },
-      { x: 960, y: 608 },
-    ];
-    const pickupPosition = Phaser.Utils.Array.GetRandom(housePositions);
-
     this.pickup = this.add.rectangle(
       pickupPosition.x,
       pickupPosition.y,
@@ -370,6 +395,8 @@ export class GameScene extends Phaser.Scene {
     this.physics.add.existing(this.player);
 
     this.playerBody = this.player.body;
+    this.playerBody.setSize(24, 20);
+    this.playerBody.setOffset(20, 38);
 
     this.playerBody.setCollideWorldBounds(true);
 
@@ -409,7 +436,10 @@ export class GameScene extends Phaser.Scene {
 
       D: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
     };
-  }
+
+    this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+
+       }
 
   update() {
     const speed = 300;
