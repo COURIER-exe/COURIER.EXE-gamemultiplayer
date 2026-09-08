@@ -340,13 +340,28 @@ export class GameScene extends Phaser.Scene {
     this.player = this.add.rectangle(640, 360, 32, 32, 0x00ffff);
 
     // Ponto de entrega
-    this.delivery = this.add.rectangle(1100, 600, 40, 40, 0xff00ff);
+    this.delivery = this.add.rectangle(640, 360, 40, 40, 0xff00ff);
 
     this.deliveryGroup = this.physics.add.staticGroup();
 
     this.deliveryGroup.add(this.delivery);
     // Ponto de coleta do pacote
-    this.pickup = this.add.rectangle(180, 120, 40, 40, 0xffff00);
+    const housePositions = [
+      { x: 416, y: 112 },
+      { x: 576, y: 240 },
+      { x: 176, y: 496 },
+      { x: 992, y: 464 },
+      { x: 960, y: 608 },
+    ];
+    const pickupPosition = Phaser.Utils.Array.GetRandom(housePositions);
+
+    this.pickup = this.add.rectangle(
+      pickupPosition.x,
+      pickupPosition.y,
+      40,
+      40,
+      0xffff00,
+    );
 
     this.pickupGroup = this.physics.add.staticGroup();
 
