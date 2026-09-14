@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="32" tileheight="32" infinite="1" nextlayerid="5" nextobjectid="1">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="32" tileheight="32" infinite="1" nextlayerid="6" nextobjectid="36">
  <tileset firstgid="1" source="Interiors_32x32.tsx"/>
  <layer id="1" name="chao" width="30" height="20">
   <data encoding="base64">
@@ -56,4 +56,39 @@
   </chunk>
   </data>
  </layer>
+ <objectgroup id="5" name="colission">
+  <object id="1" x="-30" y="-31" width="573" height="29"/>
+  <object id="2" x="510" y="-4" width="31" height="547"/>
+  <object id="3" x="-33" y="514" width="574" height="29"/>
+  <object id="5" x="-30" y="-30" width="30" height="573"/>
+  <object id="6" x="1" y="386" width="223" height="29"/>
+  <object id="7" x="188" y="418" width="36" height="62"/>
+  <object id="8" x="385" y="387" width="128" height="28"/>
+  <object id="9" x="383" y="197" width="70" height="69"/>
+  <object id="10" x="484" y="196" width="19" height="37"/>
+  <object id="11" x="480" y="262" width="26" height="37"/>
+  <object id="12" x="326" y="195" width="22" height="39"/>
+  <object id="13" x="327" y="257" width="22" height="37"/>
+  <object id="14" x="321" y="-4" width="123" height="64"/>
+  <object id="15" x="483" y="3" width="26" height="49"/>
+  <object id="16" x="456" y="74" width="51" height="41"/>
+  <object id="17" x="350" y="80" width="67" height="38"/>
+  <object id="18" x="280" y="-16" width="38" height="209"/>
+  <object id="19" x="220" y="155" width="98" height="35"/>
+  <object id="20" x="94" y="0" width="35" height="187"/>
+  <object id="21" x="33" y="157" width="159" height="34"/>
+  <object id="22" x="123" y="-8" width="70" height="70"/>
+  <object id="23" x="201" y="4" width="12" height="61"/>
+  <object id="24" x="236" y="26" width="13" height="24"/>
+  <object id="25" x="258" y="-2" width="25" height="84"/>
+  <object id="26" x="-1" y="-7" width="34" height="71"/>
+  <object id="28" x="41" y="19" width="10" height="60"/>
+  <object id="29" x="58" y="10" width="36" height="75"/>
+  <object id="30" x="139" y="68" width="60" height="82"/>
+  <object id="31" x="10" y="327" width="14" height="45"/>
+  <object id="32" x="62" y="356" width="96" height="22"/>
+  <object id="33" x="161" y="408" width="28" height="68"/>
+  <object id="34" x="33" y="406" width="61" height="103"/>
+  <object id="35" x="485" y="324" width="23" height="50"/>
+ </objectgroup>
 </map>
