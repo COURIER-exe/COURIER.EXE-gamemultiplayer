@@ -109,7 +109,13 @@ export class Preloader extends Phaser.Scene {
 
     this.load.spritesheet(
       "player-ciano",
-      "assets/personagens/character Ciano-ShortHair-Light.png",
+      "assets/personagens/character-ciano.png",
+      { frameWidth: 64, frameHeight: 64 },
+    );
+
+    this.load.spritesheet(
+      "robo-perseguicao",
+      "assets/personagens/robo-perseguicao.png",
       { frameWidth: 64, frameHeight: 64 },
     );
   }
