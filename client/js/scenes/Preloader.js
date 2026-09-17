@@ -11,17 +11,24 @@ export class Preloader extends Phaser.Scene {
     this.add.image(640, 360, "imagemdecapa").setDisplaySize(1280, 720);
     this.add.rectangle(640, 360, 1280, 720, 0x05050a, 0.2);
 
-    const playButton = this.add.text(640, 610, "PLAY", {
-      backgroundColor: "#00d9e8",
-      color: "#061014",
-      fontFamily: "Arial",
-      fontSize: "28px",
-      fontStyle: "bold",
-      padding: { left: 42, right: 42, top: 16, bottom: 16 },
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    const playButton = this.add
+      .text(640, 610, "PLAY", {
+        backgroundColor: "#00d9e8",
+        color: "#061014",
+        fontFamily: "Arial",
+        fontSize: "28px",
+        fontStyle: "bold",
+        padding: { left: 42, right: 42, top: 16, bottom: 16 },
+      })
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true });
 
-    playButton.on("pointerover", () => playButton.setStyle({ backgroundColor: "#ffffff" }));
-    playButton.on("pointerout", () => playButton.setStyle({ backgroundColor: "#00d9e8" }));
+    playButton.on("pointerover", () =>
+      playButton.setStyle({ backgroundColor: "#ffffff" }),
+    );
+    playButton.on("pointerout", () =>
+      playButton.setStyle({ backgroundColor: "#00d9e8" }),
+    );
     playButton.on("pointerdown", () => {
       playButton.disableInteractive();
       playButton.setVisible(false);
@@ -32,8 +39,13 @@ export class Preloader extends Phaser.Scene {
   startLoading() {
     this.children.removeAll(true);
     this.add.rectangle(640, 360, 1280, 720, 0x05050a);
-    const progressBar = this.add.rectangle(380, 430, 0, 18, 0x00d9e8).setOrigin(0, 0.5);
-    this.add.rectangle(640, 430, 520, 18).setStrokeStyle(2, 0xffffff, 0.8).setOrigin(0.5);
+    const progressBar = this.add
+      .rectangle(380, 430, 0, 18, 0x00d9e8)
+      .setOrigin(0, 0.5);
+    this.add
+      .rectangle(640, 430, 520, 18)
+      .setStrokeStyle(2, 0xffffff, 0.8)
+      .setOrigin(0.5);
 
     this.loadAssets();
     this.load.on("progress", (value) => {
@@ -79,13 +91,26 @@ export class Preloader extends Phaser.Scene {
       this.load.image(key, `assets/${path}`);
     });
 
-    this.load.spritesheet("player-ciano", "assets/personagens/character-ciano.png", {
-      frameWidth: 64,
-      frameHeight: 64,
+    const characterPaths = {
+      ciano: "assets/personagens/character-ciano.png",
+      branco: "assets/personagens/character-branco.png",
+      vermelho: "assets/personagens/character-vermelho.png",
+      roxo: "assets/personagens/character-roxo.png",
+    };
+
+    Object.entries(characterPaths).forEach(([color, path]) => {
+      this.load.spritesheet(`player-${color}`, path, {
+        frameWidth: 64,
+        frameHeight: 64,
+      });
     });
-    this.load.spritesheet("robo-perseguicao", "assets/personagens/robo-perseguicao.png", {
-      frameWidth: 64,
-      frameHeight: 64,
-    });
+    this.load.spritesheet(
+      "robo-perseguicao",
+      "assets/personagens/robo-perseguicao.png",
+      {
+        frameWidth: 64,
+        frameHeight: 64,
+      },
+    );
   }
 }

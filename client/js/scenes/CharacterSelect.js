@@ -24,18 +24,21 @@ export class CharacterSelect extends Phaser.Scene {
     ];
     options.forEach(([label, color], index) => {
       const x = 190 + index * 300;
-      const swatch = this.add.rectangle(x, 360, 110, 110, this.colors[color])
+      const swatch = this.add
+        .rectangle(x, 360, 110, 110, this.colors[color])
         .setInteractive({ useHandCursor: true });
-      const text = this.add.text(x, 525, label, {
-        color: "#ffffff",
-        fontFamily: "Arial",
-        fontSize: "16px",
-        fontStyle: "bold",
-      }).setOrigin(0.5);
+      const text = this.add
+        .text(x, 525, label, {
+          color: "#ffffff",
+          fontFamily: "Arial",
+          fontSize: "16px",
+          fontStyle: "bold",
+        })
+        .setOrigin(0.5);
       swatch.on("pointerdown", () => {
         this.selectedColor = color;
         this.scene.start("GameScene", {
-          tint: this.colors[this.selectedColor],
+          color: this.selectedColor,
         });
       });
     });

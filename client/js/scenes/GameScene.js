@@ -28,7 +28,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
-    const playerTint = this.scene.settings.data?.tint ?? 0x00e5ff;
+    const playerColor = this.scene.settings.data?.color ?? "ciano";
+    const playerTexture = `player-${playerColor}`;
     this.map = this.make.tilemap({ key: "mapaCidade" });
 
     const groundGrassEdgeTileset = this.map.addTilesetImage(
@@ -128,7 +129,6 @@ export class GameScene extends Phaser.Scene {
       "parking_striped",
     );
 
-
     const layerMar = this.map.createLayer("mar", [
       groundGrassEdgeTileset,
       groundAsphaltTileset,
@@ -157,9 +157,6 @@ export class GameScene extends Phaser.Scene {
       treeFall03Tileset,
       parkingStripedTileset,
     ]);
-
-   
-
 
     const layerborda = this.map.createLayer("borda", [
       groundWaterTileset,
@@ -191,68 +188,65 @@ export class GameScene extends Phaser.Scene {
       parkingStripedTileset,
     ]);
 
-     const layercalcada = this.map.createLayer("calcada", [
-       groundWaterTileset,
-       groundGrassEdgeTileset,
-       groundAsphaltTileset,
-       groundGrassTileset,
-       groundGrassSideTileset,
-       groundWaterTileset,
-       parkingAsphaltTileset,
-       streetStraightTileset,
-       hospitalTileset,
-       building01Tileset,
-       building02Tileset,
-       building03Tileset,
-       building04Tileset,
-       churchTileset,
-       house01Tileset,
-       house03Tileset,
-       house06Tileset,
-       house11Tileset,
-       house26Tileset,
-       house16Tileset,
-       house23Tileset,
-       policeStationTileset,
-       fireStationTileset,
-       bush01Tileset,
-       tree02Tileset,
-       treeFall03Tileset,
-       parkingStripedTileset,
-     ]);
+    const layercalcada = this.map.createLayer("calcada", [
+      groundWaterTileset,
+      groundGrassEdgeTileset,
+      groundAsphaltTileset,
+      groundGrassTileset,
+      groundGrassSideTileset,
+      groundWaterTileset,
+      parkingAsphaltTileset,
+      streetStraightTileset,
+      hospitalTileset,
+      building01Tileset,
+      building02Tileset,
+      building03Tileset,
+      building04Tileset,
+      churchTileset,
+      house01Tileset,
+      house03Tileset,
+      house06Tileset,
+      house11Tileset,
+      house26Tileset,
+      house16Tileset,
+      house23Tileset,
+      policeStationTileset,
+      fireStationTileset,
+      bush01Tileset,
+      tree02Tileset,
+      treeFall03Tileset,
+      parkingStripedTileset,
+    ]);
 
-      const layerruas = this.map.createLayer("ruas", [
-        groundWaterTileset,
-        groundGrassEdgeTileset,
-        groundAsphaltTileset,
-        groundGrassTileset,
-        groundGrassSideTileset,
-        groundWaterTileset,
-        parkingAsphaltTileset,
-        streetStraightTileset,
-        hospitalTileset,
-        building01Tileset,
-        building02Tileset,
-        building03Tileset,
-        building04Tileset,
-        churchTileset,
-        house01Tileset,
-        house03Tileset,
-        house06Tileset,
-        house11Tileset,
-        house26Tileset,
-        house16Tileset,
-        house23Tileset,
-        policeStationTileset,
-        fireStationTileset,
-        bush01Tileset,
-        tree02Tileset,
-        treeFall03Tileset,
-        parkingStripedTileset,
-      ]);
-
-    
-    
+    const layerruas = this.map.createLayer("ruas", [
+      groundWaterTileset,
+      groundGrassEdgeTileset,
+      groundAsphaltTileset,
+      groundGrassTileset,
+      groundGrassSideTileset,
+      groundWaterTileset,
+      parkingAsphaltTileset,
+      streetStraightTileset,
+      hospitalTileset,
+      building01Tileset,
+      building02Tileset,
+      building03Tileset,
+      building04Tileset,
+      churchTileset,
+      house01Tileset,
+      house03Tileset,
+      house06Tileset,
+      house11Tileset,
+      house26Tileset,
+      house16Tileset,
+      house23Tileset,
+      policeStationTileset,
+      fireStationTileset,
+      bush01Tileset,
+      tree02Tileset,
+      treeFall03Tileset,
+      parkingStripedTileset,
+    ]);
 
     const layerchao = this.map.createLayer("chao", [
       groundWaterTileset,
@@ -283,11 +277,6 @@ export class GameScene extends Phaser.Scene {
       treeFall03Tileset,
       parkingStripedTileset,
     ]);
-
-
-
-
-   
 
     const layerconstrucooes = this.map.createLayer("construcooes", [
       groundWaterTileset,
@@ -366,8 +355,14 @@ export class GameScene extends Phaser.Scene {
     const deliveryX = mapLeft + mapWidth / 2;
     const deliveryY = mapTop + mapHeight / 2;
     const randomMapPosition = () => ({
-      x: Phaser.Math.Between(mapLeft + positionMargin, mapRight - positionMargin),
-      y: Phaser.Math.Between(mapTop + positionMargin, mapBottom - positionMargin),
+      x: Phaser.Math.Between(
+        mapLeft + positionMargin,
+        mapRight - positionMargin,
+      ),
+      y: Phaser.Math.Between(
+        mapTop + positionMargin,
+        mapBottom - positionMargin,
+      ),
     });
 
     const playerPosition = randomMapPosition();
@@ -384,9 +379,10 @@ export class GameScene extends Phaser.Scene {
       pickupPosition = randomMapPosition();
     }
 
+    const playerAnimation = `player-walk-${playerColor}`;
     this.anims.create({
-      key: "player-walk",
-      frames: this.anims.generateFrameNumbers("player-ciano", {
+      key: playerAnimation,
+      frames: this.anims.generateFrameNumbers(playerTexture, {
         start: 247,
         end: 252,
       }),
@@ -395,222 +391,236 @@ export class GameScene extends Phaser.Scene {
     });
 
     this.worldLayers = [];
-    this.worldLayers.push(this.map.createLayer("mar", [
-      groundGrassEdgeTileset,
-      groundAsphaltTileset,
-      groundGrassTileset,
-      groundGrassSideTileset,
-      groundWaterTileset,
-      parkingAsphaltTileset,
-      streetStraightTileset,
-      hospitalTileset,
-      building01Tileset,
-      building02Tileset,
-      building03Tileset,
-      building04Tileset,
-      churchTileset,
-      house01Tileset,
-      house03Tileset,
-      house06Tileset,
-      house11Tileset,
-      house26Tileset,
-      house16Tileset,
-      house23Tileset,
-      policeStationTileset,
-      fireStationTileset,
-      bush01Tileset,
-      tree02Tileset,
-      treeFall03Tileset,
-      parkingStripedTileset,
-    ]));
+    this.worldLayers.push(
+      this.map.createLayer("mar", [
+        groundGrassEdgeTileset,
+        groundAsphaltTileset,
+        groundGrassTileset,
+        groundGrassSideTileset,
+        groundWaterTileset,
+        parkingAsphaltTileset,
+        streetStraightTileset,
+        hospitalTileset,
+        building01Tileset,
+        building02Tileset,
+        building03Tileset,
+        building04Tileset,
+        churchTileset,
+        house01Tileset,
+        house03Tileset,
+        house06Tileset,
+        house11Tileset,
+        house26Tileset,
+        house16Tileset,
+        house23Tileset,
+        policeStationTileset,
+        fireStationTileset,
+        bush01Tileset,
+        tree02Tileset,
+        treeFall03Tileset,
+        parkingStripedTileset,
+      ]),
+    );
 
-    this.worldLayers.push(this.map.createLayer("borda", [
-      groundWaterTileset,
-      groundGrassEdgeTileset,
-      groundAsphaltTileset,
-      groundGrassTileset,
-      groundGrassSideTileset,
-      groundWaterTileset,
-      parkingAsphaltTileset,
-      streetStraightTileset,
-      hospitalTileset,
-      building01Tileset,
-      building02Tileset,
-      building03Tileset,
-      building04Tileset,
-      churchTileset,
-      house01Tileset,
-      house03Tileset,
-      house06Tileset,
-      house11Tileset,
-      house26Tileset,
-      house16Tileset,
-      house23Tileset,
-      policeStationTileset,
-      fireStationTileset,
-      bush01Tileset,
-      tree02Tileset,
-      treeFall03Tileset,
-      parkingStripedTileset,
-    ]));
+    this.worldLayers.push(
+      this.map.createLayer("borda", [
+        groundWaterTileset,
+        groundGrassEdgeTileset,
+        groundAsphaltTileset,
+        groundGrassTileset,
+        groundGrassSideTileset,
+        groundWaterTileset,
+        parkingAsphaltTileset,
+        streetStraightTileset,
+        hospitalTileset,
+        building01Tileset,
+        building02Tileset,
+        building03Tileset,
+        building04Tileset,
+        churchTileset,
+        house01Tileset,
+        house03Tileset,
+        house06Tileset,
+        house11Tileset,
+        house26Tileset,
+        house16Tileset,
+        house23Tileset,
+        policeStationTileset,
+        fireStationTileset,
+        bush01Tileset,
+        tree02Tileset,
+        treeFall03Tileset,
+        parkingStripedTileset,
+      ]),
+    );
 
-    this.worldLayers.push(this.map.createLayer("calcada", [
-      groundWaterTileset,
-      groundGrassEdgeTileset,
-      groundAsphaltTileset,
-      groundGrassTileset,
-      groundGrassSideTileset,
-      groundWaterTileset,
-      parkingAsphaltTileset,
-      streetStraightTileset,
-      hospitalTileset,
-      building01Tileset,
-      building02Tileset,
-      building03Tileset,
-      building04Tileset,
-      churchTileset,
-      house01Tileset,
-      house03Tileset,
-      house06Tileset,
-      house11Tileset,
-      house26Tileset,
-      house16Tileset,
-      house23Tileset,
-      policeStationTileset,
-      fireStationTileset,
-      bush01Tileset,
-      tree02Tileset,
-      treeFall03Tileset,
-      parkingStripedTileset,
-    ]));
+    this.worldLayers.push(
+      this.map.createLayer("calcada", [
+        groundWaterTileset,
+        groundGrassEdgeTileset,
+        groundAsphaltTileset,
+        groundGrassTileset,
+        groundGrassSideTileset,
+        groundWaterTileset,
+        parkingAsphaltTileset,
+        streetStraightTileset,
+        hospitalTileset,
+        building01Tileset,
+        building02Tileset,
+        building03Tileset,
+        building04Tileset,
+        churchTileset,
+        house01Tileset,
+        house03Tileset,
+        house06Tileset,
+        house11Tileset,
+        house26Tileset,
+        house16Tileset,
+        house23Tileset,
+        policeStationTileset,
+        fireStationTileset,
+        bush01Tileset,
+        tree02Tileset,
+        treeFall03Tileset,
+        parkingStripedTileset,
+      ]),
+    );
 
-    this.worldLayers.push(this.map.createLayer("ruas", [
-      groundWaterTileset,
-      groundGrassEdgeTileset,
-      groundAsphaltTileset,
-      groundGrassTileset,
-      groundGrassSideTileset,
-      groundWaterTileset,
-      parkingAsphaltTileset,
-      streetStraightTileset,
-      hospitalTileset,
-      building01Tileset,
-      building02Tileset,
-      building03Tileset,
-      building04Tileset,
-      churchTileset,
-      house01Tileset,
-      house03Tileset,
-      house06Tileset,
-      house11Tileset,
-      house26Tileset,
-      house16Tileset,
-      house23Tileset,
-      policeStationTileset,
-      fireStationTileset,
-      bush01Tileset,
-      tree02Tileset,
-      treeFall03Tileset,
-      parkingStripedTileset,
-    ]));
+    this.worldLayers.push(
+      this.map.createLayer("ruas", [
+        groundWaterTileset,
+        groundGrassEdgeTileset,
+        groundAsphaltTileset,
+        groundGrassTileset,
+        groundGrassSideTileset,
+        groundWaterTileset,
+        parkingAsphaltTileset,
+        streetStraightTileset,
+        hospitalTileset,
+        building01Tileset,
+        building02Tileset,
+        building03Tileset,
+        building04Tileset,
+        churchTileset,
+        house01Tileset,
+        house03Tileset,
+        house06Tileset,
+        house11Tileset,
+        house26Tileset,
+        house16Tileset,
+        house23Tileset,
+        policeStationTileset,
+        fireStationTileset,
+        bush01Tileset,
+        tree02Tileset,
+        treeFall03Tileset,
+        parkingStripedTileset,
+      ]),
+    );
 
-    this.worldLayers.push(this.map.createLayer("chao", [
-      groundWaterTileset,
-      groundGrassEdgeTileset,
-      groundAsphaltTileset,
-      groundGrassTileset,
-      groundGrassSideTileset,
-      groundWaterTileset,
-      parkingAsphaltTileset,
-      streetStraightTileset,
-      hospitalTileset,
-      building01Tileset,
-      building02Tileset,
-      building03Tileset,
-      building04Tileset,
-      churchTileset,
-      house01Tileset,
-      house03Tileset,
-      house06Tileset,
-      house11Tileset,
-      house26Tileset,
-      house16Tileset,
-      house23Tileset,
-      policeStationTileset,
-      fireStationTileset,
-      bush01Tileset,
-      tree02Tileset,
-      treeFall03Tileset,
-      parkingStripedTileset,
-    ]));
+    this.worldLayers.push(
+      this.map.createLayer("chao", [
+        groundWaterTileset,
+        groundGrassEdgeTileset,
+        groundAsphaltTileset,
+        groundGrassTileset,
+        groundGrassSideTileset,
+        groundWaterTileset,
+        parkingAsphaltTileset,
+        streetStraightTileset,
+        hospitalTileset,
+        building01Tileset,
+        building02Tileset,
+        building03Tileset,
+        building04Tileset,
+        churchTileset,
+        house01Tileset,
+        house03Tileset,
+        house06Tileset,
+        house11Tileset,
+        house26Tileset,
+        house16Tileset,
+        house23Tileset,
+        policeStationTileset,
+        fireStationTileset,
+        bush01Tileset,
+        tree02Tileset,
+        treeFall03Tileset,
+        parkingStripedTileset,
+      ]),
+    );
 
-    this.worldLayers.push(this.map.createLayer("construcooes", [
-      groundWaterTileset,
-      groundGrassEdgeTileset,
-      groundAsphaltTileset,
-      groundGrassTileset,
-      groundGrassSideTileset,
-      groundWaterTileset,
-      parkingAsphaltTileset,
-      streetStraightTileset,
-      hospitalTileset,
-      building01Tileset,
-      building02Tileset,
-      building03Tileset,
-      building04Tileset,
-      churchTileset,
-      house01Tileset,
-      house03Tileset,
-      house06Tileset,
-      house11Tileset,
-      house26Tileset,
-      house16Tileset,
-      house23Tileset,
-      policeStationTileset,
-      fireStationTileset,
-      bush01Tileset,
-      tree02Tileset,
-      treeFall03Tileset,
-      parkingStripedTileset,
-    ]));
+    this.worldLayers.push(
+      this.map.createLayer("construcooes", [
+        groundWaterTileset,
+        groundGrassEdgeTileset,
+        groundAsphaltTileset,
+        groundGrassTileset,
+        groundGrassSideTileset,
+        groundWaterTileset,
+        parkingAsphaltTileset,
+        streetStraightTileset,
+        hospitalTileset,
+        building01Tileset,
+        building02Tileset,
+        building03Tileset,
+        building04Tileset,
+        churchTileset,
+        house01Tileset,
+        house03Tileset,
+        house06Tileset,
+        house11Tileset,
+        house26Tileset,
+        house16Tileset,
+        house23Tileset,
+        policeStationTileset,
+        fireStationTileset,
+        bush01Tileset,
+        tree02Tileset,
+        treeFall03Tileset,
+        parkingStripedTileset,
+      ]),
+    );
 
-    this.worldLayers.push(this.map.createLayer("arvores", [
-      groundWaterTileset,
-      groundGrassEdgeTileset,
-      groundAsphaltTileset,
-      groundGrassTileset,
-      groundGrassSideTileset,
-      groundWaterTileset,
-      parkingAsphaltTileset,
-      streetStraightTileset,
-      hospitalTileset,
-      building01Tileset,
-      building02Tileset,
-      building03Tileset,
-      building04Tileset,
-      churchTileset,
-      house01Tileset,
-      house03Tileset,
-      house06Tileset,
-      house11Tileset,
-      house26Tileset,
-      house16Tileset,
-      house23Tileset,
-      policeStationTileset,
-      fireStationTileset,
-      bush01Tileset,
-      tree02Tileset,
-      treeFall03Tileset,
-      parkingStripedTileset,
-    ]));
+    this.worldLayers.push(
+      this.map.createLayer("arvores", [
+        groundWaterTileset,
+        groundGrassEdgeTileset,
+        groundAsphaltTileset,
+        groundGrassTileset,
+        groundGrassSideTileset,
+        groundWaterTileset,
+        parkingAsphaltTileset,
+        streetStraightTileset,
+        hospitalTileset,
+        building01Tileset,
+        building02Tileset,
+        building03Tileset,
+        building04Tileset,
+        churchTileset,
+        house01Tileset,
+        house03Tileset,
+        house06Tileset,
+        house11Tileset,
+        house26Tileset,
+        house16Tileset,
+        house23Tileset,
+        policeStationTileset,
+        fireStationTileset,
+        bush01Tileset,
+        tree02Tileset,
+        treeFall03Tileset,
+        parkingStripedTileset,
+      ]),
+    );
 
     this.player = this.add.sprite(
       playerPosition.x,
       playerPosition.y,
-      "player-ciano",
+      playerTexture,
       247,
     );
-    this.player.setTint(playerTint);
+    this.playerAnimation = playerAnimation;
     this.player.setScale(0.5);
     this.player.vidaAtual = 100;
     this.player.vidaMaxima = 100;
@@ -632,17 +642,18 @@ export class GameScene extends Phaser.Scene {
 
     this.pickupGroup = this.physics.add.staticGroup();
     this.packages = [];
-    const packageSpawns = this.matchMode === 4
-      ? [
-          { x: 450, y: 320 },
-          { x: 820, y: 520 },
-          { x: 1280, y: 220 },
-          { x: 700, y: 820 },
-        ]
-      : [
-          { x: 480, y: 540 },
-          { x: 1060, y: 420 },
-        ];
+    const packageSpawns =
+      this.matchMode === 4
+        ? [
+            { x: 450, y: 320 },
+            { x: 820, y: 520 },
+            { x: 1280, y: 220 },
+            { x: 700, y: 820 },
+          ]
+        : [
+            { x: 480, y: 540 },
+            { x: 1060, y: 420 },
+          ];
 
     packageSpawns.forEach((pos, index) => {
       const pickup = this.add.rectangle(pos.x, pos.y, 40, 40, 0xffff00);
@@ -691,23 +702,33 @@ export class GameScene extends Phaser.Scene {
     this.robo.speed = 110;
     this.robo.detectionRadius = 220;
     this.physics.add.existing(this.robo);
-    this.robo.body.setCircle(22, this.robo.width / 2 - 22, this.robo.height / 2 - 22);
+    this.robo.body.setCircle(
+      22,
+      this.robo.width / 2 - 22,
+      this.robo.height / 2 - 22,
+    );
 
     this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
     this.keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
 
-    this.notificationText = this.add.text(20, 20, "", {
-      fontFamily: "Arial",
-      fontSize: "22px",
-      fontStyle: "bold",
-      color: "#ffff00",
-      backgroundColor: "rgba(0,0,0,0.2)",
-      padding: { x: 12, y: 6 },
-    }).setScrollFactor(0).setDepth(999);
+    this.notificationText = this.add
+      .text(20, 20, "", {
+        fontFamily: "Arial",
+        fontSize: "22px",
+        fontStyle: "bold",
+        color: "#ffff00",
+        backgroundColor: "rgba(0,0,0,0.2)",
+        padding: { x: 12, y: 6 },
+      })
+      .setScrollFactor(0)
+      .setDepth(999);
 
     this.walls = this.physics.add.staticGroup();
     this.createCollisionFromMap();
-    this.joystickGraphics = this.add.graphics().setScrollFactor(0).setDepth(1000);
+    this.joystickGraphics = this.add
+      .graphics()
+      .setScrollFactor(0)
+      .setDepth(1000);
 
     this.healthBarBg = this.add.graphics();
     this.healthBarBg.setScrollFactor(0).setDepth(999);
@@ -776,8 +797,7 @@ export class GameScene extends Phaser.Scene {
     });
 
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
-
-       }
+  }
 
   update() {
     const speed = 300;
@@ -851,7 +871,7 @@ export class GameScene extends Phaser.Scene {
 
     if (movingHorizontal) {
       this.player.setFlipX(velocityX > 0);
-      this.player.anims.play("player-walk", true);
+      this.player.anims.play(this.playerAnimation, true);
       this.player.state = "andando";
     } else if (movingVertical) {
       this.player.anims.stop();
@@ -925,7 +945,12 @@ export class GameScene extends Phaser.Scene {
     if (this.packages) {
       this.packages.forEach((pickup) => {
         if (pickup && pickup.active !== false) {
-          const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, pickup.x, pickup.y);
+          const dist = Phaser.Math.Distance.Between(
+            this.player.x,
+            this.player.y,
+            pickup.x,
+            pickup.y,
+          );
           if (dist < 40) {
             pickup.destroy();
             pickup.active = false;
@@ -984,7 +1009,11 @@ export class GameScene extends Phaser.Scene {
     this.healthBarBg.fillStyle(0x000000, 0.5);
     this.healthBarBg.fillRect(20, 20, 220, 22);
 
-    const ratio = Phaser.Math.Clamp((this.player?.vidaAtual ?? 100) / (this.player?.vidaMaxima ?? 100), 0, 1);
+    const ratio = Phaser.Math.Clamp(
+      (this.player?.vidaAtual ?? 100) / (this.player?.vidaMaxima ?? 100),
+      0,
+      1,
+    );
     this.healthBarFill.fillStyle(0xe74c3c, 1);
     this.healthBarFill.fillRect(20, 20, 220 * ratio, 22);
 
@@ -1111,10 +1140,14 @@ export class GameScene extends Phaser.Scene {
     const clampedDistance = Math.min(distance, this.joystick.radius);
     const angle = Math.atan2(dy, dx);
 
-    this.joystick.knobX = this.joystick.baseX + Math.cos(angle) * clampedDistance;
-    this.joystick.knobY = this.joystick.baseY + Math.sin(angle) * clampedDistance;
-    this.joystick.vectorX = Math.cos(angle) * (clampedDistance / this.joystick.radius);
-    this.joystick.vectorY = Math.sin(angle) * (clampedDistance / this.joystick.radius);
+    this.joystick.knobX =
+      this.joystick.baseX + Math.cos(angle) * clampedDistance;
+    this.joystick.knobY =
+      this.joystick.baseY + Math.sin(angle) * clampedDistance;
+    this.joystick.vectorX =
+      Math.cos(angle) * (clampedDistance / this.joystick.radius);
+    this.joystick.vectorY =
+      Math.sin(angle) * (clampedDistance / this.joystick.radius);
   }
 
   drawJoystick() {
