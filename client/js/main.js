@@ -1,4 +1,5 @@
 import { Preloader } from "./scenes/Preloader.js";
+import { CharacterSelect } from "./scenes/CharacterSelect.js";
 import { GameScene } from "./scenes/GameScene.js";
 
 const config = {
@@ -17,7 +18,7 @@ const config = {
       debug: false,
     },
   },
-  scene: [Preloader, GameScene],
+  scene: [Preloader, CharacterSelect, GameScene],
 };
 
 window.onload = () => {

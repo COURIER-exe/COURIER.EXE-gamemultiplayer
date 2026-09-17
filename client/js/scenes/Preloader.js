@@ -4,127 +4,88 @@ export class Preloader extends Phaser.Scene {
   }
 
   preload() {
-    // Texto simples de carregamento
-    const loadingText = this.add
-      .text(640, 360, "Carregando...", {
-        fontFamily: "Arial",
-        fontSize: "28px",
-        color: "#00ffff",
-      })
-      .setOrigin(0.5);
-
-    // Atualiza o texto conforme o progresso
-    this.load.on("progress", (value) => {
-      loadingText.setText("Carregando... " + Math.floor(value * 100) + "%");
-    });
-
-    // Carrega o mapa criado no Tiled
-    this.load.tilemapTiledJSON("mapaCidade", "assets/jogo.json");
-
-    // Carrega as imagens de cada tileset usado no mapa
-    this.load.image(
-      "ground_grass_edge",
-      "assets/map/Grounds/ground_grass_edge.png",
-    );
-
-    this.load.image(
-      "ground_asphalt",
-      "assets/map/Grounds/ground_asphalt.png",
-    );
-
-    this.load.image("ground_grass", "assets/map/Grounds/ground_grass.png");
-
-    this.load.image(
-      "ground_grass_side",
-      "assets/map/Grounds/ground_grass_side.png",
-    );
-
-    this.load.image("ground_water", "assets/map/Grounds/ground_water.png");
-
-    this.load.image(
-      "parking_asphalt",
-      "assets/map/Roads/parking_asphalt.png",
-    );
-
-    this.load.image(
-      "street_straight",
-      "assets/map/Roads/street_straight.png",
-    );
-
-    this.load.image("hospital", "assets/map/Buildings/hospital.png");
-
-    this.load.image("building_01", "assets/map/Buildings/building_01.png");
-
-    this.load.image("building_02", "assets/map/Buildings/building_02.png");
-
-    this.load.image("building_03", "assets/map/Buildings/building_03.png");
-
-    this.load.image("building_04", "assets/map/Buildings/building_04.png");
-
-    this.load.image("church", "assets/map/Buildings/church.png");
-
-    this.load.image("house_01", "assets/map/Buildings/house_01.png");
-
-    this.load.image("house_03", "assets/map/Buildings/house_03.png");
-
-    this.load.image("house_06", "assets/map/Buildings/house_06.png");
-
-    this.load.image("house_11", "assets/map/Buildings/house_11.png");
-
-    this.load.image("house_26", "assets/map/Buildings/house_26.png");
-
-    this.load.image("house_16", "assets/map/Buildings/house_16.png");
-
-    this.load.image("house_23", "assets/map/Buildings/house_23.png");
-
-    this.load.image(
-      "police_station",
-      "assets/map/Buildings/police_station.png",
-    );
-
-    this.load.image(
-      "fire_station",
-      "assets/map/Buildings/fire_station.png",
-    );
-
-    this.load.image(
-      "bush_01",
-      "assets/map/Vegetations and Props/bush_01.png",
-    );
-
-    this.load.image(
-      "tree_02",
-      "assets/map/Vegetations and Props/tree_02.png",
-    );
-
-    this.load.image(
-      "tree_fall_03",
-      "assets/map/Vegetations and Props/tree_fall_03.png",
-    );
-
-    this.load.image(
-      "parking_striped",
-      "assets/map/Roads/parking_striped.png",
-    );
-
-    this.load.spritesheet(
-      "player-ciano",
-      "assets/personagens/character-ciano.png",
-      { frameWidth: 64, frameHeight: 64 },
-    );
-
-    this.load.spritesheet(
-      "robo-perseguicao",
-      "assets/personagens/robo-perseguicao.png",
-      { frameWidth: 64, frameHeight: 64 },
-    );
+    this.load.image("imagemdecapa", "assets/imagemdecapa.png");
   }
 
   create() {
-    console.log("Preloader: mapa e tilesets carregados com sucesso.");
+    this.add.image(640, 360, "imagemdecapa").setDisplaySize(1280, 720);
+    this.add.rectangle(640, 360, 1280, 720, 0x05050a, 0.2);
 
-    // Por enquanto seguimos direto para a GameScene,
-    // que ainda está igual (com os retângulos).
-    this.scene.start("GameScene");
+    const playButton = this.add.text(640, 610, "PLAY", {
+      backgroundColor: "#00d9e8",
+      color: "#061014",
+      fontFamily: "Arial",
+      fontSize: "28px",
+      fontStyle: "bold",
+      padding: { left: 42, right: 42, top: 16, bottom: 16 },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+    playButton.on("pointerover", () => playButton.setStyle({ backgroundColor: "#ffffff" }));
+    playButton.on("pointerout", () => playButton.setStyle({ backgroundColor: "#00d9e8" }));
+    playButton.on("pointerdown", () => {
+      playButton.disableInteractive();
+      playButton.setVisible(false);
+      this.startLoading();
+    });
+  }
+
+  startLoading() {
+    this.children.removeAll(true);
+    this.add.rectangle(640, 360, 1280, 720, 0x05050a);
+    const progressBar = this.add.rectangle(380, 430, 0, 18, 0x00d9e8).setOrigin(0, 0.5);
+    this.add.rectangle(640, 430, 520, 18).setStrokeStyle(2, 0xffffff, 0.8).setOrigin(0.5);
+
+    this.loadAssets();
+    this.load.on("progress", (value) => {
+      progressBar.width = 520 * value;
+    });
+    this.load.once("complete", () => this.scene.start("CharacterSelect"));
+    this.load.start();
+  }
+
+  loadAssets() {
+    this.load.tilemapTiledJSON("mapaCidade", "assets/jogo.json");
+
+    const images = {
+      ground_grass_edge: "map/Grounds/ground_grass_edge.png",
+      ground_asphalt: "map/Grounds/ground_asphalt.png",
+      ground_grass: "map/Grounds/ground_grass.png",
+      ground_grass_side: "map/Grounds/ground_grass_side.png",
+      ground_water: "map/Grounds/ground_water.png",
+      parking_asphalt: "map/Roads/parking_asphalt.png",
+      street_straight: "map/Roads/street_straight.png",
+      hospital: "map/Buildings/hospital.png",
+      building_01: "map/Buildings/building_01.png",
+      building_02: "map/Buildings/building_02.png",
+      building_03: "map/Buildings/building_03.png",
+      building_04: "map/Buildings/building_04.png",
+      church: "map/Buildings/church.png",
+      house_01: "map/Buildings/house_01.png",
+      house_03: "map/Buildings/house_03.png",
+      house_06: "map/Buildings/house_06.png",
+      house_11: "map/Buildings/house_11.png",
+      house_26: "map/Buildings/house_26.png",
+      house_16: "map/Buildings/house_16.png",
+      house_23: "map/Buildings/house_23.png",
+      police_station: "map/Buildings/police_station.png",
+      fire_station: "map/Buildings/fire_station.png",
+      bush_01: "map/Vegetations and Props/bush_01.png",
+      tree_02: "map/Vegetations and Props/tree_02.png",
+      tree_fall_03: "map/Vegetations and Props/tree_fall_03.png",
+      parking_striped: "map/Roads/parking_striped.png",
+    };
+
+    Object.entries(images).forEach(([key, path]) => {
+      this.load.image(key, `assets/${path}`);
+    });
+
+    this.load.spritesheet("player-ciano", "assets/personagens/character-ciano.png", {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
+    this.load.spritesheet("robo-perseguicao", "assets/personagens/robo-perseguicao.png", {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
   }
 }

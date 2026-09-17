@@ -28,6 +28,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
+    const playerTint = this.scene.settings.data?.tint ?? 0x00e5ff;
     this.map = this.make.tilemap({ key: "mapaCidade" });
 
     const groundGrassEdgeTileset = this.map.addTilesetImage(
@@ -609,6 +610,7 @@ export class GameScene extends Phaser.Scene {
       "player-ciano",
       247,
     );
+    this.player.setTint(playerTint);
     this.player.setScale(0.5);
     this.player.vidaAtual = 100;
     this.player.vidaMaxima = 100;
