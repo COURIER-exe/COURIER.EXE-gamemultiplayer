@@ -57,6 +57,7 @@ export class Preloader extends Phaser.Scene {
 
   loadAssets() {
     this.load.tilemapTiledJSON("mapaCidade", "assets/jogo.json");
+    this.load.image("seta-construcao", "assets/seta-construcao.svg");
 
     const images = {
       ground_grass_edge: "map/Grounds/ground_grass_edge.png",

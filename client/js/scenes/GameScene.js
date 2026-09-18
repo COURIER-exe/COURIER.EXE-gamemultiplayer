@@ -1019,6 +1019,7 @@ export class GameScene extends Phaser.Scene {
 
     this.healthBarFill.lineStyle(2, 0xffffff, 1);
     this.healthBarFill.strokeRect(20, 20, 220, 22);
+
   }
 
   enterCasa() {
@@ -1196,6 +1197,74 @@ export class GameScene extends Phaser.Scene {
       wall.setVisible(false);
       this.physics.add.existing(wall, true);
       this.walls.add(wall);
+    });
+
+    this.createConstructionMarkers(collisionLayer.objects);
+  }
+
+  createConstructionMarkers(objects) {
+    const buildingParts = objects
+      .filter((obj) => obj.width >= 8 && obj.height >= 8)
+      .map((obj) => ({
+        left: obj.x,
+        top: obj.y,
+        right: obj.x + obj.width,
+        bottom: obj.y + obj.height,
+      }));
+    const buildings = [];
+    const separation = 24;
+    const partsBelongTogether = (first, second) =>
+      first.left <= second.right + separation &&
+      first.right + separation >= second.left &&
+      first.top <= second.bottom + separation &&
+      first.bottom + separation >= second.top;
+
+    buildingParts.forEach((part) => {
+      const matchingIndexes = [];
+      buildings.forEach((building, index) => {
+        if (partsBelongTogether(part, building)) {
+          matchingIndexes.push(index);
+        }
+      });
+
+      if (matchingIndexes.length === 0) {
+        buildings.push(part);
+        return;
+      }
+
+      const matchingBuildings = matchingIndexes.map((index) => buildings[index]);
+      const allParts = [part, ...matchingBuildings];
+      const mergedBuilding = {
+        left: Math.min(...allParts.map((item) => item.left)),
+        top: Math.min(...allParts.map((item) => item.top)),
+        right: Math.max(...allParts.map((item) => item.right)),
+        bottom: Math.max(...allParts.map((item) => item.bottom)),
+      };
+
+      buildings.push(mergedBuilding);
+      matchingIndexes
+        .sort((first, second) => second - first)
+        .forEach((index) => buildings.splice(index, 1));
+    });
+
+    buildings.forEach((building) => {
+      const arrow = this.add
+        .image(
+          (building.left + building.right) / 2,
+          building.bottom + 18,
+          "seta-construcao",
+        )
+        .setDisplaySize(42, 32)
+        .setDepth(8);
+
+      this.tweens.add({
+        targets: arrow,
+        y: arrow.y - 7,
+        duration: 650,
+        ease: "Sine.inOut",
+        yoyo: true,
+        repeat: -1,
+      });
     });
   }
 }
