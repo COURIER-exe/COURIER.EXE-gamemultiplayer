@@ -1019,7 +1019,6 @@ export class GameScene extends Phaser.Scene {
 
     this.healthBarFill.lineStyle(2, 0xffffff, 1);
     this.healthBarFill.strokeRect(20, 20, 220, 22);
-
   }
 
   enterCasa() {
@@ -1232,7 +1231,9 @@ export class GameScene extends Phaser.Scene {
         return;
       }
 
-      const matchingBuildings = matchingIndexes.map((index) => buildings[index]);
+      const matchingBuildings = matchingIndexes.map(
+        (index) => buildings[index],
+      );
       const allParts = [part, ...matchingBuildings];
       const mergedBuilding = {
         left: Math.min(...allParts.map((item) => item.left)),
