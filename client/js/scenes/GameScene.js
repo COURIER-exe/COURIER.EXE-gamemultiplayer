@@ -24,6 +24,7 @@ export class GameScene extends Phaser.Scene {
       vectorY: 0,
     };
     this.walls = null;
+    this.arrowTriggers = null;
     this.joystickGraphics = null;
   }
 
@@ -724,6 +725,7 @@ export class GameScene extends Phaser.Scene {
       .setDepth(999);
 
     this.walls = this.physics.add.staticGroup();
+    this.arrowTriggers = this.physics.add.group();
     this.createCollisionFromMap();
     this.joystickGraphics = this.add
       .graphics()
@@ -744,6 +746,14 @@ export class GameScene extends Phaser.Scene {
 
     // Colisão Courier x paredes
     this.physics.add.collider(this.player, this.walls);
+
+    this.physics.add.overlap(
+      this.player,
+      this.arrowTriggers,
+      this.handleArrowTrigger,
+      null,
+      this,
+    );
 
     // Colisão Courier x ponto de entrega
     this.physics.add.overlap(
@@ -1257,9 +1267,18 @@ export class GameScene extends Phaser.Scene {
         )
         .setDisplaySize(42, 32)
         .setDepth(8);
+      const trigger = this.add
+        .rectangle(arrow.x, arrow.y, 52, 40, 0x00ff88, 0.22)
+        .setStrokeStyle(2, 0x00ff88, 0.9)
+        .setDepth(7);
+      this.physics.add.existing(trigger);
+      trigger.body.setAllowGravity(false);
+      trigger.body.setImmovable(true);
+      trigger.setData("arrow", arrow);
+      this.arrowTriggers.add(trigger);
 
       this.tweens.add({
-        targets: arrow,
+        targets: [arrow, trigger],
         y: arrow.y - 7,
         duration: 650,
         ease: "Sine.inOut",
@@ -1267,5 +1286,10 @@ export class GameScene extends Phaser.Scene {
         repeat: -1,
       });
     });
+  }
+
+  handleArrowTrigger(player, trigger) {
+    trigger.setData("active", true);
+    trigger.setFillStyle(0xffff00, 0.35);
   }
 }
