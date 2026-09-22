@@ -783,7 +783,12 @@ export class GameScene extends Phaser.Scene {
     this.arrowTriggerList.forEach((trigger) => {
       if (
         trigger.getData("active") &&
-        Phaser.Math.Distance.Between(this.player.x, this.player.y, trigger.x, trigger.y) > 60
+        Phaser.Math.Distance.Between(
+          this.player.x,
+          this.player.y,
+          trigger.x,
+          trigger.y,
+        ) > 60
       ) {
         trigger.setData("active", false);
         trigger.setFillStyle(0x00ff88, 0.22);
@@ -856,7 +861,6 @@ export class GameScene extends Phaser.Scene {
       this.player.x = 250;
       this.player.y = 250;
     }
-
   }
 
   createTrail() {

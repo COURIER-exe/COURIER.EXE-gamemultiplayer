@@ -5,6 +5,16 @@ import { InteriorScene } from "./scenes/InteriorScene.js";
 
 window.directionalInput = new Set();
 
+const exitHouseButton = document.querySelector("#exit-house-button");
+
+window.setInteriorExitButtonVisible = (visible) => {
+  exitHouseButton.style.display = visible ? "block" : "none";
+};
+
+exitHouseButton.addEventListener("click", () => {
+  window.game?.scene.getScene("InteriorScene")?.exitInterior();
+});
+
 document.querySelectorAll(".direction-button").forEach((button) => {
   const direction = button.dataset.direction;
 

@@ -17,21 +17,13 @@ export class InteriorScene extends Phaser.Scene {
   }
 
   create() {
+    window.setInteriorExitButtonVisible?.(true);
     this.cameras.main.fadeIn(250, 5, 5, 10);
     this.map = this.make.tilemap({ key: "mapaInterior" });
     const tilesets = [
-      this.map.addTilesetImage(
-        "Interiors_32x32_0",
-        "interiorTileset0",
-      ),
-      this.map.addTilesetImage(
-        "Interiors_32x32_1",
-        "interiorTileset1",
-      ),
-      this.map.addTilesetImage(
-        "Interiors_32x32_2",
-        "interiorTileset2",
-      ),
+      this.map.addTilesetImage("Interiors_32x32_0", "interiorTileset0"),
+      this.map.addTilesetImage("Interiors_32x32_1", "interiorTileset1"),
+      this.map.addTilesetImage("Interiors_32x32_2", "interiorTileset2"),
     ];
 
     ["chao", "tapete", "acessorios", "parede"].forEach((layerName) => {
@@ -65,8 +57,18 @@ export class InteriorScene extends Phaser.Scene {
     this.playerAnimation = `interior-walk-${this.playerColor}`;
 
     const bounds = this.getInteriorBounds();
-    this.physics.world.setBounds(bounds.left, bounds.top, bounds.width, bounds.height);
-    this.cameras.main.setBounds(bounds.left, bounds.top, bounds.width, bounds.height);
+    this.physics.world.setBounds(
+      bounds.left,
+      bounds.top,
+      bounds.width,
+      bounds.height,
+    );
+    this.cameras.main.setBounds(
+      bounds.left,
+      bounds.top,
+      bounds.width,
+      bounds.height,
+    );
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
     this.cameras.main.setZoom(1.5);
 
@@ -77,7 +79,9 @@ export class InteriorScene extends Phaser.Scene {
       S: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       D: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
     };
-    this.keyEsc = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+    this.keyEsc = this.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.ESC,
+    );
 
     this.add
       .text(20, 20, "INTERIOR", {
@@ -108,22 +112,26 @@ export class InteriorScene extends Phaser.Scene {
       this.cursors.left.isDown ||
       this.wasd.A.isDown ||
       directionalInput.has("left")
-    ) velocityX = -velocity;
+    )
+      velocityX = -velocity;
     if (
       this.cursors.right.isDown ||
       this.wasd.D.isDown ||
       directionalInput.has("right")
-    ) velocityX = velocity;
+    )
+      velocityX = velocity;
     if (
       this.cursors.up.isDown ||
       this.wasd.W.isDown ||
       directionalInput.has("up")
-    ) velocityY = -velocity;
+    )
+      velocityY = -velocity;
     if (
       this.cursors.down.isDown ||
       this.wasd.S.isDown ||
       directionalInput.has("down")
-    ) velocityY = velocity;
+    )
+      velocityY = velocity;
 
     this.player.body.setVelocity(velocityX, velocityY);
     if (velocityX !== 0 || velocityY !== 0) {
@@ -167,9 +175,21 @@ export class InteriorScene extends Phaser.Scene {
     if (!this.player.carregandoPacote) {
       this.pickup = this.add.rectangle(120, 300, 40, 40, 0xffff00);
       this.objectiveGroup.add(this.pickup);
-      this.physics.add.overlap(this.player, this.pickup, this.collectPackage, null, this);
+      this.physics.add.overlap(
+        this.player,
+        this.pickup,
+        this.collectPackage,
+        null,
+        this,
+      );
     }
-    this.physics.add.overlap(this.player, this.delivery, this.completeDelivery, null, this);
+    this.physics.add.overlap(
+      this.player,
+      this.delivery,
+      this.completeDelivery,
+      null,
+      this,
+    );
   }
 
   collectPackage() {
@@ -178,7 +198,10 @@ export class InteriorScene extends Phaser.Scene {
     this.player.carregandoPacote = true;
     if (this.mainPlayer) this.mainPlayer.carregandoPacote = true;
     this.pickup.destroy();
-    this.showObjectiveMessage("PACOTE COLETADO!", "Leve até o outro marcador amarelo.");
+    this.showObjectiveMessage(
+      "PACOTE COLETADO!",
+      "Leve até o outro marcador amarelo.",
+    );
   }
 
   completeDelivery() {
@@ -187,7 +210,10 @@ export class InteriorScene extends Phaser.Scene {
     this.player.carregandoPacote = false;
     if (this.mainPlayer) this.mainPlayer.carregandoPacote = false;
     this.delivery.destroy();
-    this.showObjectiveMessage("ENTREGA CONCLUÍDA!", "Pacote entregue com sucesso.");
+    this.showObjectiveMessage(
+      "ENTREGA CONCLUÍDA!",
+      "Pacote entregue com sucesso.",
+    );
   }
 
   updateObjectiveArrow() {
@@ -242,12 +268,19 @@ export class InteriorScene extends Phaser.Scene {
   getInteriorBounds() {
     const collisionLayer = this.map.getObjectLayer("colission");
     const objects = collisionLayer?.objects ?? [];
-    const right = Math.max(...objects.map((object) => object.x + object.width), 544);
-    const bottom = Math.max(...objects.map((object) => object.y + object.height), 544);
+    const right = Math.max(
+      ...objects.map((object) => object.x + object.width),
+      544,
+    );
+    const bottom = Math.max(
+      ...objects.map((object) => object.y + object.height),
+      544,
+    );
     return { left: -64, top: -64, width: right + 128, height: bottom + 128 };
   }
 
   exitInterior() {
+    window.setInteriorExitButtonVisible?.(false);
     const mainScene = this.scene.get("GameScene");
     mainScene.player.x = this.returnPosition.x;
     mainScene.player.y = this.returnPosition.y;
