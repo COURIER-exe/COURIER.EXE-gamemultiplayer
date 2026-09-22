@@ -3,12 +3,17 @@ export class InteriorScene extends Phaser.Scene {
     super("InteriorScene");
     this.walls = null;
     this.player = null;
+    this.mainPlayer = null;
     this.returnPosition = null;
+    this.isTargetHouse = false;
+    this.directionArrow = null;
   }
 
   init(data) {
     this.playerColor = data.color ?? "ciano";
+    this.mainPlayer = this.scene.get("GameScene")?.player ?? null;
     this.returnPosition = data.returnPosition ?? { x: 0, y: 0 };
+    this.isTargetHouse = data.isTargetHouse === true;
   }
 
   create() {
@@ -38,10 +43,15 @@ export class InteriorScene extends Phaser.Scene {
 
     const playerTexture = `player-${this.playerColor}`;
     this.player = this.physics.add.sprite(256, 320, playerTexture, 247);
+    this.player.carregandoPacote = this.mainPlayer?.carregandoPacote === true;
     this.player.setScale(0.5);
     this.player.setSize(24, 20).setOffset(20, 38);
     this.player.setCollideWorldBounds(true);
     this.physics.add.collider(this.player, this.walls);
+
+    if (this.isTargetHouse) {
+      this.createObjectives();
+    }
 
     this.anims.create({
       key: `interior-walk-${this.playerColor}`,
@@ -80,6 +90,12 @@ export class InteriorScene extends Phaser.Scene {
       })
       .setScrollFactor(0)
       .setDepth(20);
+
+    this.directionArrow = this.add
+      .triangle(640, 78, -24, -18, -24, 18, 28, 0, 0xffff00)
+      .setScrollFactor(0)
+      .setDepth(20)
+      .setVisible(false);
   }
 
   update() {
@@ -104,6 +120,8 @@ export class InteriorScene extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this.keyEsc)) {
       this.exitInterior();
     }
+
+    this.updateObjectiveArrow();
   }
 
   createCollisionFromMap() {
@@ -121,6 +139,86 @@ export class InteriorScene extends Phaser.Scene {
       wall.setVisible(false);
       this.physics.add.existing(wall, true);
       this.walls.add(wall);
+    });
+  }
+
+  createObjectives() {
+    this.delivery = this.add.rectangle(420, 330, 40, 40, 0xffff00);
+    this.objectiveGroup = this.physics.add.staticGroup();
+    this.objectiveGroup.add(this.delivery);
+
+    if (!this.player.carregandoPacote) {
+      this.pickup = this.add.rectangle(120, 300, 40, 40, 0xffff00);
+      this.objectiveGroup.add(this.pickup);
+      this.physics.add.overlap(this.player, this.pickup, this.collectPackage, null, this);
+    }
+    this.physics.add.overlap(this.player, this.delivery, this.completeDelivery, null, this);
+  }
+
+  collectPackage() {
+    if (this.player.carregandoPacote || !this.pickup?.active) return;
+
+    this.player.carregandoPacote = true;
+    if (this.mainPlayer) this.mainPlayer.carregandoPacote = true;
+    this.pickup.destroy();
+    this.showObjectiveMessage("PACOTE COLETADO!", "Leve até o outro marcador amarelo.");
+  }
+
+  completeDelivery() {
+    if (!this.player.carregandoPacote || !this.delivery?.active) return;
+
+    this.player.carregandoPacote = false;
+    if (this.mainPlayer) this.mainPlayer.carregandoPacote = false;
+    this.delivery.destroy();
+    this.showObjectiveMessage("ENTREGA CONCLUÍDA!", "Pacote entregue com sucesso.");
+  }
+
+  updateObjectiveArrow() {
+    if (!this.directionArrow) return;
+
+    const target = this.player.carregandoPacote ? this.delivery : this.pickup;
+    const targetIsActive = target && target.active !== false;
+    if (!this.isTargetHouse || !targetIsActive) {
+      this.directionArrow.setVisible(false);
+      return;
+    }
+
+    this.directionArrow
+      .setVisible(true)
+      .setRotation(
+        Phaser.Math.Angle.Between(
+          this.player.x,
+          this.player.y,
+          target.x,
+          target.y,
+        ),
+      );
+  }
+
+  showObjectiveMessage(title, subtitle) {
+    const titleText = this.add
+      .text(640, 300, title, {
+        fontFamily: "Arial",
+        fontSize: "48px",
+        fontStyle: "bold",
+        color: "#ffff00",
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(30);
+    const subtitleText = this.add
+      .text(640, 355, subtitle, {
+        fontFamily: "Arial",
+        fontSize: "22px",
+        color: "#ffffff",
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(30);
+
+    this.time.delayedCall(2000, () => {
+      titleText.destroy();
+      subtitleText.destroy();
     });
   }
 

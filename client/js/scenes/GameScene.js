@@ -3,8 +3,6 @@ export class GameScene extends Phaser.Scene {
     super("GameScene");
 
     this.trail = [];
-    this.fixedDeliveryPoint = { x: 1180, y: 280 };
-    this.deliveryVisible = false;
     this.ataqueDoRobo = false;
     this.textoAlerta = null;
     this.matchMode = 2;
@@ -24,6 +22,7 @@ export class GameScene extends Phaser.Scene {
     this.arrowTriggers = null;
     this.arrowTriggerList = [];
     this.joystickGraphics = null;
+    this.houseDirectionArrow = null;
   }
 
   create() {
@@ -351,8 +350,6 @@ export class GameScene extends Phaser.Scene {
     const mapRight = mapLeft + mapWidth;
     const mapBottom = mapTop + mapHeight;
     const positionMargin = 64;
-    const deliveryX = mapLeft + mapWidth / 2;
-    const deliveryY = mapTop + mapHeight / 2;
     const randomMapPosition = () => ({
       x: Phaser.Math.Between(
         mapLeft + positionMargin,
@@ -365,18 +362,6 @@ export class GameScene extends Phaser.Scene {
     });
 
     const playerPosition = randomMapPosition();
-    let pickupPosition = randomMapPosition();
-
-    while (
-      Phaser.Math.Distance.Between(
-        pickupPosition.x,
-        pickupPosition.y,
-        deliveryX,
-        deliveryY,
-      ) < 160
-    ) {
-      pickupPosition = randomMapPosition();
-    }
 
     const playerAnimation = `player-walk-${playerColor}`;
     this.anims.create({
@@ -628,39 +613,6 @@ export class GameScene extends Phaser.Scene {
     this.player.facing = "right";
     this.player.state = "idle";
 
-    this.delivery = this.add.rectangle(
-      this.fixedDeliveryPoint.x,
-      this.fixedDeliveryPoint.y,
-      37,
-      45,
-      0xff00ff,
-    );
-    this.delivery.setVisible(false);
-    this.deliveryGroup = this.physics.add.staticGroup();
-    this.deliveryGroup.add(this.delivery);
-
-    this.pickupGroup = this.physics.add.staticGroup();
-    this.packages = [];
-    const packageSpawns =
-      this.matchMode === 4
-        ? [
-            { x: 450, y: 320 },
-            { x: 820, y: 520 },
-            { x: 1280, y: 220 },
-            { x: 700, y: 820 },
-          ]
-        : [
-            { x: 480, y: 540 },
-            { x: 1060, y: 420 },
-          ];
-
-    packageSpawns.forEach((pos, index) => {
-      const pickup = this.add.rectangle(pos.x, pos.y, 40, 40, 0xffff00);
-      this.packages.push(pickup);
-      this.pickupGroup.add(pickup);
-      pickup.setData("id", index);
-    });
-
     this.physics.add.existing(this.player);
 
     this.playerBody = this.player.body;
@@ -700,6 +652,14 @@ export class GameScene extends Phaser.Scene {
     this.walls = this.physics.add.staticGroup();
     this.arrowTriggers = this.physics.add.group();
     this.createCollisionFromMap();
+    this.targetHouseId = Phaser.Math.Between(
+      0,
+      Math.max(0, this.arrowTriggerList.length - 1),
+    );
+    this.houseDirectionArrow = this.add
+      .triangle(640, 78, -24, -18, -24, 18, 28, 0, 0xffff00)
+      .setScrollFactor(0)
+      .setDepth(1001);
     this.joystickGraphics = this.add
       .graphics()
       .setScrollFactor(0)
@@ -724,23 +684,6 @@ export class GameScene extends Phaser.Scene {
       this.player,
       this.arrowTriggers,
       this.handleArrowTrigger,
-      null,
-      this,
-    );
-
-    // Colisão Courier x ponto de entrega
-    this.physics.add.overlap(
-      this.player,
-      this.deliveryGroup,
-      this.completeDelivery,
-      null,
-      this,
-    );
-    // Colisão Courier x ponto de coleta
-    this.physics.add.overlap(
-      this.player,
-      this.pickupGroup,
-      this.collectPackage,
       null,
       this,
     );
@@ -887,19 +830,9 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
+    this.updateHouseDirectionArrow();
+
     this.updateHud();
-
-    this.deliveryVisible = this.player.carregandoPacote;
-    this.delivery.setVisible(this.deliveryVisible);
-    if (this.deliveryVisible) {
-      this.delivery.x = this.fixedDeliveryPoint.x;
-      this.delivery.y = this.fixedDeliveryPoint.y;
-    }
-
-    if (this.player.carregandoPacote) {
-      this.showNotification("Pacote coletado! Leve até o ponto de entrega.");
-      this.player.carregandoPacote = false;
-    }
 
     if (this.player.vidaAtual <= 0) {
       this.showNotification("Você foi derrotado! Reiniciando...");
@@ -908,24 +841,6 @@ export class GameScene extends Phaser.Scene {
       this.player.y = 250;
     }
 
-    if (this.packages) {
-      this.packages.forEach((pickup) => {
-        if (pickup && pickup.active !== false) {
-          const dist = Phaser.Math.Distance.Between(
-            this.player.x,
-            this.player.y,
-            pickup.x,
-            pickup.y,
-          );
-          if (dist < 40) {
-            pickup.destroy();
-            pickup.active = false;
-            this.player.carregandoPacote = true;
-            this.showNotification("Pacote coletado!");
-          }
-        }
-      });
-    }
   }
 
   createTrail() {
@@ -987,6 +902,27 @@ export class GameScene extends Phaser.Scene {
     this.healthBarFill.strokeRect(20, 20, 220, 22);
   }
 
+  updateHouseDirectionArrow() {
+    if (!this.houseDirectionArrow) return;
+
+    const targetTrigger = this.arrowTriggerList[this.targetHouseId];
+    if (!targetTrigger || targetTrigger.getData("active")) {
+      this.houseDirectionArrow.setVisible(false);
+      return;
+    }
+
+    this.houseDirectionArrow
+      .setVisible(true)
+      .setRotation(
+        Phaser.Math.Angle.Between(
+          this.player.x,
+          this.player.y,
+          targetTrigger.x,
+          targetTrigger.y,
+        ),
+      );
+  }
+
   enterCasa(trigger) {
     if (
       this.scene.isActive("InteriorScene") ||
@@ -1002,74 +938,9 @@ export class GameScene extends Phaser.Scene {
     this.scene.launch("InteriorScene", {
       color: this.scene.settings.data?.color ?? "ciano",
       returnPosition: this.savedExteriorPosition,
+      isTargetHouse: trigger.getData("houseId") === this.targetHouseId,
     });
   }
-  collectPackage() {
-    console.log("Pacote coletado!");
-
-    if (this.pickup && this.pickup.active !== false) {
-      this.pickup.destroy();
-      this.pickup.active = false;
-    }
-
-    // Texto principal
-    const pickupText = this.add
-      .text(640, 300, "PACOTE COLETADO!", {
-        fontFamily: "Arial",
-        fontSize: "48px",
-        fontStyle: "bold",
-        color: "#ffff00",
-      })
-      .setOrigin(0.5);
-
-    // Texto secundário
-    const pickupSubText = this.add
-      .text(640, 355, "Leve o pacote até o destino.", {
-        fontFamily: "Arial",
-        fontSize: "22px",
-        color: "#ffffff",
-      })
-      .setOrigin(0.5);
-
-    // Remove as mensagens depois de 2 segundos
-    this.time.delayedCall(2000, () => {
-      pickupText.destroy();
-      pickupSubText.destroy();
-    });
-  }
-
-  completeDelivery() {
-    console.log("Entrega concluída!");
-
-    // Remove o ponto de entrega
-    this.delivery.destroy();
-
-    // Texto principal
-    const deliveryText = this.add
-      .text(640, 300, "ENTREGA CONCLUÍDA!", {
-        fontFamily: "Arial",
-        fontSize: "48px",
-        fontStyle: "bold",
-        color: "#00ffff",
-      })
-      .setOrigin(0.5);
-
-    // Texto secundário
-    const deliverySubText = this.add
-      .text(640, 355, "Pacote entregue com sucesso.", {
-        fontFamily: "Arial",
-        fontSize: "22px",
-        color: "#ffffff",
-      })
-      .setOrigin(0.5);
-
-    // Remove as mensagens depois de 2 segundos
-    this.time.delayedCall(2000, () => {
-      deliveryText.destroy();
-      deliverySubText.destroy();
-    });
-  }
-
   createGrid() {
     const graphics = this.add.graphics();
 
@@ -1220,6 +1091,7 @@ export class GameScene extends Phaser.Scene {
       trigger.body.setAllowGravity(false);
       trigger.body.setImmovable(true);
       trigger.setData("arrow", arrow);
+      trigger.setData("houseId", this.arrowTriggerList.length);
       this.arrowTriggers.add(trigger);
       this.arrowTriggerList.push(trigger);
 
