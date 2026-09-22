@@ -102,11 +102,28 @@ export class InteriorScene extends Phaser.Scene {
     const velocity = 300;
     let velocityX = 0;
     let velocityY = 0;
+    const directionalInput = window.directionalInput ?? new Set();
 
-    if (this.cursors.left.isDown || this.wasd.A.isDown) velocityX = -velocity;
-    if (this.cursors.right.isDown || this.wasd.D.isDown) velocityX = velocity;
-    if (this.cursors.up.isDown || this.wasd.W.isDown) velocityY = -velocity;
-    if (this.cursors.down.isDown || this.wasd.S.isDown) velocityY = velocity;
+    if (
+      this.cursors.left.isDown ||
+      this.wasd.A.isDown ||
+      directionalInput.has("left")
+    ) velocityX = -velocity;
+    if (
+      this.cursors.right.isDown ||
+      this.wasd.D.isDown ||
+      directionalInput.has("right")
+    ) velocityX = velocity;
+    if (
+      this.cursors.up.isDown ||
+      this.wasd.W.isDown ||
+      directionalInput.has("up")
+    ) velocityY = -velocity;
+    if (
+      this.cursors.down.isDown ||
+      this.wasd.S.isDown ||
+      directionalInput.has("down")
+    ) velocityY = velocity;
 
     this.player.body.setVelocity(velocityX, velocityY);
     if (velocityX !== 0 || velocityY !== 0) {

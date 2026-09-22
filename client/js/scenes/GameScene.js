@@ -734,21 +734,37 @@ export class GameScene extends Phaser.Scene {
     const touchX = this.joystick.vectorX;
     const touchY = this.joystick.vectorY;
 
-    this.drawJoystick();
+    const directionalInput = window.directionalInput ?? new Set();
 
-    if (this.cursors.left.isDown || this.wasd.A.isDown) {
+    if (
+      this.cursors.left.isDown ||
+      this.wasd.A.isDown ||
+      directionalInput.has("left")
+    ) {
       velocityX = -speed;
     }
 
-    if (this.cursors.right.isDown || this.wasd.D.isDown) {
+    if (
+      this.cursors.right.isDown ||
+      this.wasd.D.isDown ||
+      directionalInput.has("right")
+    ) {
       velocityX = speed;
     }
 
-    if (this.cursors.up.isDown || this.wasd.W.isDown) {
+    if (
+      this.cursors.up.isDown ||
+      this.wasd.W.isDown ||
+      directionalInput.has("up")
+    ) {
       velocityY = -speed;
     }
 
-    if (this.cursors.down.isDown || this.wasd.S.isDown) {
+    if (
+      this.cursors.down.isDown ||
+      this.wasd.S.isDown ||
+      directionalInput.has("down")
+    ) {
       velocityY = speed;
     }
 

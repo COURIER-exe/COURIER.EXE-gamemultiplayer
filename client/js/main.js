@@ -3,6 +3,36 @@ import { CharacterSelect } from "./scenes/CharacterSelect.js";
 import { GameScene } from "./scenes/GameScene.js";
 import { InteriorScene } from "./scenes/InteriorScene.js";
 
+window.directionalInput = new Set();
+
+document.querySelectorAll(".direction-button").forEach((button) => {
+  const direction = button.dataset.direction;
+
+  const press = (event) => {
+    event.preventDefault();
+    window.directionalInput.add(direction);
+    button.classList.add("is-pressed");
+  };
+
+  const release = (event) => {
+    event.preventDefault();
+    window.directionalInput.delete(direction);
+    button.classList.remove("is-pressed");
+  };
+
+  button.addEventListener("pointerdown", press);
+  button.addEventListener("pointerup", release);
+  button.addEventListener("pointercancel", release);
+  button.addEventListener("pointerleave", release);
+});
+
+window.addEventListener("blur", () => {
+  window.directionalInput.clear();
+  document.querySelectorAll(".direction-button").forEach((button) => {
+    button.classList.remove("is-pressed");
+  });
+});
+
 const config = {
   type: Phaser.AUTO,
   width: 1280,
