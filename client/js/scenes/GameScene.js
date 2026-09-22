@@ -5,14 +5,11 @@ export class GameScene extends Phaser.Scene {
     this.trail = [];
     this.fixedDeliveryPoint = { x: 1180, y: 280 };
     this.deliveryVisible = false;
-    this.interiorAtivo = false;
     this.ataqueDoRobo = false;
     this.textoAlerta = null;
     this.matchMode = 2;
     this.player = null;
     this.robo = null;
-    this.houseDoor = null;
-    this.computer = null;
     this.joystick = {
       active: false,
       baseX: 110,
@@ -25,6 +22,7 @@ export class GameScene extends Phaser.Scene {
     };
     this.walls = null;
     this.arrowTriggers = null;
+    this.arrowTriggerList = [];
     this.joystickGraphics = null;
   }
 
@@ -671,31 +669,6 @@ export class GameScene extends Phaser.Scene {
 
     this.playerBody.setCollideWorldBounds(true);
 
-    this.houseDoor = this.add.rectangle(610, 260, 80, 70, 0x00ff99);
-    this.houseDoor.setAlpha(0.6);
-    this.houseDoor.setVisible(true);
-    this.houseDoor.setDepth(10);
-
-    this.computer = this.add.rectangle(660, 310, 28, 28, 0x00d4ff);
-    this.computer.setAlpha(0.9);
-    this.computer.setVisible(false);
-    this.computer.interactable = true;
-
-    this.interiorOverlay = this.add.rectangle(640, 360, 1280, 720, 0x101826);
-    this.interiorOverlay.setAlpha(0.0);
-    this.interiorOverlay.setDepth(100);
-    this.interiorOverlay.setVisible(false);
-
-    this.interiorRoom = this.add.rectangle(640, 360, 900, 520, 0x2b3b52);
-    this.interiorRoom.setAlpha(0.0);
-    this.interiorRoom.setDepth(101);
-    this.interiorRoom.setVisible(false);
-
-    this.interiorTable = this.add.rectangle(640, 430, 180, 70, 0x7b5d3a);
-    this.interiorTable.setAlpha(0.0);
-    this.interiorTable.setDepth(101);
-    this.interiorTable.setVisible(false);
-
     this.robo = this.add.sprite(980, 220, "robo-perseguicao", 0);
     this.robo.setScale(0.75);
     this.robo.setDepth(50);
@@ -848,35 +821,18 @@ export class GameScene extends Phaser.Scene {
     const justPressedE = Phaser.Input.Keyboard.JustDown(this.keyE);
     const justPressedF = Phaser.Input.Keyboard.JustDown(this.keyF);
 
-    if (this.interiorAtivo) {
-      if (justPressedE) {
-        this.exitCasa();
+    this.arrowTriggerList.forEach((trigger) => {
+      if (
+        trigger.getData("active") &&
+        Phaser.Math.Distance.Between(this.player.x, this.player.y, trigger.x, trigger.y) > 60
+      ) {
+        trigger.setData("active", false);
+        trigger.setFillStyle(0x00ff88, 0.22);
       }
+    });
 
-      if (this.computer && this.computer.interactable) {
-        const dx = this.player.x - this.computer.x;
-        const dy = this.player.y - this.computer.y;
-        if (Math.hypot(dx, dy) < 90 && justPressedF) {
-          const codigo = window.prompt("Digite o código:");
-          if (codigo && codigo.trim().toLowerCase() === "codigo") {
-            this.showNotification("Acesso liberado!");
-            this.computer.interactable = false;
-          } else {
-            this.showNotification("Código incorreto.");
-          }
-        }
-      }
-    } else {
-      const dHouse = Phaser.Math.Distance.Between(
-        this.player.x,
-        this.player.y,
-        this.houseDoor.x,
-        this.houseDoor.y,
-      );
-
-      if (dHouse < 90 && justPressedE) {
-        this.enterCasa();
-      }
+    if (justPressedE) {
+      this.showNotification("Entre na casa usando o marcador.");
     }
 
     if (movingHorizontal) {
@@ -1031,33 +987,22 @@ export class GameScene extends Phaser.Scene {
     this.healthBarFill.strokeRect(20, 20, 220, 22);
   }
 
-  enterCasa() {
-    this.interiorAtivo = true;
-    this.worldLayers.forEach((layer) => layer.setVisible(false));
-    this.interiorOverlay.setVisible(true);
-    this.interiorOverlay.setAlpha(0.8);
-    this.interiorRoom.setVisible(true);
-    this.interiorRoom.setAlpha(1);
-    this.interiorTable.setVisible(true);
-    this.interiorTable.setAlpha(1);
-    this.computer.setVisible(true);
-    this.computer.x = 640;
-    this.computer.y = 350;
-    this.player.x = 640;
-    this.player.y = 500;
-    this.showNotification("Interior da casa. Pressione E para sair.");
-  }
+  enterCasa(trigger) {
+    if (
+      this.scene.isActive("InteriorScene") ||
+      this.time.now < (this.interiorCooldownUntil ?? 0) ||
+      trigger.getData("active")
+    ) {
+      return;
+    }
 
-  exitCasa() {
-    this.interiorAtivo = false;
-    this.worldLayers.forEach((layer) => layer.setVisible(true));
-    this.interiorOverlay.setVisible(false);
-    this.interiorRoom.setVisible(false);
-    this.interiorTable.setVisible(false);
-    this.computer.setVisible(false);
-    this.player.x = 650;
-    this.player.y = 280;
-    this.showNotification("Você voltou para o mapa externo.");
+    trigger.setData("active", true);
+    this.savedExteriorPosition = { x: this.player.x, y: this.player.y };
+    this.scene.pause("GameScene");
+    this.scene.launch("InteriorScene", {
+      color: this.scene.settings.data?.color ?? "ciano",
+      returnPosition: this.savedExteriorPosition,
+    });
   }
   collectPackage() {
     console.log("Pacote coletado!");
@@ -1276,6 +1221,7 @@ export class GameScene extends Phaser.Scene {
       trigger.body.setImmovable(true);
       trigger.setData("arrow", arrow);
       this.arrowTriggers.add(trigger);
+      this.arrowTriggerList.push(trigger);
 
       this.tweens.add({
         targets: [arrow, trigger],
@@ -1289,7 +1235,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   handleArrowTrigger(player, trigger) {
-    trigger.setData("active", true);
-    trigger.setFillStyle(0xffff00, 0.35);
+    this.enterCasa(trigger);
   }
 }

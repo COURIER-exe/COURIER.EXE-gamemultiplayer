@@ -573,9 +573,44 @@
  "tiledversion":"1.12.2",
  "tileheight":32,
  "tilesets":[
+       {
+        "firstgid":1,
+         "columns":16,
+        "image":"texturas/Interiors_32x32_0.png",
+        "imageheight":8192,
+         "imagewidth":512,
+         "margin":0,
+         "name":"Interiors_32x32_0",
+         "spacing":0,
+         "tilecount":4096,
+         "tileheight":32,
+         "tilewidth":32
+        },
         {
-         "firstgid":1,
-         "source":"Interiors_32x32.tsx"
+         "firstgid":4097,
+         "columns":16,
+         "image":"texturas/Interiors_32x32_1.png",
+         "imageheight":8192,
+         "imagewidth":512,
+         "margin":0,
+         "name":"Interiors_32x32_1",
+         "spacing":0,
+         "tilecount":4096,
+         "tileheight":32,
+         "tilewidth":32
+        },
+        {
+         "firstgid":8193,
+         "columns":16,
+         "image":"texturas/Interiors_32x32_2.png",
+         "imageheight":8192,
+         "imagewidth":512,
+         "margin":0,
+         "name":"Interiors_32x32_2",
+         "spacing":0,
+         "tilecount":4096,
+         "tileheight":32,
+         "tilewidth":32
         }],
  "tilewidth":32,
  "type":"map",

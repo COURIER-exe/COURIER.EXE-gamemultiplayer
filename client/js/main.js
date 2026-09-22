@@ -1,6 +1,7 @@
 import { Preloader } from "./scenes/Preloader.js";
 import { CharacterSelect } from "./scenes/CharacterSelect.js";
 import { GameScene } from "./scenes/GameScene.js";
+import { InteriorScene } from "./scenes/InteriorScene.js";
 
 const config = {
   type: Phaser.AUTO,
@@ -18,7 +19,7 @@ const config = {
       debug: false,
     },
   },
-  scene: [Preloader, CharacterSelect, GameScene],
+  scene: [Preloader, CharacterSelect, GameScene, InteriorScene],
 };
 
 window.onload = () => {

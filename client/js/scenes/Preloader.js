@@ -57,6 +57,10 @@ export class Preloader extends Phaser.Scene {
 
   loadAssets() {
     this.load.tilemapTiledJSON("mapaCidade", "assets/jogo.json");
+    this.load.tilemapTiledJSON("mapaInterior", "assets/map/interior.json");
+    this.load.image("interiorTileset0", "texturas/Interiors_32x32_0.png");
+    this.load.image("interiorTileset1", "texturas/Interiors_32x32_1.png");
+    this.load.image("interiorTileset2", "texturas/Interiors_32x32_2.png");
     this.load.image("seta-construcao", "assets/seta-construcao.svg");
 
     const images = {
