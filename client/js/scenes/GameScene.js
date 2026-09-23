@@ -354,16 +354,59 @@ export class GameScene extends Phaser.Scene {
     const mapRight = mapLeft + mapWidth;
     const mapBottom = mapTop + mapHeight;
     const positionMargin = 64;
-    const randomMapPosition = () => ({
-      x: Phaser.Math.Between(
-        mapLeft + positionMargin,
-        mapRight - positionMargin,
-      ),
-      y: Phaser.Math.Between(
-        mapTop + positionMargin,
-        mapBottom - positionMargin,
-      ),
-    });
+    const playableLayers = [
+      layerMar,
+      layerborda,
+      layercalcada,
+      layerruas,
+      layerchao,
+      layerconstrucooes,
+      layerarvores,
+    ];
+    const hasMapTileAt = (x, y) =>
+      playableLayers.some((layer) => {
+        const tile = layer.getTileAtWorldXY(x, y);
+        return tile && tile.index !== -1;
+      });
+    const randomMapPosition = () => {
+      for (let attempt = 0; attempt < 1000; attempt += 1) {
+        const position = {
+          x: Phaser.Math.Between(
+            mapLeft + positionMargin,
+            mapRight - positionMargin,
+          ),
+          y: Phaser.Math.Between(
+            mapTop + positionMargin,
+            mapBottom - positionMargin,
+          ),
+        };
+
+        if (hasMapTileAt(position.x, position.y)) {
+          return position;
+        }
+      }
+
+      for (
+        let y = mapTop + tileSize / 2;
+        y < mapBottom;
+        y += tileSize
+      ) {
+        for (
+          let x = mapLeft + tileSize / 2;
+          x < mapRight;
+          x += tileSize
+        ) {
+          if (hasMapTileAt(x, y)) {
+            return { x, y };
+          }
+        }
+      }
+
+      return {
+        x: mapLeft + tileSize / 2,
+        y: mapTop + tileSize / 2,
+      };
+    };
 
     const playerPosition = randomMapPosition();
 
