@@ -4,6 +4,7 @@ import { GameScene } from "./scenes/GameScene.js";
 import { InteriorScene } from "./scenes/InteriorScene.js";
 
 window.directionalInput = new Set();
+window.joystickInput = { x: 0, y: 0 };
 
 const exitHouseButton = document.querySelector("#exit-house-button");
 
@@ -15,32 +16,54 @@ exitHouseButton.addEventListener("click", () => {
   window.game?.scene.getScene("InteriorScene")?.exitInterior();
 });
 
-document.querySelectorAll(".direction-button").forEach((button) => {
-  const direction = button.dataset.direction;
+const joystick = document.querySelector("#joystick");
+const joystickKnob = document.querySelector("#joystick-knob");
+let joystickPointerId = null;
 
-  const press = (event) => {
-    event.preventDefault();
-    window.directionalInput.add(direction);
-    button.classList.add("is-pressed");
-  };
+window.setJoystickVisible = (visible) => {
+  joystick.style.display = visible ? "block" : "none";
+  if (!visible) resetJoystick();
+};
 
-  const release = (event) => {
-    event.preventDefault();
-    window.directionalInput.delete(direction);
-    button.classList.remove("is-pressed");
-  };
+const resetJoystick = () => {
+  joystickPointerId = null;
+  window.joystickInput.x = 0;
+  window.joystickInput.y = 0;
+  joystickKnob.style.transform = "translate(-50%, -50%)";
+};
 
-  button.addEventListener("pointerdown", press);
-  button.addEventListener("pointerup", release);
-  button.addEventListener("pointercancel", release);
-  button.addEventListener("pointerleave", release);
+const updateJoystick = (event) => {
+  const bounds = joystick.getBoundingClientRect();
+  const centerX = bounds.width / 2;
+  const centerY = bounds.height / 2;
+  const radius = bounds.width / 2 - joystickKnob.offsetWidth / 2 - 4;
+  const dx = event.clientX - bounds.left - centerX;
+  const dy = event.clientY - bounds.top - centerY;
+  const distance = Math.hypot(dx, dy);
+  const scale = distance > radius ? radius / distance : 1;
+  const knobX = dx * scale;
+  const knobY = dy * scale;
+
+  window.joystickInput.x = knobX / radius;
+  window.joystickInput.y = knobY / radius;
+  joystickKnob.style.transform = `translate(calc(-50% + ${knobX}px), calc(-50% + ${knobY}px))`;
+};
+
+joystick.addEventListener("pointerdown", (event) => {
+  event.preventDefault();
+  joystickPointerId = event.pointerId;
+  joystick.setPointerCapture(event.pointerId);
+  updateJoystick(event);
 });
+joystick.addEventListener("pointermove", (event) => {
+  if (event.pointerId === joystickPointerId) updateJoystick(event);
+});
+joystick.addEventListener("pointerup", resetJoystick);
+joystick.addEventListener("pointercancel", resetJoystick);
 
 window.addEventListener("blur", () => {
   window.directionalInput.clear();
-  document.querySelectorAll(".direction-button").forEach((button) => {
-    button.classList.remove("is-pressed");
-  });
+  resetJoystick();
 });
 
 const config = {

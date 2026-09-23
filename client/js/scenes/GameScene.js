@@ -26,6 +26,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
+    window.setJoystickVisible?.(true);
     const playerColor = this.scene.settings.data?.color ?? "ciano";
     const playerTexture = `player-${playerColor}`;
     this.map = this.make.tilemap({ key: "mapaCidade" });
@@ -731,8 +732,8 @@ export class GameScene extends Phaser.Scene {
     let velocityX = 0;
     let velocityY = 0;
 
-    const touchX = this.joystick.vectorX;
-    const touchY = this.joystick.vectorY;
+    const touchX = window.joystickInput?.x ?? 0;
+    const touchY = window.joystickInput?.y ?? 0;
 
     const directionalInput = window.directionalInput ?? new Set();
 

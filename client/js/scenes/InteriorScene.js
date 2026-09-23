@@ -106,6 +106,8 @@ export class InteriorScene extends Phaser.Scene {
     const velocity = 300;
     let velocityX = 0;
     let velocityY = 0;
+    const touchX = window.joystickInput?.x ?? 0;
+    const touchY = window.joystickInput?.y ?? 0;
     const directionalInput = window.directionalInput ?? new Set();
 
     if (
@@ -132,6 +134,11 @@ export class InteriorScene extends Phaser.Scene {
       directionalInput.has("down")
     )
       velocityY = velocity;
+
+    if (Math.abs(touchX) > 0.1 || Math.abs(touchY) > 0.1) {
+      velocityX = touchX * velocity;
+      velocityY = touchY * velocity;
+    }
 
     this.player.body.setVelocity(velocityX, velocityY);
     if (velocityX !== 0 || velocityY !== 0) {
