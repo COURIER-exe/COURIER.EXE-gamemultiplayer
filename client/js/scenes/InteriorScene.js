@@ -267,7 +267,9 @@ export class InteriorScene extends Phaser.Scene {
 
     this.interfaceBlocked = true;
     this.computerInteractionLocked = true;
-    this.packagePassword = Array.from({ length: 4 }, () => Phaser.Math.Between(0, 9)).join("");
+    this.packagePassword = Array.from({ length: 4 }, () =>
+      Phaser.Math.Between(0, 9),
+    ).join("");
     this.scene.get("GameScene").packagePassword = this.packagePassword;
     window.openTerminalCode?.(this.packagePassword);
   }
@@ -285,7 +287,10 @@ export class InteriorScene extends Phaser.Scene {
       return;
 
     if (!this.packagePassword) {
-      this.showObjectiveMessage("SENHA NECESSÁRIA", "Encontre um PC em qualquer interior.");
+      this.showObjectiveMessage(
+        "SENHA NECESSÁRIA",
+        "Encontre um PC em qualquer interior.",
+      );
       return;
     }
 

@@ -39,7 +39,9 @@ const closeTerminal = () => {
   window.game?.scene.getScene("InteriorScene")?.setInterfaceBlocked(false);
 };
 
-document.querySelector("#close-terminal-button").addEventListener("click", closeTerminal);
+document
+  .querySelector("#close-terminal-button")
+  .addEventListener("click", closeTerminal);
 
 window.openPackagePassword = (expectedPassword, onSubmit) => {
   packagePasswordSubmit = onSubmit;
@@ -56,7 +58,9 @@ const closePassword = () => {
   window.game?.scene.getScene("InteriorScene")?.setInterfaceBlocked(false);
 };
 
-document.querySelector("#cancel-password-button").addEventListener("click", closePassword);
+document
+  .querySelector("#cancel-password-button")
+  .addEventListener("click", closePassword);
 passwordForm.addEventListener("submit", (event) => {
   event.preventDefault();
   if (passwordInput.value !== passwordForm.dataset.expectedPassword) {
