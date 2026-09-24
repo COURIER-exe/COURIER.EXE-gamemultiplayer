@@ -81,6 +81,155 @@ body {
   box-shadow: 0 0 18px rgba(255, 220, 0, 0.75);
 }
 
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.78);
+}
+
+.modal-backdrop[hidden] {
+  display: none;
+}
+
+.terminal-monitor {
+  position: relative;
+  width: min(82vw, 655px);
+  padding: 28px 24px 0;
+  border-radius: 15px;
+  background: #00f5ee;
+  box-sizing: border-box;
+}
+
+.terminal-screen {
+  position: relative;
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  border: 2px solid #00a9a9;
+}
+
+.terminal-window-controls {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  display: flex;
+  gap: 5px;
+  color: #00f5ee;
+  font: bold 12px monospace;
+}
+
+.terminal-window-controls span {
+  width: 11px;
+  height: 11px;
+  display: grid;
+  place-items: center;
+  color: #00f5ee;
+  background: #d000ff;
+  border-radius: 2px;
+  line-height: 10px;
+}
+
+.terminal-screen h2 {
+  margin: 0 0 28px;
+  color: #00f5ee;
+  font: bold clamp(14px, 2.5vw, 22px) monospace;
+  letter-spacing: 2px;
+}
+
+.terminal-code {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(42px, 90px));
+  gap: clamp(8px, 2vw, 18px);
+}
+
+.terminal-code span {
+  display: grid;
+  aspect-ratio: 0.72;
+  place-items: center;
+  border: 1px solid #d000ff;
+  color: #ffffff;
+  font: bold clamp(32px, 8vw, 64px) monospace;
+}
+
+.terminal-stand {
+  width: 145px;
+  height: 30px;
+  margin: 10px auto 0;
+  background: #00f5ee;
+  clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%);
+}
+
+.terminal-close {
+  position: absolute;
+  right: 10px;
+  bottom: -42px;
+  padding: 7px 11px;
+  border: 1px solid #00f5ee;
+  color: #00f5ee;
+  background: #05050a;
+  font: bold 13px monospace;
+}
+
+.password-panel {
+  width: min(88vw, 390px);
+  padding: 28px;
+  box-sizing: border-box;
+  border: 2px solid #00f5ee;
+  color: #ffffff;
+  background: #05050a;
+  box-shadow: 0 0 30px rgba(0, 245, 238, 0.25);
+  font-family: monospace;
+  text-align: center;
+}
+
+.password-panel h2 {
+  margin: 0 0 10px;
+  color: #00f5ee;
+  font-size: 18px;
+}
+
+.password-panel p {
+  margin: 8px 0 18px;
+}
+
+#password-input {
+  width: 160px;
+  padding: 9px;
+  border: 1px solid #d000ff;
+  color: #ffffff;
+  background: #000000;
+  font: bold 26px monospace;
+  letter-spacing: 8px;
+  text-align: center;
+}
+
+.password-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.password-actions button {
+  padding: 9px 12px;
+  border: 1px solid #00f5ee;
+  color: #00f5ee;
+  background: #071719;
+  font: bold 13px monospace;
+}
+
+.password-error {
+  min-height: 16px;
+  margin-bottom: 0 !important;
+  color: #ff4f91;
+}
+
 @media (max-width: 600px) {
   #joystick {
     left: 12px;

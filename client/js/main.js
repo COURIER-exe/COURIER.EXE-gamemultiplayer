@@ -7,6 +7,13 @@ window.directionalInput = new Set();
 window.joystickInput = { x: 0, y: 0 };
 
 const exitHouseButton = document.querySelector("#exit-house-button");
+const terminalModal = document.querySelector("#terminal-modal");
+const terminalCode = document.querySelector("#terminal-code");
+const passwordModal = document.querySelector("#password-modal");
+const passwordForm = document.querySelector("#password-form");
+const passwordInput = document.querySelector("#password-input");
+const passwordError = document.querySelector("#password-error");
+let packagePasswordSubmit = null;
 
 window.setInteriorExitButtonVisible = (visible) => {
   exitHouseButton.style.display = visible ? "block" : "none";
@@ -14,6 +21,53 @@ window.setInteriorExitButtonVisible = (visible) => {
 
 exitHouseButton.addEventListener("click", () => {
   window.game?.scene.getScene("InteriorScene")?.exitInterior();
+});
+
+window.openTerminalCode = (code) => {
+  terminalCode.replaceChildren(
+    ...code.split("").map((digit) => {
+      const slot = document.createElement("span");
+      slot.textContent = digit;
+      return slot;
+    }),
+  );
+  terminalModal.hidden = false;
+};
+
+const closeTerminal = () => {
+  terminalModal.hidden = true;
+  window.game?.scene.getScene("InteriorScene")?.setInterfaceBlocked(false);
+};
+
+document.querySelector("#close-terminal-button").addEventListener("click", closeTerminal);
+
+window.openPackagePassword = (expectedPassword, onSubmit) => {
+  packagePasswordSubmit = onSubmit;
+  passwordInput.value = "";
+  passwordError.textContent = "";
+  passwordModal.hidden = false;
+  passwordInput.focus();
+  passwordForm.dataset.expectedPassword = expectedPassword;
+};
+
+const closePassword = () => {
+  passwordModal.hidden = true;
+  packagePasswordSubmit = null;
+  window.game?.scene.getScene("InteriorScene")?.setInterfaceBlocked(false);
+};
+
+document.querySelector("#cancel-password-button").addEventListener("click", closePassword);
+passwordForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (passwordInput.value !== passwordForm.dataset.expectedPassword) {
+    passwordError.textContent = "SENHA INCORRETA";
+    passwordInput.select();
+    return;
+  }
+
+  const submit = packagePasswordSubmit;
+  closePassword();
+  submit?.(true);
 });
 
 const joystick = document.querySelector("#joystick");

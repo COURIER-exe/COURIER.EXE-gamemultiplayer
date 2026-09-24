@@ -8,6 +8,9 @@ export class InteriorScene extends Phaser.Scene {
     this.isTargetHouse = false;
     this.directionArrow = null;
     this.darkOverlay = null;
+    this.interfaceBlocked = false;
+    this.computerInteractionLocked = false;
+    this.packageInteractionLocked = false;
   }
 
   init(data) {
@@ -15,6 +18,7 @@ export class InteriorScene extends Phaser.Scene {
     this.mainPlayer = this.scene.get("GameScene")?.player ?? null;
     this.returnPosition = data.returnPosition ?? { x: 0, y: 0 };
     this.isTargetHouse = data.isTargetHouse === true;
+    this.packagePassword = this.scene.get("GameScene")?.packagePassword ?? null;
   }
 
   create() {
@@ -27,7 +31,7 @@ export class InteriorScene extends Phaser.Scene {
       this.map.addTilesetImage("Interiors_32x32_2", "interiorTileset2"),
     ];
 
-    ["chao", "tapete", "acessorios", "parede"].forEach((layerName) => {
+    ["chao", "tapete", "acessorios", "pc", "parede"].forEach((layerName) => {
       this.map.createLayer(layerName, tilesets);
     });
 
@@ -41,6 +45,7 @@ export class InteriorScene extends Phaser.Scene {
     this.player.setSize(24, 20).setOffset(20, 38);
     this.player.setCollideWorldBounds(true);
     this.physics.add.collider(this.player, this.walls);
+    this.createComputerTrigger();
 
     if (this.isTargetHouse) {
       this.createObjectives();
@@ -105,6 +110,35 @@ export class InteriorScene extends Phaser.Scene {
   }
 
   update() {
+    if (
+      this.computerInteractionLocked &&
+      Phaser.Math.Distance.Between(
+        this.player.x,
+        this.player.y,
+        this.computerTrigger.x,
+        this.computerTrigger.y,
+      ) > 60
+    ) {
+      this.computerInteractionLocked = false;
+    }
+    if (
+      this.packageInteractionLocked &&
+      this.pickup &&
+      Phaser.Math.Distance.Between(
+        this.player.x,
+        this.player.y,
+        this.pickup.x,
+        this.pickup.y,
+      ) > 60
+    ) {
+      this.packageInteractionLocked = false;
+    }
+
+    if (this.interfaceBlocked) {
+      this.player.body.setVelocity(0, 0);
+      return;
+    }
+
     const velocity = 300;
     let velocityX = 0;
     let velocityY = 0;
@@ -201,7 +235,68 @@ export class InteriorScene extends Phaser.Scene {
     );
   }
 
+  createComputerTrigger() {
+    this.computerArrow = this.add
+      .image(400, 320, "seta-construcao")
+      .setDisplaySize(42, 32)
+      .setDepth(8);
+    this.computerTrigger = this.add
+      .rectangle(400, 320, 52, 40, 0x00ff88, 0.22)
+      .setStrokeStyle(2, 0x00ff88, 0.9)
+      .setDepth(7);
+    this.physics.add.existing(this.computerTrigger, true);
+    this.tweens.add({
+      targets: [this.computerArrow, this.computerTrigger],
+      y: this.computerArrow.y - 7,
+      duration: 650,
+      ease: "Sine.inOut",
+      yoyo: true,
+      repeat: -1,
+    });
+    this.physics.add.overlap(
+      this.player,
+      this.computerTrigger,
+      this.openComputer,
+      null,
+      this,
+    );
+  }
+
+  openComputer() {
+    if (this.interfaceBlocked || this.computerInteractionLocked) return;
+
+    this.interfaceBlocked = true;
+    this.computerInteractionLocked = true;
+    this.packagePassword = Array.from({ length: 4 }, () => Phaser.Math.Between(0, 9)).join("");
+    this.scene.get("GameScene").packagePassword = this.packagePassword;
+    window.openTerminalCode?.(this.packagePassword);
+  }
+
+  setInterfaceBlocked(blocked) {
+    this.interfaceBlocked = blocked;
+  }
+
   collectPackage() {
+    if (
+      this.player.carregandoPacote ||
+      !this.pickup?.active ||
+      this.packageInteractionLocked
+    )
+      return;
+
+    if (!this.packagePassword) {
+      this.showObjectiveMessage("SENHA NECESSÁRIA", "Encontre um PC em qualquer interior.");
+      return;
+    }
+
+    this.interfaceBlocked = true;
+    this.packageInteractionLocked = true;
+    window.openPackagePassword?.(this.packagePassword, () => {
+      this.unlockPackage();
+    });
+  }
+
+  unlockPackage() {
     if (this.player.carregandoPacote || !this.pickup?.active) return;
 
     this.player.carregandoPacote = true;

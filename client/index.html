@@ -15,6 +15,31 @@
     <button id="exit-house-button" type="button" aria-label="Sair da casa">
       Sair da casa
     </button>
+    <div id="terminal-modal" class="modal-backdrop" hidden>
+      <section class="terminal-monitor" role="dialog" aria-modal="true" aria-labelledby="terminal-title">
+        <div class="terminal-screen">
+          <div class="terminal-window-controls" aria-hidden="true">
+            <span>-</span><span>□</span><span>×</span>
+          </div>
+          <h2 id="terminal-title">SENHA DE ACESSO</h2>
+          <div id="terminal-code" class="terminal-code" aria-label="Senha atual"></div>
+        </div>
+        <div class="terminal-stand" aria-hidden="true"></div>
+        <button id="close-terminal-button" class="terminal-close" type="button">Fechar</button>
+      </section>
+    </div>
+    <div id="password-modal" class="modal-backdrop" hidden>
+      <form id="password-form" class="password-panel">
+        <h2>DESBLOQUEAR PACOTE</h2>
+        <p>Digite a senha exibida no PC.</p>
+        <input id="password-input" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="off" aria-label="Senha de quatro dígitos" required />
+        <div class="password-actions">
+          <button id="cancel-password-button" type="button">Cancelar</button>
+          <button type="submit">Desbloquear</button>
+        </div>
+        <p id="password-error" class="password-error" aria-live="polite"></p>
+      </form>
+    </div>
     <script src="./js/phaser.min.js"></script>
     <script type="module" src="./js/main.js"></script>
   </body>
