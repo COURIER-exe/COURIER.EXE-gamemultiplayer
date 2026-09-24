@@ -7,6 +7,7 @@ export class InteriorScene extends Phaser.Scene {
     this.returnPosition = null;
     this.isTargetHouse = false;
     this.directionArrow = null;
+    this.darkOverlay = null;
   }
 
   init(data) {
@@ -71,6 +72,7 @@ export class InteriorScene extends Phaser.Scene {
     );
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
     this.cameras.main.setZoom(1.5);
+    this.cameras.main.setBackgroundColor(0x0d1320);
 
     this.cursors = this.input.keyboard.createCursorKeys();
     this.wasd = {

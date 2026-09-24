@@ -7,6 +7,13 @@ export class GameScene extends Phaser.Scene {
     this.textoAlerta = null;
     this.matchMode = 2;
     this.player = null;
+    this.playerColor = "ciano";
+    this.playerTrailColors = {
+      roxo: 0xb36bff,
+      ciano: 0x00e5ff,
+      branco: 0xffffff,
+      vermelho: 0xff4d5a,
+    };
     this.robo = null;
     this.joystick = {
       active: false,
@@ -23,11 +30,13 @@ export class GameScene extends Phaser.Scene {
     this.arrowTriggerList = [];
     this.joystickGraphics = null;
     this.houseDirectionArrow = null;
+    this.darkOverlay = null;
   }
 
   create() {
     window.setJoystickVisible?.(true);
-    const playerColor = this.scene.settings.data?.color ?? "ciano";
+    this.playerColor = this.scene.settings.data?.color ?? "ciano";
+    const playerColor = this.playerColor;
     const playerTexture = `player-${playerColor}`;
     this.map = this.make.tilemap({ key: "mapaCidade" });
 
@@ -350,6 +359,21 @@ export class GameScene extends Phaser.Scene {
     this.physics.world.setBounds(mapLeft, mapTop, mapWidth, mapHeight);
     this.cameras.main.setBounds(mapLeft, mapTop, mapWidth, mapHeight);
     this.cameras.main.setZoom(1.5);
+    this.cameras.main.setBackgroundColor(0x101722);
+
+    this.worldLayers = [
+      layerMar,
+      layerborda,
+      layercalcada,
+      layerruas,
+      layerchao,
+      layerconstrucooes,
+      layerarvores,
+    ];
+
+    this.worldLayers.forEach((layer) => {
+      layer.setTint(0x465266);
+    });
 
     const mapRight = mapLeft + mapWidth;
     const mapBottom = mapTop + mapHeight;
@@ -912,12 +936,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   createTrail() {
+    const trailColor = this.playerTrailColors[this.playerColor] ?? 0x00e5ff;
     const trail = this.add.rectangle(
       this.lastTrailX,
       this.lastTrailY,
       12,
       12,
-      0x00ffff,
+      trailColor,
     );
 
     this.trail.push(trail);
