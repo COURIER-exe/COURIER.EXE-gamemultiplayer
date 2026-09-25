@@ -7,6 +7,7 @@ export class Preloader extends Phaser.Scene {
     this.load.image("imagemdecapa", "assets/imagemdecapa.png");
     this.load.image("imagemdepersonagem", "assets/imagemdepersonagem.png");
     this.load.image("imagemdeobjetivo", "assets/imagemdeobjetivo.png");
+    this.load.image("imagemdeloading", "assets/imagemdeloading.png");
   }
 
   create() {
@@ -23,18 +24,56 @@ export class Preloader extends Phaser.Scene {
 
   startLoading() {
     this.children.removeAll(true);
-    this.add.rectangle(640, 360, 1280, 720, 0x05050a);
-    const progressBar = this.add
-      .rectangle(380, 430, 0, 18, 0x00d9e8)
-      .setOrigin(0, 0.5);
+    const loadingImage = this.textures
+      .get("imagemdeloading")
+      .getSourceImage();
+    const loadingTexture = this.textures.createCanvas(
+      "tela-loading-progresso",
+      loadingImage.width,
+      loadingImage.height,
+    );
+    const loadingContext = loadingTexture.getContext();
+    const bar = {
+      x: 195,
+      y: 230,
+      width: 410,
+      height: 40,
+      firstSegmentX: 205,
+      segmentWidth: 20,
+      segmentSpacing: 31,
+      segmentCount: 13,
+    };
+    const drawLoadingScreen = (progress = 0) => {
+      loadingContext.clearRect(0, 0, loadingImage.width, loadingImage.height);
+      loadingContext.drawImage(loadingImage, 0, 0);
+      loadingContext.fillStyle = "#6631ae";
+      loadingContext.fillRect(bar.x, bar.y, bar.width, bar.height);
+
+      const activeSegments = Math.floor(progress * bar.segmentCount);
+      for (let index = 0; index < activeSegments; index += 1) {
+        loadingContext.drawImage(
+          loadingImage,
+          bar.firstSegmentX,
+          bar.y,
+          bar.segmentWidth,
+          bar.height,
+          bar.firstSegmentX + index * bar.segmentSpacing,
+          bar.y,
+          bar.segmentWidth,
+          bar.height,
+        );
+      }
+      loadingTexture.refresh();
+    };
+
+    drawLoadingScreen();
     this.add
-      .rectangle(640, 430, 520, 18)
-      .setStrokeStyle(2, 0xffffff, 0.8)
-      .setOrigin(0.5);
+      .image(640, 360, "tela-loading-progresso")
+      .setDisplaySize(1280, 720);
 
     this.loadAssets();
     this.load.on("progress", (value) => {
-      progressBar.width = 520 * value;
+      drawLoadingScreen(value);
     });
     this.load.once("complete", () => this.scene.start("CharacterSelect"));
     this.load.start();
