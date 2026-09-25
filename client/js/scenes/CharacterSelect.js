@@ -13,31 +13,30 @@ export class CharacterSelect extends Phaser.Scene {
   create() {
     window.setJoystickVisible?.(false);
     window.setCoordinatesVisible?.(false);
-    this.add.rectangle(640, 360, 1280, 720, 0x07151d);
+    this.add
+      .image(640, 360, "imagemdepersonagem")
+      .setDisplaySize(1280, 720);
     this.createColorButtons();
   }
 
   createColorButtons() {
     const options = [
-      ["ROXO", "roxo"],
-      ["CIANO", "ciano"],
-      ["BRANCO", "branco"],
-      ["VERMELHO", "vermelho"],
+      ["ciano", 256],
+      ["roxo", 512],
+      ["vermelho", 744],
+      ["branco", 976],
     ];
-    options.forEach(([label, color], index) => {
-      const x = 190 + index * 300;
-      const swatch = this.add
-        .rectangle(x, 360, 110, 110, this.colors[color])
+    options.forEach(([color, x]) => {
+      const character = this.add
+        .rectangle(x, 365, 170, 190, 0xffffff, 0)
         .setInteractive({ useHandCursor: true });
-      const text = this.add
-        .text(x, 525, label, {
-          color: "#ffffff",
-          fontFamily: "Arial",
-          fontSize: "16px",
-          fontStyle: "bold",
-        })
-        .setOrigin(0.5);
-      swatch.on("pointerdown", () => {
+      character.on("pointerover", () => {
+        character.setFillStyle(this.colors[color], 0.12);
+      });
+      character.on("pointerout", () => {
+        character.setFillStyle(0xffffff, 0);
+      });
+      character.on("pointerdown", () => {
         this.selectedColor = color;
         this.scene.start("GameScene", {
           color: this.selectedColor,
