@@ -721,9 +721,16 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(999);
 
+    window.setCoordinatesVisible?.(true);
+
     this.walls = this.physics.add.staticGroup();
     this.arrowTriggers = this.physics.add.group();
     this.createCollisionFromMap();
+    this.createManualConstructionTrigger(-537, 2128);
+    this.createManualConstructionTrigger(341, 541);
+    this.createManualConstructionTrigger(675, 243);
+    this.createManualConstructionTrigger(680, 1945);
+    this.createManualConstructionTrigger(769, 725);
     this.targetHouseId = Phaser.Math.Between(
       0,
       Math.max(0, this.arrowTriggerList.length - 1),
@@ -975,6 +982,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   updateHud() {
+    if (this.player) {
+      window.updateCoordinates?.(
+        Math.round(this.player.x),
+        Math.round(this.player.y),
+      );
+    }
+
     if (!this.healthBarBg || !this.healthBarFill) return;
 
     this.healthBarBg.clear();
@@ -1196,6 +1210,33 @@ export class GameScene extends Phaser.Scene {
         yoyo: true,
         repeat: -1,
       });
+    });
+  }
+
+  createManualConstructionTrigger(x, y) {
+    const arrow = this.add
+      .image(x, y, "seta-construcao")
+      .setDisplaySize(42, 32)
+      .setDepth(8);
+    const trigger = this.add
+      .rectangle(x, y, 52, 40, 0x00ff88, 0.22)
+      .setStrokeStyle(2, 0x00ff88, 0.9)
+      .setDepth(7);
+    this.physics.add.existing(trigger);
+    trigger.body.setAllowGravity(false);
+    trigger.body.setImmovable(true);
+    trigger.setData("arrow", arrow);
+    trigger.setData("houseId", this.arrowTriggerList.length);
+    this.arrowTriggers.add(trigger);
+    this.arrowTriggerList.push(trigger);
+
+    this.tweens.add({
+      targets: [arrow, trigger],
+      y: y - 7,
+      duration: 650,
+      ease: "Sine.inOut",
+      yoyo: true,
+      repeat: -1,
     });
   }
 

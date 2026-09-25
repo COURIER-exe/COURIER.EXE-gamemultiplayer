@@ -76,11 +76,20 @@ passwordForm.addEventListener("submit", (event) => {
 
 const joystick = document.querySelector("#joystick");
 const joystickKnob = document.querySelector("#joystick-knob");
+const coordinatesDisplay = document.querySelector("#coordinates-display");
 let joystickPointerId = null;
 
 window.setJoystickVisible = (visible) => {
   joystick.style.display = visible ? "block" : "none";
   if (!visible) resetJoystick();
+};
+
+window.setCoordinatesVisible = (visible) => {
+  coordinatesDisplay.style.display = visible ? "block" : "none";
+};
+
+window.updateCoordinates = (x, y) => {
+  coordinatesDisplay.textContent = `COORDENADAS X: ${x} | Y: ${y}`;
 };
 
 const resetJoystick = () => {
