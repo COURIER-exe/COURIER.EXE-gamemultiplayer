@@ -13,7 +13,22 @@ const passwordModal = document.querySelector("#password-modal");
 const passwordForm = document.querySelector("#password-form");
 const passwordInput = document.querySelector("#password-input");
 const passwordError = document.querySelector("#password-error");
+const introScreen = document.querySelector("#intro-screen");
+const introVideo = document.querySelector("#intro-video");
 let packagePasswordSubmit = null;
+
+let gameStarted = false;
+
+const startGame = () => {
+  if (gameStarted) return;
+
+  gameStarted = true;
+  introScreen.remove();
+  window.game = new Phaser.Game(config);
+};
+
+introVideo.addEventListener("ended", startGame, { once: true });
+introVideo.addEventListener("error", startGame, { once: true });
 
 window.setInteriorExitButtonVisible = (visible) => {
   exitHouseButton.style.display = visible ? "block" : "none";
@@ -152,6 +167,6 @@ const config = {
   scene: [Preloader, CharacterSelect, GameScene, InteriorScene],
 };
 
-window.onload = () => {
-  window.game = new Phaser.Game(config);
-};
+window.addEventListener("load", () => {
+  introVideo.play().catch(startGame);
+});
