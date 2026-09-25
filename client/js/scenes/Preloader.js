@@ -10,29 +10,12 @@ export class Preloader extends Phaser.Scene {
 
   create() {
     this.add.image(640, 360, "imagemdecapa").setDisplaySize(1280, 720);
-    this.add.rectangle(640, 360, 1280, 720, 0x05050a, 0.2);
-
     const playButton = this.add
-      .text(640, 610, "PLAY", {
-        backgroundColor: "#00d9e8",
-        color: "#061014",
-        fontFamily: "Arial",
-        fontSize: "28px",
-        fontStyle: "bold",
-        padding: { left: 42, right: 42, top: 16, bottom: 16 },
-      })
-      .setOrigin(0.5)
+      .rectangle(640, 615, 140, 72, 0xffffff, 0)
       .setInteractive({ useHandCursor: true });
 
-    playButton.on("pointerover", () =>
-      playButton.setStyle({ backgroundColor: "#ffffff" }),
-    );
-    playButton.on("pointerout", () =>
-      playButton.setStyle({ backgroundColor: "#00d9e8" }),
-    );
     playButton.on("pointerdown", () => {
       playButton.disableInteractive();
-      playButton.setVisible(false);
       this.startLoading();
     });
   }

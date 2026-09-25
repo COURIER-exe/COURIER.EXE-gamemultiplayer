@@ -13,9 +13,7 @@ export class CharacterSelect extends Phaser.Scene {
   create() {
     window.setJoystickVisible?.(false);
     window.setCoordinatesVisible?.(false);
-    this.add
-      .image(640, 360, "imagemdepersonagem")
-      .setDisplaySize(1280, 720);
+    this.add.image(640, 360, "imagemdepersonagem").setDisplaySize(1280, 720);
     this.createColorButtons();
   }
 
