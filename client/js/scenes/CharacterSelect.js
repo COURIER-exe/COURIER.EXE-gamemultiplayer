@@ -12,6 +12,7 @@ export class CharacterSelect extends Phaser.Scene {
 
   create() {
     window.setJoystickVisible?.(false);
+    window.setCoordinatesVisible?.(false);
     this.add.rectangle(640, 360, 1280, 720, 0x07151d);
     this.createColorButtons();
   }

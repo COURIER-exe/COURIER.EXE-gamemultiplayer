@@ -319,10 +319,67 @@ export class InteriorScene extends Phaser.Scene {
     this.player.carregandoPacote = false;
     if (this.mainPlayer) this.mainPlayer.carregandoPacote = false;
     this.delivery.destroy();
-    this.showObjectiveMessage(
-      "ENTREGA CONCLUÍDA!",
-      "Pacote entregue com sucesso.",
-    );
+    this.showCompletionScreen();
+  }
+
+  showCompletionScreen() {
+    this.interfaceBlocked = true;
+    this.player.body.setVelocity(0, 0);
+    window.setInteriorExitButtonVisible?.(false);
+    window.setJoystickVisible?.(false);
+    window.setCoordinatesVisible?.(false);
+
+    this.add
+      .rectangle(640, 360, 1280, 720, 0x000000)
+      .setScrollFactor(0)
+      .setDepth(100);
+
+    this.add
+      .text(640, 255, "DESAFIO CONCLUÍDO", {
+        fontFamily: "Arial",
+        fontSize: "42px",
+        fontStyle: "bold",
+        color: "#ffffff",
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(101);
+
+    this.add
+      .text(640, 315, "Pacote entregue com sucesso.", {
+        fontFamily: "Arial",
+        fontSize: "22px",
+        color: "#d1d5db",
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(101);
+
+    const menuButton = this.add
+      .rectangle(640, 415, 360, 72, 0x00a9a9)
+      .setStrokeStyle(2, 0x00f5ee)
+      .setScrollFactor(0)
+      .setDepth(101)
+      .setInteractive({ useHandCursor: true });
+    this.add
+      .text(640, 415, "VOLTAR AO MENU PRINCIPAL", {
+        fontFamily: "Arial",
+        fontSize: "20px",
+        fontStyle: "bold",
+        color: "#ffffff",
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(102);
+
+    menuButton.on("pointerover", () => menuButton.setFillStyle(0x00d4d4));
+    menuButton.on("pointerout", () => menuButton.setFillStyle(0x00a9a9));
+    menuButton.once("pointerdown", () => this.returnToMainMenu());
+  }
+
+  returnToMainMenu() {
+    this.scene.stop("GameScene");
+    this.scene.start("CharacterSelect");
   }
 
   updateObjectiveArrow() {

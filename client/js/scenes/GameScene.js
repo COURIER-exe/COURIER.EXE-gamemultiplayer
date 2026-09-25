@@ -410,16 +410,8 @@ export class GameScene extends Phaser.Scene {
         }
       }
 
-      for (
-        let y = mapTop + tileSize / 2;
-        y < mapBottom;
-        y += tileSize
-      ) {
-        for (
-          let x = mapLeft + tileSize / 2;
-          x < mapRight;
-          x += tileSize
-        ) {
+      for (let y = mapTop + tileSize / 2; y < mapBottom; y += tileSize) {
+        for (let x = mapLeft + tileSize / 2; x < mapRight; x += tileSize) {
           if (hasMapTileAt(x, y)) {
             return { x, y };
           }
@@ -731,6 +723,7 @@ export class GameScene extends Phaser.Scene {
     this.createManualConstructionTrigger(675, 243);
     this.createManualConstructionTrigger(680, 1945);
     this.createManualConstructionTrigger(769, 725);
+    this.createManualConstructionTrigger(1068, 1706);
     this.targetHouseId = Phaser.Math.Between(
       0,
       Math.max(0, this.arrowTriggerList.length - 1),
