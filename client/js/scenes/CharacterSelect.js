@@ -43,9 +43,7 @@ export class CharacterSelect extends Phaser.Scene {
 
   showObjectiveScreen() {
     this.children.removeAll(true);
-    this.add
-      .image(640, 360, "imagemdeobjetivo")
-      .setDisplaySize(1280, 720);
+    this.add.image(640, 360, "imagemdeobjetivo").setDisplaySize(1280, 720);
 
     this.add
       .text(
