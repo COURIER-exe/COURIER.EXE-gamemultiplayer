@@ -92,6 +92,9 @@ passwordForm.addEventListener("submit", (event) => {
 const joystick = document.querySelector("#joystick");
 const joystickKnob = document.querySelector("#joystick-knob");
 const coordinatesDisplay = document.querySelector("#coordinates-display");
+const interiorCoordinatesDisplay = document.querySelector(
+  "#interior-coordinates-display",
+);
 const objectivesPanel = document.querySelector("#objectives-panel");
 const objectiveChecks = [
   document.querySelector("#objective-1-check"),
@@ -128,6 +131,14 @@ window.updateObjectiveProgress = (objectiveNumber, completed, password) => {
 
 window.updateCoordinates = (x, y) => {
   coordinatesDisplay.textContent = `COORDENADAS X: ${x} | Y: ${y}`;
+};
+
+window.setInteriorCoordinatesVisible = (visible) => {
+  interiorCoordinatesDisplay.style.display = visible ? "block" : "none";
+};
+
+window.updateInteriorCoordinates = (x, y) => {
+  interiorCoordinatesDisplay.textContent = `INTERIOR X: ${x} | Y: ${y}`;
 };
 
 const resetJoystick = () => {

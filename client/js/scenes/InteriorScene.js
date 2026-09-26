@@ -23,6 +23,7 @@ export class InteriorScene extends Phaser.Scene {
 
   create() {
     window.setInteriorExitButtonVisible?.(true);
+    window.setInteriorCoordinatesVisible?.(true);
     this.cameras.main.fadeIn(250, 5, 5, 10);
     this.map = this.make.tilemap({ key: "mapaInterior" });
     const tilesets = [
@@ -110,6 +111,11 @@ export class InteriorScene extends Phaser.Scene {
   }
 
   update() {
+    window.updateInteriorCoordinates?.(
+      Math.round(this.player.x),
+      Math.round(this.player.y),
+    );
+
     if (
       this.computerInteractionLocked &&
       Phaser.Math.Distance.Between(
@@ -331,6 +337,7 @@ export class InteriorScene extends Phaser.Scene {
     window.setInteriorExitButtonVisible?.(false);
     window.setJoystickVisible?.(false);
     window.setCoordinatesVisible?.(false);
+    window.setInteriorCoordinatesVisible?.(false);
 
     this.add
       .rectangle(640, 360, 1280, 720, 0x000000)
@@ -450,6 +457,7 @@ export class InteriorScene extends Phaser.Scene {
 
   exitInterior() {
     window.setInteriorExitButtonVisible?.(false);
+    window.setInteriorCoordinatesVisible?.(false);
     const mainScene = this.scene.get("GameScene");
     mainScene.player.x = this.returnPosition.x;
     mainScene.player.y = this.returnPosition.y;
