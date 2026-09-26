@@ -92,6 +92,13 @@ passwordForm.addEventListener("submit", (event) => {
 const joystick = document.querySelector("#joystick");
 const joystickKnob = document.querySelector("#joystick-knob");
 const coordinatesDisplay = document.querySelector("#coordinates-display");
+const objectivesPanel = document.querySelector("#objectives-panel");
+const objectiveChecks = [
+  document.querySelector("#objective-1-check"),
+  document.querySelector("#objective-2-check"),
+  document.querySelector("#objective-3-check"),
+];
+const objectivePassword = document.querySelector("#objective-password");
 let joystickPointerId = null;
 
 window.setJoystickVisible = (visible) => {
@@ -101,6 +108,22 @@ window.setJoystickVisible = (visible) => {
 
 window.setCoordinatesVisible = (visible) => {
   coordinatesDisplay.style.display = visible ? "block" : "none";
+  objectivesPanel.style.display = visible ? "block" : "none";
+};
+
+window.resetObjectiveProgress = () => {
+  objectiveChecks.forEach((checkbox) => {
+    checkbox.checked = false;
+  });
+  objectivePassword.textContent = "Senha: ----";
+};
+
+window.updateObjectiveProgress = (objectiveNumber, completed, password) => {
+  const checkbox = objectiveChecks[objectiveNumber - 1];
+  if (checkbox) checkbox.checked = completed;
+  if (objectiveNumber === 1 && password) {
+    objectivePassword.textContent = `Senha: ${password}`;
+  }
 };
 
 window.updateCoordinates = (x, y) => {

@@ -94,6 +94,61 @@ body {
   user-select: none;
 }
 
+#objectives-panel {
+  display: none;
+  position: fixed;
+  top: 76px;
+  left: 20px;
+  z-index: 10;
+  width: min(310px, calc(100vw - 40px));
+  padding: 10px 12px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 4px;
+  color: #ffffff;
+  background: rgba(90, 90, 90, 0.76);
+  font-family: Arial, sans-serif;
+  pointer-events: none;
+  user-select: none;
+}
+
+#objectives-panel h2 {
+  margin: 0 0 7px;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+#objectives-panel ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#objectives-panel li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18px auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+#objectives-panel input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: #70e1a1;
+  opacity: 1;
+}
+
+#objective-password {
+  color: #fff3a6;
+  font: bold 12px monospace;
+  white-space: nowrap;
+}
+
 #exit-house-button {
   display: none;
   position: fixed;
@@ -291,5 +346,11 @@ body {
     right: 12px;
     padding: 10px 12px;
     font-size: 13px;
+  }
+
+  #objectives-panel {
+    top: 72px;
+    left: 12px;
+    width: min(310px, calc(100vw - 24px));
   }
 }

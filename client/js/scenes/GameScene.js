@@ -35,6 +35,7 @@ export class GameScene extends Phaser.Scene {
 
   create() {
     window.setJoystickVisible?.(true);
+    window.resetObjectiveProgress?.();
     this.playerColor = this.scene.settings.data?.color ?? "ciano";
     const playerColor = this.playerColor;
     const playerTexture = `player-${playerColor}`;

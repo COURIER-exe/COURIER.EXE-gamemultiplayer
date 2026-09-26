@@ -271,6 +271,7 @@ export class InteriorScene extends Phaser.Scene {
       Phaser.Math.Between(0, 9),
     ).join("");
     this.scene.get("GameScene").packagePassword = this.packagePassword;
+    window.updateObjectiveProgress?.(1, true, this.packagePassword);
     window.openTerminalCode?.(this.packagePassword);
   }
 
@@ -306,6 +307,7 @@ export class InteriorScene extends Phaser.Scene {
 
     this.player.carregandoPacote = true;
     if (this.mainPlayer) this.mainPlayer.carregandoPacote = true;
+    window.updateObjectiveProgress?.(2, true);
     this.pickup.destroy();
     this.showObjectiveMessage(
       "PACOTE COLETADO!",
@@ -318,6 +320,7 @@ export class InteriorScene extends Phaser.Scene {
 
     this.player.carregandoPacote = false;
     if (this.mainPlayer) this.mainPlayer.carregandoPacote = false;
+    window.updateObjectiveProgress?.(3, true);
     this.delivery.destroy();
     this.showCompletionScreen();
   }
