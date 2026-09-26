@@ -237,7 +237,7 @@ export class InteriorScene extends Phaser.Scene {
 
   createComputerTrigger() {
     this.computerArrow = this.add
-      .image(400, 320, "seta-construcao")
+      .image(400, 320, "computador")
       .setDisplaySize(42, 32)
       .setDepth(8);
     this.computerTrigger = this.add
