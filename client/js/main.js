@@ -92,6 +92,9 @@ passwordForm.addEventListener("submit", (event) => {
 const joystick = document.querySelector("#joystick");
 const joystickKnob = document.querySelector("#joystick-knob");
 const coordinatesDisplay = document.querySelector("#coordinates-display");
+const passwordHouseCoordinates = document.querySelector(
+  "#password-house-coordinates",
+);
 const interiorCoordinatesDisplay = document.querySelector(
   "#interior-coordinates-display",
 );
@@ -112,6 +115,45 @@ window.setJoystickVisible = (visible) => {
 window.setCoordinatesVisible = (visible) => {
   coordinatesDisplay.style.display = visible ? "block" : "none";
   objectivesPanel.style.display = visible ? "block" : "none";
+};
+
+window.setPasswordHouseCoordinates = ({ houses, pickup, delivery }) => {
+  passwordHouseCoordinates.replaceChildren();
+  if (!houses.length && !pickup && !delivery) {
+    passwordHouseCoordinates.hidden = true;
+    return;
+  }
+
+  if (pickup || delivery) {
+    const objectiveTitle = document.createElement("strong");
+    objectiveTitle.textContent = "DESTINOS";
+    passwordHouseCoordinates.append(objectiveTitle);
+
+    [
+      ["COLETA", pickup, "pickup-coordinate"],
+      ["ENTREGA", delivery, "delivery-coordinate"],
+    ].forEach(([label, coordinates, className]) => {
+      if (!coordinates) return;
+      const item = document.createElement("div");
+      item.className = className;
+      item.textContent = `${label}: X ${coordinates.x}, Y ${coordinates.y}`;
+      passwordHouseCoordinates.append(item);
+    });
+  }
+
+  if (houses.length) {
+    const title = document.createElement("strong");
+    title.textContent = "CASAS COM SENHA";
+    const list = document.createElement("ol");
+    houses.forEach(({ houseNumber, x, y }) => {
+      const item = document.createElement("li");
+      item.textContent = `X ${x}, Y ${y}`;
+      item.value = houseNumber;
+      list.append(item);
+    });
+    passwordHouseCoordinates.append(title, list);
+  }
+  passwordHouseCoordinates.hidden = false;
 };
 
 window.resetObjectiveProgress = () => {

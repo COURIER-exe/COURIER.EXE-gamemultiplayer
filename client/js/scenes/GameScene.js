@@ -29,7 +29,6 @@ export class GameScene extends Phaser.Scene {
     this.arrowTriggers = null;
     this.arrowTriggerList = [];
     this.joystickGraphics = null;
-    this.houseDirectionArrow = null;
     this.darkOverlay = null;
   }
 
@@ -716,6 +715,7 @@ export class GameScene extends Phaser.Scene {
 
     window.setCoordinatesVisible?.(true);
 
+    this.arrowTriggerList = [];
     this.walls = this.physics.add.staticGroup();
     this.arrowTriggers = this.physics.add.group();
     this.createCollisionFromMap();
@@ -731,14 +731,59 @@ export class GameScene extends Phaser.Scene {
     this.createManualConstructionTrigger(680, 1945);
     this.createManualConstructionTrigger(769, 725);
     this.createManualConstructionTrigger(1068, 1706);
-    this.targetHouseId = Phaser.Math.Between(
-      0,
-      Math.max(0, this.arrowTriggerList.length - 1),
+    const houseIds = Array.from(
+      { length: this.arrowTriggerList.length },
+      (_, index) => index,
     );
-    this.houseDirectionArrow = this.add
-      .triangle(640, 78, -24, -18, -24, 18, 28, 0, 0xffff00)
-      .setScrollFactor(0)
-      .setDepth(1001);
+    for (let index = houseIds.length - 1; index > 0; index -= 1) {
+      const randomIndex = Phaser.Math.Between(0, index);
+      [houseIds[index], houseIds[randomIndex]] = [
+        houseIds[randomIndex],
+        houseIds[index],
+      ];
+    }
+    this.passwordHouseIds = new Set(houseIds.slice(0, 8));
+    const housePasswordCodes = Array.from({ length: 16 }, (_, code) =>
+      code.toString(2).padStart(4, "0"),
+    );
+    for (let index = housePasswordCodes.length - 1; index > 0; index -= 1) {
+      const randomIndex = Phaser.Math.Between(0, index);
+      [housePasswordCodes[index], housePasswordCodes[randomIndex]] = [
+        housePasswordCodes[randomIndex],
+        housePasswordCodes[index],
+      ];
+    }
+    this.housePasswords = new Map(
+      [...this.passwordHouseIds].map((houseId, index) => [
+        houseId,
+        housePasswordCodes[index],
+      ]),
+    );
+    const passwordHouseIds = [...this.passwordHouseIds];
+    this.pickupHouseId = passwordHouseIds.length
+      ? passwordHouseIds[Phaser.Math.Between(0, passwordHouseIds.length - 1)]
+      : 0;
+    const deliveryHouseIds = houseIds.filter(
+      (houseId) => houseId !== this.pickupHouseId,
+    );
+    this.deliveryHouseId = deliveryHouseIds.length
+      ? deliveryHouseIds[Phaser.Math.Between(0, deliveryHouseIds.length - 1)]
+      : null;
+    const getHouseCoordinates = (houseId) => {
+      const coordinates = this.arrowTriggerList[houseId]?.getData("coordinates");
+      return coordinates
+        ? { x: Math.round(coordinates.x), y: Math.round(coordinates.y) }
+        : null;
+    };
+    window.setPasswordHouseCoordinates?.({
+      houses: [...this.passwordHouseIds].map((houseId) => ({
+        houseNumber: houseId + 1,
+        ...getHouseCoordinates(houseId),
+      })),
+      pickup: getHouseCoordinates(this.pickupHouseId),
+      delivery: getHouseCoordinates(this.deliveryHouseId),
+    });
+    this.packagePassword = null;
     this.joystickGraphics = this.add
       .graphics()
       .setScrollFactor(0)
@@ -930,8 +975,6 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    this.updateHouseDirectionArrow();
-
     this.updateHud();
 
     if (this.player.vidaAtual <= 0) {
@@ -1009,27 +1052,6 @@ export class GameScene extends Phaser.Scene {
     this.healthBarFill.strokeRect(20, 20, 220, 22);
   }
 
-  updateHouseDirectionArrow() {
-    if (!this.houseDirectionArrow) return;
-
-    const targetTrigger = this.arrowTriggerList[this.targetHouseId];
-    if (!targetTrigger || targetTrigger.getData("active")) {
-      this.houseDirectionArrow.setVisible(false);
-      return;
-    }
-
-    this.houseDirectionArrow
-      .setVisible(true)
-      .setRotation(
-        Phaser.Math.Angle.Between(
-          this.player.x,
-          this.player.y,
-          targetTrigger.x,
-          targetTrigger.y,
-        ),
-      );
-  }
-
   enterCasa(trigger) {
     if (
       this.scene.isActive("InteriorScene") ||
@@ -1041,11 +1063,15 @@ export class GameScene extends Phaser.Scene {
 
     trigger.setData("active", true);
     this.savedExteriorPosition = { x: this.player.x, y: this.player.y };
+    const houseId = trigger.getData("houseId");
     this.scene.pause("GameScene");
     this.scene.launch("InteriorScene", {
       color: this.scene.settings.data?.color ?? "ciano",
       returnPosition: this.savedExteriorPosition,
-      isTargetHouse: trigger.getData("houseId") === this.targetHouseId,
+      houseId,
+      isTargetHouse: houseId === this.pickupHouseId,
+      isDeliveryHouse: houseId === this.deliveryHouseId,
+      hasPassword: this.passwordHouseIds.has(houseId),
     });
   }
   createGrid() {
@@ -1199,6 +1225,7 @@ export class GameScene extends Phaser.Scene {
       trigger.body.setImmovable(true);
       trigger.setData("arrow", arrow);
       trigger.setData("houseId", this.arrowTriggerList.length);
+      trigger.setData("coordinates", { x: trigger.x, y: trigger.y });
       this.arrowTriggers.add(trigger);
       this.arrowTriggerList.push(trigger);
 
@@ -1227,6 +1254,7 @@ export class GameScene extends Phaser.Scene {
     trigger.body.setImmovable(true);
     trigger.setData("arrow", arrow);
     trigger.setData("houseId", this.arrowTriggerList.length);
+    trigger.setData("coordinates", { x: trigger.x, y: trigger.y });
     this.arrowTriggers.add(trigger);
     this.arrowTriggerList.push(trigger);
 

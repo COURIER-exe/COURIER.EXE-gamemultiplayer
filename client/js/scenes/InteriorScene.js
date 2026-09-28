@@ -6,6 +6,7 @@ export class InteriorScene extends Phaser.Scene {
     this.mainPlayer = null;
     this.returnPosition = null;
     this.isTargetHouse = false;
+    this.isDeliveryHouse = false;
     this.directionArrow = null;
     this.darkOverlay = null;
     this.interfaceBlocked = false;
@@ -14,10 +15,16 @@ export class InteriorScene extends Phaser.Scene {
   }
 
   init(data) {
+    this.interfaceBlocked = false;
+    this.computerInteractionLocked = false;
+    this.packageInteractionLocked = false;
     this.playerColor = data.color ?? "ciano";
     this.mainPlayer = this.scene.get("GameScene")?.player ?? null;
     this.returnPosition = data.returnPosition ?? { x: 0, y: 0 };
+    this.houseId = data.houseId;
     this.isTargetHouse = data.isTargetHouse === true;
+    this.isDeliveryHouse = data.isDeliveryHouse === true;
+    this.hasPassword = data.hasPassword === true;
     this.packagePassword = this.scene.get("GameScene")?.packagePassword ?? null;
   }
 
@@ -48,7 +55,7 @@ export class InteriorScene extends Phaser.Scene {
     this.physics.add.collider(this.player, this.walls);
     this.createComputerTrigger();
 
-    if (this.isTargetHouse) {
+    if (this.isTargetHouse || this.isDeliveryHouse) {
       this.createObjectives();
     }
 
@@ -217,11 +224,21 @@ export class InteriorScene extends Phaser.Scene {
   }
 
   createObjectives() {
-    this.delivery = this.add.rectangle(420, 330, 40, 40, 0xffff00);
     this.objectiveGroup = this.physics.add.staticGroup();
-    this.objectiveGroup.add(this.delivery);
 
-    if (!this.player.carregandoPacote) {
+    if (this.isDeliveryHouse) {
+      this.delivery = this.add.rectangle(420, 330, 40, 40, 0xffff00);
+      this.objectiveGroup.add(this.delivery);
+      this.physics.add.overlap(
+        this.player,
+        this.delivery,
+        this.completeDelivery,
+        null,
+        this,
+      );
+    }
+
+    if (this.isTargetHouse && !this.player.carregandoPacote) {
       this.pickup = this.add.rectangle(120, 300, 40, 40, 0xffff00);
       this.objectiveGroup.add(this.pickup);
       this.physics.add.overlap(
@@ -232,13 +249,6 @@ export class InteriorScene extends Phaser.Scene {
         this,
       );
     }
-    this.physics.add.overlap(
-      this.player,
-      this.delivery,
-      this.completeDelivery,
-      null,
-      this,
-    );
   }
 
   createComputerTrigger() {
@@ -271,13 +281,22 @@ export class InteriorScene extends Phaser.Scene {
   openComputer() {
     if (this.interfaceBlocked || this.computerInteractionLocked) return;
 
-    this.interfaceBlocked = true;
     this.computerInteractionLocked = true;
-    this.packagePassword = Array.from({ length: 4 }, () =>
-      Phaser.Math.Between(0, 1),
-    ).join("");
-    this.scene.get("GameScene").packagePassword = this.packagePassword;
-    window.updateObjectiveProgress?.(1, true, this.packagePassword);
+    if (!this.hasPassword) {
+      this.showObjectiveMessage(
+        "SEM SENHA",
+        "Este computador nao possui uma senha.",
+      );
+      return;
+    }
+
+    this.interfaceBlocked = true;
+    const gameScene = this.scene.get("GameScene");
+    this.packagePassword = gameScene.housePasswords.get(this.houseId);
+    if (this.isTargetHouse) {
+      gameScene.packagePassword = this.packagePassword;
+      window.updateObjectiveProgress?.(1, true, this.packagePassword);
+    }
     window.openTerminalCode?.(this.packagePassword);
   }
 
@@ -296,7 +315,7 @@ export class InteriorScene extends Phaser.Scene {
     if (!this.packagePassword) {
       this.showObjectiveMessage(
         "SENHA NECESSÁRIA",
-        "Encontre um PC em qualquer interior.",
+        "Encontre um computador com senha.",
       );
       return;
     }
@@ -395,9 +414,12 @@ export class InteriorScene extends Phaser.Scene {
   updateObjectiveArrow() {
     if (!this.directionArrow) return;
 
-    const target = this.player.carregandoPacote ? this.delivery : this.pickup;
+    const target =
+      this.isDeliveryHouse && this.player.carregandoPacote
+        ? this.delivery
+        : null;
     const targetIsActive = target && target.active !== false;
-    if (!this.isTargetHouse || !targetIsActive) {
+    if (!targetIsActive) {
       this.directionArrow.setVisible(false);
       return;
     }
