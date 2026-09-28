@@ -719,6 +719,12 @@ export class GameScene extends Phaser.Scene {
     this.walls = this.physics.add.staticGroup();
     this.arrowTriggers = this.physics.add.group();
     this.createCollisionFromMap();
+    this.map
+      .getObjectLayer("triggers")
+      ?.objects.filter((object) => object.type === "construction-trigger")
+      .forEach((object) =>
+        this.createManualConstructionTrigger(object.x, object.y),
+      );
     this.createManualConstructionTrigger(-537, 2128);
     this.createManualConstructionTrigger(341, 541);
     this.createManualConstructionTrigger(675, 243);
@@ -864,7 +870,7 @@ export class GameScene extends Phaser.Scene {
         ) > 60
       ) {
         trigger.setData("active", false);
-        trigger.setFillStyle(0x00ff88, 0.22);
+        trigger.setFillStyle(0x00e5ff, 0.22);
       }
     });
 
@@ -1185,8 +1191,8 @@ export class GameScene extends Phaser.Scene {
         .setDisplaySize(42, 32)
         .setDepth(8);
       const trigger = this.add
-        .rectangle(arrow.x, arrow.y, 52, 40, 0x00ff88, 0.22)
-        .setStrokeStyle(2, 0x00ff88, 0.9)
+        .rectangle(arrow.x, arrow.y, 52, 40, 0x00e5ff, 0.22)
+        .setStrokeStyle(2, 0x00e5ff, 0.9)
         .setDepth(7);
       this.physics.add.existing(trigger);
       trigger.body.setAllowGravity(false);
@@ -1213,8 +1219,8 @@ export class GameScene extends Phaser.Scene {
       .setDisplaySize(42, 32)
       .setDepth(8);
     const trigger = this.add
-      .rectangle(x, y, 52, 40, 0x00ff88, 0.22)
-      .setStrokeStyle(2, 0x00ff88, 0.9)
+      .rectangle(x, y, 52, 40, 0x00e5ff, 0.22)
+      .setStrokeStyle(2, 0x00e5ff, 0.9)
       .setDepth(7);
     this.physics.add.existing(trigger);
     trigger.body.setAllowGravity(false);

@@ -8160,9 +8160,32 @@
          "width":112,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":10,
+         "name":"triggers",
+         "objects":[
+                {
+                 "height":0,
+                 "id":477,
+                 "name":"trigger-construcao",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"construction-trigger",
+                 "visible":true,
+                 "width":0,
+                 "x":1035,
+                 "y":-342
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextlayerid":10,
- "nextobjectid":477,
+ "nextlayerid":11,
+ "nextobjectid":478,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.2",

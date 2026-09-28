@@ -243,12 +243,12 @@ export class InteriorScene extends Phaser.Scene {
 
   createComputerTrigger() {
     this.computerArrow = this.add
-      .image(400, 320, "computador")
+      .image(436, 451, "computador")
       .setDisplaySize(42, 32)
       .setDepth(8);
     this.computerTrigger = this.add
-      .rectangle(400, 320, 52, 40, 0x00ff88, 0.22)
-      .setStrokeStyle(2, 0x00ff88, 0.9)
+      .rectangle(436, 451, 52, 40, 0x00e5ff, 0.22)
+      .setStrokeStyle(2, 0x00e5ff, 0.9)
       .setDepth(7);
     this.physics.add.existing(this.computerTrigger, true);
     this.tweens.add({
@@ -274,7 +274,7 @@ export class InteriorScene extends Phaser.Scene {
     this.interfaceBlocked = true;
     this.computerInteractionLocked = true;
     this.packagePassword = Array.from({ length: 4 }, () =>
-      Phaser.Math.Between(0, 9),
+      Phaser.Math.Between(0, 1),
     ).join("");
     this.scene.get("GameScene").packagePassword = this.packagePassword;
     window.updateObjectiveProgress?.(1, true, this.packagePassword);
