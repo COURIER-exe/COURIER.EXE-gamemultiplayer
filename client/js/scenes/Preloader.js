@@ -11,16 +11,16 @@ export class Preloader extends Phaser.Scene {
   }
 
   create() {
-    if (!this.scale.isFullScreen) {
-      this.scale.startFullscreen();
-    }
-
     this.add.image(640, 360, "imagemdecapa").setDisplaySize(1280, 720);
     const playButton = this.add
       .rectangle(640, 615, 140, 72, 0xffffff, 0)
       .setInteractive({ useHandCursor: true });
 
     playButton.on("pointerdown", () => {
+      if (!this.scale.isFullScreen) {
+        this.scale.startFullscreen();
+      }
+      
       playButton.disableInteractive();
       this.startLoading();
     });
