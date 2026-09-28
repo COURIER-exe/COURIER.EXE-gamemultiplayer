@@ -115,7 +115,9 @@ body {
   color: #ffffff;
   background: rgba(5, 20, 35, 0.9);
   box-shadow: 0 0 12px rgba(0, 220, 255, 0.3);
-  font: 12px Arial, sans-serif;
+  font:
+    12px Arial,
+    sans-serif;
   pointer-events: none;
   user-select: none;
 }

@@ -742,7 +742,12 @@ export class GameScene extends Phaser.Scene {
         houseIds[index],
       ];
     }
-    this.passwordHouseIds = new Set(houseIds.slice(0, 8));
+    this.pickupHouseId = houseIds.length
+      ? houseIds[Phaser.Math.Between(0, houseIds.length - 1)]
+      : 0;
+    this.passwordHouseIds = new Set(
+      houseIds.filter((houseId) => houseId !== this.pickupHouseId).slice(0, 8),
+    );
     const housePasswordCodes = Array.from({ length: 16 }, (_, code) =>
       code.toString(2).padStart(4, "0"),
     );
@@ -760,9 +765,9 @@ export class GameScene extends Phaser.Scene {
       ]),
     );
     const passwordHouseIds = [...this.passwordHouseIds];
-    this.pickupHouseId = passwordHouseIds.length
+    this.packagePasswordHouseId = passwordHouseIds.length
       ? passwordHouseIds[Phaser.Math.Between(0, passwordHouseIds.length - 1)]
-      : 0;
+      : null;
     const deliveryHouseIds = houseIds.filter(
       (houseId) => houseId !== this.pickupHouseId,
     );
@@ -770,7 +775,8 @@ export class GameScene extends Phaser.Scene {
       ? deliveryHouseIds[Phaser.Math.Between(0, deliveryHouseIds.length - 1)]
       : null;
     const getHouseCoordinates = (houseId) => {
-      const coordinates = this.arrowTriggerList[houseId]?.getData("coordinates");
+      const coordinates =
+        this.arrowTriggerList[houseId]?.getData("coordinates");
       return coordinates
         ? { x: Math.round(coordinates.x), y: Math.round(coordinates.y) }
         : null;
@@ -1071,6 +1077,7 @@ export class GameScene extends Phaser.Scene {
       houseId,
       isTargetHouse: houseId === this.pickupHouseId,
       isDeliveryHouse: houseId === this.deliveryHouseId,
+      isPackagePasswordHouse: houseId === this.packagePasswordHouseId,
       hasPassword: this.passwordHouseIds.has(houseId),
     });
   }
