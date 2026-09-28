@@ -11,6 +11,10 @@ export class Preloader extends Phaser.Scene {
   }
 
   create() {
+    if (!this.scale.isFullScreen) {
+      this.scale.startFullscreen();
+    }
+
     this.add.image(640, 360, "imagemdecapa").setDisplaySize(1280, 720);
     const playButton = this.add
       .rectangle(640, 615, 140, 72, 0xffffff, 0)
@@ -24,9 +28,7 @@ export class Preloader extends Phaser.Scene {
 
   startLoading() {
     this.children.removeAll(true);
-    const loadingImage = this.textures
-      .get("imagemdeloading")
-      .getSourceImage();
+    const loadingImage = this.textures.get("imagemdeloading").getSourceImage();
     const loadingTexture = this.textures.createCanvas(
       "tela-loading-progresso",
       loadingImage.width,
