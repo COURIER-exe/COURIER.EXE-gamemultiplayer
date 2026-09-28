@@ -7,7 +7,6 @@ export class InteriorScene extends Phaser.Scene {
     this.returnPosition = null;
     this.isTargetHouse = false;
     this.isDeliveryHouse = false;
-    this.isPackagePasswordHouse = false;
     this.directionArrow = null;
     this.darkOverlay = null;
     this.interfaceBlocked = false;
@@ -25,7 +24,6 @@ export class InteriorScene extends Phaser.Scene {
     this.houseId = data.houseId;
     this.isTargetHouse = data.isTargetHouse === true;
     this.isDeliveryHouse = data.isDeliveryHouse === true;
-    this.isPackagePasswordHouse = data.isPackagePasswordHouse === true;
     this.hasPassword = data.hasPassword === true;
     this.packagePassword = this.scene.get("GameScene")?.packagePassword ?? null;
   }
@@ -295,10 +293,8 @@ export class InteriorScene extends Phaser.Scene {
     this.interfaceBlocked = true;
     const gameScene = this.scene.get("GameScene");
     this.packagePassword = gameScene.housePasswords.get(this.houseId);
-    if (this.isPackagePasswordHouse) {
-      gameScene.packagePassword = this.packagePassword;
-      window.updateObjectiveProgress?.(1, true, this.packagePassword);
-    }
+    gameScene.packagePassword = this.packagePassword;
+    window.updateObjectiveProgress?.(1, true, this.packagePassword);
     window.openTerminalCode?.(this.packagePassword);
   }
 

@@ -764,10 +764,6 @@ export class GameScene extends Phaser.Scene {
         housePasswordCodes[index],
       ]),
     );
-    const passwordHouseIds = [...this.passwordHouseIds];
-    this.packagePasswordHouseId = passwordHouseIds.length
-      ? passwordHouseIds[Phaser.Math.Between(0, passwordHouseIds.length - 1)]
-      : null;
     const deliveryHouseIds = houseIds.filter(
       (houseId) => houseId !== this.pickupHouseId,
     );
@@ -1077,7 +1073,6 @@ export class GameScene extends Phaser.Scene {
       houseId,
       isTargetHouse: houseId === this.pickupHouseId,
       isDeliveryHouse: houseId === this.deliveryHouseId,
-      isPackagePasswordHouse: houseId === this.packagePasswordHouseId,
       hasPassword: this.passwordHouseIds.has(houseId),
     });
   }
