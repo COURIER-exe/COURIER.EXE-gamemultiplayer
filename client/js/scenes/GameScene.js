@@ -817,6 +817,7 @@ export class GameScene extends Phaser.Scene {
 
     // Colisão Courier x paredes
     this.physics.add.collider(this.player, this.walls);
+    this.physics.add.collider(this.robo, this.walls);
 
     this.physics.add.overlap(
       this.player,
@@ -978,8 +979,10 @@ export class GameScene extends Phaser.Scene {
       if (roboDist < this.robo.detectionRadius) {
         const nx = (this.player.x - this.robo.x) / (roboDist || 1);
         const ny = (this.player.y - this.robo.y) / (roboDist || 1);
-        this.robo.x += nx * this.robo.speed * 0.016;
-        this.robo.y += ny * this.robo.speed * 0.016;
+        this.robo.body.setVelocity(
+          nx * this.robo.speed,
+          ny * this.robo.speed,
+        );
 
         if (Math.abs(nx) > 0.05) {
           this.robo.setFlipX(nx < 0);
@@ -1000,6 +1003,7 @@ export class GameScene extends Phaser.Scene {
           this.ataqueDoRobo = true;
         }
       } else {
+        this.robo.body.setVelocity(0, 0);
         this.robo.anims.stop();
         this.robo.setFrame(0);
         this.robo.setFlipX(false);
