@@ -1234,6 +1234,13 @@ export class GameScene extends Phaser.Scene {
     });
 
     buildings.forEach((building) => {
+      if (
+        building.right - building.left > 640 ||
+        building.bottom - building.top > 640
+      ) {
+        return;
+      }
+
       const arrow = this.add
         .image(
           (building.left + building.right) / 2,
