@@ -438,11 +438,12 @@ export class GameScene extends Phaser.Scene {
     });
 
     this.roboAnimation = "robo-walk";
+    this.roboDirectionFrames = { up: 0, down: 7 };
     this.anims.create({
       key: this.roboAnimation,
       frames: this.anims.generateFrameNumbers("robo-perseguicao", {
-        start: 0,
-        end: 5,
+        start: 95,
+        end: 100,
       }),
       frameRate: 10,
       repeat: -1,
@@ -981,8 +982,12 @@ export class GameScene extends Phaser.Scene {
         this.robo.y += ny * this.robo.speed * 0.016;
 
         if (Math.abs(nx) > 0.05) {
-          this.robo.setFlipX(nx > 0);
+          this.robo.setFlipX(nx < 0);
           this.robo.anims.play(this.roboAnimation, true);
+        } else if (Math.abs(ny) > 0.05) {
+          this.robo.anims.stop();
+          this.robo.setFrame(this.roboDirectionFrames[ny < 0 ? "up" : "down"]);
+          this.robo.setFlipX(false);
         } else {
           this.robo.anims.stop();
           this.robo.setFrame(0);
