@@ -437,6 +437,17 @@ export class GameScene extends Phaser.Scene {
       repeat: -1,
     });
 
+    this.roboAnimation = "robo-walk";
+    this.anims.create({
+      key: this.roboAnimation,
+      frames: this.anims.generateFrameNumbers("robo-perseguicao", {
+        start: 0,
+        end: 5,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
     this.worldLayers = [];
     this.worldLayers.push(
       this.map.createLayer("mar", [
@@ -969,11 +980,24 @@ export class GameScene extends Phaser.Scene {
         this.robo.x += nx * this.robo.speed * 0.016;
         this.robo.y += ny * this.robo.speed * 0.016;
 
+        if (Math.abs(nx) > 0.05) {
+          this.robo.setFlipX(nx > 0);
+          this.robo.anims.play(this.roboAnimation, true);
+        } else {
+          this.robo.anims.stop();
+          this.robo.setFrame(0);
+          this.robo.setFlipX(false);
+        }
+
         if (roboDist < 32) {
           this.player.vidaAtual = Math.max(0, this.player.vidaAtual - 1.5);
           this.showNotification("Você foi atingido!");
           this.ataqueDoRobo = true;
         }
+      } else {
+        this.robo.anims.stop();
+        this.robo.setFrame(0);
+        this.robo.setFlipX(false);
       }
     }
 

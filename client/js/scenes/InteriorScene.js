@@ -5,6 +5,10 @@ export class InteriorScene extends Phaser.Scene {
     this.player = null;
     this.mainPlayer = null;
     this.returnPosition = null;
+    this.pickup = null;
+    this.pickupTrigger = null;
+    this.delivery = null;
+    this.deliveryTrigger = null;
     this.isTargetHouse = false;
     this.isDeliveryHouse = false;
     this.directionArrow = null;
@@ -227,11 +231,14 @@ export class InteriorScene extends Phaser.Scene {
     this.objectiveGroup = this.physics.add.staticGroup();
 
     if (this.isDeliveryHouse) {
-      this.delivery = this.add.rectangle(420, 330, 40, 40, 0xffff00);
-      this.objectiveGroup.add(this.delivery);
+      this.delivery = this.add
+        .image(420, 330, "marcador-entrega")
+        .setDisplaySize(64, 64);
+      this.deliveryTrigger = this.add.rectangle(420, 330, 40, 40, 0xffffff, 0);
+      this.objectiveGroup.add(this.deliveryTrigger);
       this.physics.add.overlap(
         this.player,
-        this.delivery,
+        this.deliveryTrigger,
         this.completeDelivery,
         null,
         this,
@@ -239,11 +246,14 @@ export class InteriorScene extends Phaser.Scene {
     }
 
     if (this.isTargetHouse && !this.player.carregandoPacote) {
-      this.pickup = this.add.rectangle(120, 300, 40, 40, 0xffff00);
-      this.objectiveGroup.add(this.pickup);
+      this.pickup = this.add
+        .image(120, 300, "marcador-coleta")
+        .setDisplaySize(64, 64);
+      this.pickupTrigger = this.add.rectangle(120, 300, 40, 40, 0xffffff, 0);
+      this.objectiveGroup.add(this.pickupTrigger);
       this.physics.add.overlap(
         this.player,
-        this.pickup,
+        this.pickupTrigger,
         this.collectPackage,
         null,
         this,
@@ -332,6 +342,7 @@ export class InteriorScene extends Phaser.Scene {
     if (this.mainPlayer) this.mainPlayer.carregandoPacote = true;
     window.updateObjectiveProgress?.(2, true);
     this.pickup.destroy();
+    this.pickupTrigger.destroy();
     this.showObjectiveMessage(
       "PACOTE COLETADO!",
       "Leve até o outro marcador amarelo.",
@@ -339,12 +350,13 @@ export class InteriorScene extends Phaser.Scene {
   }
 
   completeDelivery() {
-    if (!this.player.carregandoPacote || !this.delivery?.active) return;
+    if (!this.player.carregandoPacote || !this.deliveryTrigger?.active) return;
 
     this.player.carregandoPacote = false;
     if (this.mainPlayer) this.mainPlayer.carregandoPacote = false;
     window.updateObjectiveProgress?.(3, true);
     this.delivery.destroy();
+    this.deliveryTrigger.destroy();
     this.showCompletionScreen();
   }
 
