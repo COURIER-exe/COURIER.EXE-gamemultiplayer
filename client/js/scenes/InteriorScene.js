@@ -229,12 +229,12 @@ export class InteriorScene extends Phaser.Scene {
 
   createObjectives() {
     this.objectiveGroup = this.physics.add.staticGroup();
+    const markerSize = 64;
 
     if (this.isDeliveryHouse) {
-      this.delivery = this.add
-        .image(420, 330, "marcador-entrega")
-        .setDisplaySize(64, 64);
-      this.deliveryTrigger = this.add.rectangle(420, 330, 40, 40, 0xffffff, 0);
+      this.deliveryTrigger = this.add
+        .rectangle(420, 330, markerSize * 0.59, markerSize * 0.985, 0x00e5ff, 0.22)
+        .setStrokeStyle(2, 0x00e5ff, 0.9);
       this.objectiveGroup.add(this.deliveryTrigger);
       this.physics.add.overlap(
         this.player,
@@ -243,13 +243,15 @@ export class InteriorScene extends Phaser.Scene {
         null,
         this,
       );
+      this.delivery = this.add
+        .image(420, 330, "marcador-entrega")
+        .setDisplaySize(markerSize, markerSize);
     }
 
     if (this.isTargetHouse && !this.player.carregandoPacote) {
-      this.pickup = this.add
-        .image(120, 300, "marcador-coleta")
-        .setDisplaySize(64, 64);
-      this.pickupTrigger = this.add.rectangle(120, 300, 40, 40, 0xffffff, 0);
+      this.pickupTrigger = this.add
+        .rectangle(120, 300, markerSize * 0.36, markerSize * 0.39, 0x00e5ff, 0.22)
+        .setStrokeStyle(2, 0x00e5ff, 0.9);
       this.objectiveGroup.add(this.pickupTrigger);
       this.physics.add.overlap(
         this.player,
@@ -258,6 +260,9 @@ export class InteriorScene extends Phaser.Scene {
         null,
         this,
       );
+      this.pickup = this.add
+        .image(120, 300, "marcador-coleta")
+        .setDisplaySize(markerSize, markerSize);
     }
   }
 

@@ -697,9 +697,14 @@ export class GameScene extends Phaser.Scene {
 
     this.playerBody.setCollideWorldBounds(true);
 
-    this.robo = this.add.sprite(980, 220, "robo-perseguicao", 0);
+    this.robo = this.add.sprite(
+      980,
+      220,
+      "robo-perseguicao",
+      this.roboDirectionFrames.down,
+    );
     this.robo.setScale(0.75);
-    this.robo.setDepth(50);
+    this.robo.setDepth(this.player.depth);
     this.robo.setVisible(true);
     this.robo.speed = 110;
     this.robo.detectionRadius = 220;
@@ -993,7 +998,7 @@ export class GameScene extends Phaser.Scene {
           this.robo.setFlipX(false);
         } else {
           this.robo.anims.stop();
-          this.robo.setFrame(0);
+          this.robo.setFrame(this.roboDirectionFrames.down);
           this.robo.setFlipX(false);
         }
 
@@ -1005,7 +1010,7 @@ export class GameScene extends Phaser.Scene {
       } else {
         this.robo.body.setVelocity(0, 0);
         this.robo.anims.stop();
-        this.robo.setFrame(0);
+        this.robo.setFrame(this.roboDirectionFrames.down);
         this.robo.setFlipX(false);
       }
     }
