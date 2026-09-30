@@ -392,6 +392,8 @@ export class GameScene extends Phaser.Scene {
         const tile = layer.getTileAtWorldXY(x, y);
         return tile && tile.index !== -1;
       });
+    this.hasMapTileAt = hasMapTileAt;
+    this.roboMapBounds = { left: mapLeft, top: mapTop, width: mapWidth, height: mapHeight };
     const randomMapPosition = () => {
       for (let attempt = 0; attempt < 1000; attempt += 1) {
         const position = {
@@ -706,8 +708,8 @@ export class GameScene extends Phaser.Scene {
     this.robo.setScale(0.75);
     this.robo.setDepth(this.player.depth);
     this.robo.setVisible(true);
-    this.robo.speed = 110;
-    this.robo.detectionRadius = 220;
+    this.robo.speed = 300;
+    this.robo.detectionRadius = 500;
     this.physics.add.existing(this.robo);
     this.robo.body.setCircle(
       22,
@@ -823,6 +825,13 @@ export class GameScene extends Phaser.Scene {
     // Colisão Courier x paredes
     this.physics.add.collider(this.player, this.walls);
     this.physics.add.collider(this.robo, this.walls);
+    this.roboAI = {
+      mode: "scatter",
+      modeEndsAt: this.time.now + 7000,
+      target: this.chooseRoboWanderTarget(),
+      detourTarget: null,
+      detourEndsAt: 0,
+    };
 
     this.physics.add.overlap(
       this.player,
@@ -867,6 +876,7 @@ export class GameScene extends Phaser.Scene {
     });
 
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+    this.createMinimap({ mapLeft, mapTop, mapWidth, mapHeight });
   }
 
   update() {
@@ -974,6 +984,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     if (this.robo) {
+      this.updateRoboAI();
       const roboDist = Phaser.Math.Distance.Between(
         this.player.x,
         this.player.y,
@@ -981,37 +992,10 @@ export class GameScene extends Phaser.Scene {
         this.robo.y,
       );
 
-      if (roboDist < this.robo.detectionRadius) {
-        const nx = (this.player.x - this.robo.x) / (roboDist || 1);
-        const ny = (this.player.y - this.robo.y) / (roboDist || 1);
-        this.robo.body.setVelocity(
-          nx * this.robo.speed,
-          ny * this.robo.speed,
-        );
-
-        if (Math.abs(nx) > 0.05) {
-          this.robo.setFlipX(nx < 0);
-          this.robo.anims.play(this.roboAnimation, true);
-        } else if (Math.abs(ny) > 0.05) {
-          this.robo.anims.stop();
-          this.robo.setFrame(this.roboDirectionFrames[ny < 0 ? "up" : "down"]);
-          this.robo.setFlipX(false);
-        } else {
-          this.robo.anims.stop();
-          this.robo.setFrame(this.roboDirectionFrames.down);
-          this.robo.setFlipX(false);
-        }
-
-        if (roboDist < 32) {
-          this.player.vidaAtual = Math.max(0, this.player.vidaAtual - 1.5);
-          this.showNotification("Você foi atingido!");
-          this.ataqueDoRobo = true;
-        }
-      } else {
-        this.robo.body.setVelocity(0, 0);
-        this.robo.anims.stop();
-        this.robo.setFrame(this.roboDirectionFrames.down);
-        this.robo.setFlipX(false);
+      if (roboDist < 32) {
+        this.player.vidaAtual = Math.max(0, this.player.vidaAtual - 1.5);
+        this.showNotification("Você foi atingido!");
+        this.ataqueDoRobo = true;
       }
     }
 
@@ -1023,6 +1007,203 @@ export class GameScene extends Phaser.Scene {
       this.player.x = 250;
       this.player.y = 250;
     }
+
+    this.updateMinimap();
+  }
+
+  updateRoboAI() {
+    const now = this.time.now;
+    const playerDistance = Phaser.Math.Distance.Between(
+      this.robo.x,
+      this.robo.y,
+      this.player.x,
+      this.player.y,
+    );
+
+    if (now >= this.roboAI.modeEndsAt) {
+      this.roboAI.mode = this.roboAI.mode === "scatter" ? "chase" : "scatter";
+      this.roboAI.modeEndsAt = now + (this.roboAI.mode === "scatter" ? 7000 : 14000);
+      this.roboAI.detourEndsAt = 0;
+      this.roboAI.target =
+        this.roboAI.mode === "scatter" ? this.chooseRoboWanderTarget() : null;
+    }
+
+    if (playerDistance <= this.robo.detectionRadius) {
+      if (this.roboAI.mode !== "chase") {
+        this.roboAI.detourTarget = null;
+        this.roboAI.detourEndsAt = 0;
+      }
+      this.roboAI.mode = "chase";
+      this.roboAI.modeEndsAt = now + 14000;
+    }
+
+    const blocked = Object.values(this.robo.body.blocked).some(Boolean);
+    if (blocked && now >= this.roboAI.detourEndsAt) {
+      if (this.roboAI.mode === "chase") {
+        this.roboAI.detourTarget = this.chooseRoboDetourTarget();
+      } else {
+        this.roboAI.target = this.chooseRoboWanderTarget();
+      }
+      this.roboAI.detourEndsAt = now + 1200;
+    }
+
+    if (
+      this.roboAI.mode === "scatter" &&
+      Phaser.Math.Distance.Between(
+        this.robo.x,
+        this.robo.y,
+        this.roboAI.target.x,
+        this.roboAI.target.y,
+      ) < 48
+    ) {
+      this.roboAI.target = this.chooseRoboWanderTarget();
+    }
+
+    const detourDistance = this.roboAI.detourTarget
+      ? Phaser.Math.Distance.Between(
+          this.robo.x,
+          this.robo.y,
+          this.roboAI.detourTarget.x,
+          this.roboAI.detourTarget.y,
+        )
+      : 0;
+    const isDetouring =
+      this.roboAI.mode === "chase" &&
+      now < this.roboAI.detourEndsAt &&
+      detourDistance >= 40;
+    if (!isDetouring) this.roboAI.detourTarget = null;
+
+    const target =
+      this.roboAI.mode === "scatter"
+        ? this.roboAI.target
+        : isDetouring
+          ? this.roboAI.detourTarget
+          : this.player;
+    const distance = Phaser.Math.Distance.Between(
+      this.robo.x,
+      this.robo.y,
+      target.x,
+      target.y,
+    );
+    const directionX = (target.x - this.robo.x) / (distance || 1);
+    const directionY = (target.y - this.robo.y) / (distance || 1);
+    this.robo.body.setVelocity(
+      directionX * this.robo.speed,
+      directionY * this.robo.speed,
+    );
+
+    if (Math.abs(directionX) > 0.05) {
+      this.robo.setFlipX(directionX < 0);
+      this.robo.anims.play(this.roboAnimation, true);
+    } else {
+      this.robo.anims.stop();
+      this.robo.setFrame(
+        this.roboDirectionFrames[directionY < 0 ? "up" : "down"],
+      );
+      this.robo.setFlipX(false);
+    }
+  }
+
+  chooseRoboWanderTarget() {
+    const bounds = this.roboMapBounds;
+    const walls = this.walls.getChildren();
+
+    for (let attempt = 0; attempt < 1000; attempt += 1) {
+      const target = {
+        x: Phaser.Math.Between(bounds.left, bounds.left + bounds.width),
+        y: Phaser.Math.Between(bounds.top, bounds.top + bounds.height),
+      };
+      if (!this.hasMapTileAt(target.x, target.y)) continue;
+
+      const overlapsWall = walls.some(({ body }) =>
+        body &&
+        target.x + 24 > body.x &&
+        target.x - 24 < body.x + body.width &&
+        target.y + 24 > body.y &&
+        target.y - 24 < body.y + body.height,
+      );
+      if (!overlapsWall) return target;
+    }
+
+    return {
+      x: this.robo.x + Phaser.Math.Between(-128, 128),
+      y: this.robo.y + Phaser.Math.Between(-128, 128),
+    };
+  }
+
+  chooseRoboDetourTarget() {
+    const angleToPlayer = Phaser.Math.Angle.Between(
+      this.robo.x,
+      this.robo.y,
+      this.player.x,
+      this.player.y,
+    );
+    const angleOffsets = [
+      Math.PI / 4,
+      -Math.PI / 4,
+      Math.PI / 2,
+      -Math.PI / 2,
+      (Math.PI * 3) / 4,
+      (-Math.PI * 3) / 4,
+      Math.PI,
+    ];
+    const walls = this.walls.getChildren();
+
+    for (const offset of angleOffsets) {
+      const angle = angleToPlayer + offset;
+      const target = {
+        x: this.robo.x + Math.cos(angle) * 128,
+        y: this.robo.y + Math.sin(angle) * 128,
+      };
+      if (!this.hasMapTileAt(target.x, target.y)) continue;
+
+      const overlapsWall = walls.some(({ body }) =>
+        body &&
+        target.x + 24 > body.x &&
+        target.x - 24 < body.x + body.width &&
+        target.y + 24 > body.y &&
+        target.y - 24 < body.y + body.height,
+      );
+      if (!overlapsWall) return target;
+    }
+
+    return this.chooseRoboWanderTarget();
+  }
+
+  createMinimap(bounds) {
+    this.minimapPlayerMarker = this.add
+      .circle(this.player.x, this.player.y, 96, 0x00e5ff)
+      .setDepth(20);
+    this.minimapRoboMarker = this.add
+      .circle(this.robo.x, this.robo.y, 96, 0xff4d5a)
+      .setDepth(20);
+
+    this.minimapCamera = this.cameras.add(16, 54, 184, 134);
+    this.minimapCamera
+      .setZoom(
+        Math.min(184 / bounds.mapWidth, 134 / bounds.mapHeight),
+      )
+      .centerOn(
+        bounds.mapLeft + bounds.mapWidth / 2,
+        bounds.mapTop + bounds.mapHeight / 2,
+      )
+      .setBackgroundColor(0x101722)
+      .setRoundPixels(true);
+    this.minimapCamera.ignore([
+      this.notificationText,
+      this.joystickGraphics,
+      this.healthBarBg,
+      this.healthBarFill,
+    ]);
+    this.cameras.main.ignore([
+      this.minimapPlayerMarker,
+      this.minimapRoboMarker,
+    ]);
+  }
+
+  updateMinimap() {
+    this.minimapPlayerMarker.setPosition(this.player.x, this.player.y);
+    this.minimapRoboMarker.setPosition(this.robo.x, this.robo.y);
   }
 
   createTrail() {
