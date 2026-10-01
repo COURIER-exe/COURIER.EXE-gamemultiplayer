@@ -347,7 +347,7 @@ export class GameScene extends Phaser.Scene {
     ]);
 
     layerconstrucooes.setDepth(10);
-    layerarvores.setDepth(10);
+    layerarvores.setDepth(20);
 
     // O mapa infinito possui chunks que começam em -32 e terminam em 96 tiles.
     const tileSize = this.map.tileWidth;
@@ -686,7 +686,7 @@ export class GameScene extends Phaser.Scene {
       playerTexture,
       247,
     );
-    this.player.setDepth(5);
+    this.player.setDepth(11);
     this.playerAnimation = playerAnimation;
     this.player.setScale(0.5);
     this.player.vidaAtual = 100;
