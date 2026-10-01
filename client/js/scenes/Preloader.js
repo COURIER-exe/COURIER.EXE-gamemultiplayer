@@ -20,7 +20,7 @@ export class Preloader extends Phaser.Scene {
       if (!this.scale.isFullScreen) {
         this.scale.startFullscreen();
       }
-      
+
       playButton.disableInteractive();
       this.startLoading();
     });
