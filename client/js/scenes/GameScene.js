@@ -1090,9 +1090,19 @@ export class GameScene extends Phaser.Scene {
     );
     const directionX = (target.x - this.robo.x) / (distance || 1);
     const directionY = (target.y - this.robo.y) / (distance || 1);
+    const roboHitbox = new Phaser.Geom.Circle(
+      this.robo.body.center.x,
+      this.robo.body.center.y,
+      this.robo.body.radius,
+    );
+    const touchingTrail = this.trail.some((trail) =>
+      Phaser.Geom.Intersects.CircleToRectangle(roboHitbox, trail.getBounds()),
+    );
+    const roboSpeed = touchingTrail ? this.robo.speed * 0.5 : this.robo.speed;
+
     this.robo.body.setVelocity(
-      directionX * this.robo.speed,
-      directionY * this.robo.speed,
+      directionX * roboSpeed,
+      directionY * roboSpeed,
     );
 
     if (Math.abs(directionX) > 0.05) {
