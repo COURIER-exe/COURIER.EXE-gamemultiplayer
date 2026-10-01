@@ -91,6 +91,8 @@ passwordForm.addEventListener("submit", (event) => {
 
 const joystick = document.querySelector("#joystick");
 const joystickKnob = document.querySelector("#joystick-knob");
+const healthTrack = document.querySelector("#health-track");
+const healthFill = document.querySelector("#health-fill");
 const coordinatesDisplay = document.querySelector("#coordinates-display");
 const passwordHouseCoordinates = document.querySelector(
   "#password-house-coordinates",
@@ -110,6 +112,15 @@ let joystickPointerId = null;
 window.setJoystickVisible = (visible) => {
   joystick.style.display = visible ? "block" : "none";
   if (!visible) resetJoystick();
+};
+
+window.updateHealthBar = (currentHealth, maximumHealth) => {
+  const ratio = Math.max(0, Math.min(1, currentHealth / maximumHealth));
+  const percentage = Math.round(ratio * 100);
+  healthFill.style.width = `${percentage}%`;
+  healthFill.style.backgroundColor =
+    percentage <= 25 ? "#ff4d5a" : percentage <= 60 ? "#ffd166" : "#39d98a";
+  healthTrack.setAttribute("aria-valuenow", String(percentage));
 };
 
 window.setCoordinatesVisible = (visible) => {

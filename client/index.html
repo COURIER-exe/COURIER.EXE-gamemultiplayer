@@ -21,6 +21,19 @@
     <div id="game-container"></div>
     <div id="joystick" aria-label="Joystick de movimento" role="application">
       <div id="joystick-knob"></div>
+      <div id="health-bar" aria-label="Vida do personagem">
+        <span id="health-label">VIDA</span>
+        <div
+          id="health-track"
+          role="progressbar"
+          aria-label="Vida do personagem"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="100"
+        >
+          <div id="health-fill"></div>
+        </div>
+      </div>
     </div>
     <div id="password-house-coordinates" aria-live="polite" hidden></div>
     <div id="coordinates-overlay">

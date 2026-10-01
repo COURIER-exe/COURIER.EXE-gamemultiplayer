@@ -810,11 +810,6 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(1000);
 
-    this.healthBarBg = this.add.graphics();
-    this.healthBarBg.setScrollFactor(0).setDepth(999);
-    this.healthBarFill = this.add.graphics();
-    this.healthBarFill.setScrollFactor(0).setDepth(1000);
-
     this.showNotification("Casa disponível: pressione E para entrar.");
     this.updateHud();
 
@@ -1178,10 +1173,21 @@ export class GameScene extends Phaser.Scene {
       .circle(this.robo.x, this.robo.y, 96, 0xff4d5a)
       .setDepth(20);
 
-    this.minimapCamera = this.cameras.add(16, 54, 184, 134);
+    const minimapWidth = 184;
+    const minimapHeight = 134;
+    const minimapMargin = 16;
+    this.minimapCamera = this.cameras.add(
+      this.scale.width - minimapWidth - minimapMargin,
+      this.scale.height - minimapHeight - minimapMargin,
+      minimapWidth,
+      minimapHeight,
+    );
     this.minimapCamera
       .setZoom(
-        Math.min(184 / bounds.mapWidth, 134 / bounds.mapHeight),
+        Math.min(
+          minimapWidth / bounds.mapWidth,
+          minimapHeight / bounds.mapHeight,
+        ),
       )
       .centerOn(
         bounds.mapLeft + bounds.mapWidth / 2,
@@ -1192,8 +1198,6 @@ export class GameScene extends Phaser.Scene {
     this.minimapCamera.ignore([
       this.notificationText,
       this.joystickGraphics,
-      this.healthBarBg,
-      this.healthBarFill,
     ]);
     this.cameras.main.ignore([
       this.minimapPlayerMarker,
@@ -1253,24 +1257,10 @@ export class GameScene extends Phaser.Scene {
       );
     }
 
-    if (!this.healthBarBg || !this.healthBarFill) return;
-
-    this.healthBarBg.clear();
-    this.healthBarFill.clear();
-
-    this.healthBarBg.fillStyle(0x000000, 0.5);
-    this.healthBarBg.fillRect(20, 20, 220, 22);
-
-    const ratio = Phaser.Math.Clamp(
-      (this.player?.vidaAtual ?? 100) / (this.player?.vidaMaxima ?? 100),
-      0,
-      1,
+    window.updateHealthBar?.(
+      this.player?.vidaAtual ?? 100,
+      this.player?.vidaMaxima ?? 100,
     );
-    this.healthBarFill.fillStyle(0xe74c3c, 1);
-    this.healthBarFill.fillRect(20, 20, 220 * ratio, 22);
-
-    this.healthBarFill.lineStyle(2, 0xffffff, 1);
-    this.healthBarFill.strokeRect(20, 20, 220, 22);
   }
 
   enterCasa(trigger) {
