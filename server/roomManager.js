@@ -30,7 +30,9 @@ export function createRoomManager(send) {
   const broadcastRoom = (room) => {
     const message = { type: "room", room: snapshot(room) };
     room.players.forEach((player) => {
-      const client = [...clients].find((candidate) => candidate.id === player.id);
+      const client = [...clients].find(
+        (candidate) => candidate.id === player.id,
+      );
       if (client) sendTo(client, message);
     });
   };
@@ -65,8 +67,11 @@ export function createRoomManager(send) {
     if (room.gameState?.carrierId === client.id) {
       room.gameState.carrierId = null;
       room.players.forEach((player) => {
-        const other = [...clients].find((candidate) => candidate.id === player.id);
-        if (other) sendTo(other, { type: "package:state", gameState: room.gameState });
+        const other = [...clients].find(
+          (candidate) => candidate.id === player.id,
+        );
+        if (other)
+          sendTo(other, { type: "package:state", gameState: room.gameState });
       });
     }
     if (room.players.length === 0) {
@@ -74,7 +79,9 @@ export function createRoomManager(send) {
     } else {
       if (room.hostId === client.id) room.hostId = room.players[0].id;
       room.players.forEach((player) => {
-        const other = [...clients].find((candidate) => candidate.id === player.id);
+        const other = [...clients].find(
+          (candidate) => candidate.id === player.id,
+        );
         if (other) sendTo(other, { type: "player-left", playerId: client.id });
       });
       broadcastRoom(room);
@@ -122,7 +129,11 @@ export function createRoomManager(send) {
 
   const joinRoom = (client, roomId, password = "") => {
     if (client.roomId) return error(client, "Você já está em uma sala.");
-    const room = rooms.get(String(roomId ?? "").trim().toUpperCase());
+    const room = rooms.get(
+      String(roomId ?? "")
+        .trim()
+        .toUpperCase(),
+    );
     if (!room || room.state !== "lobby") {
       return error(client, "A sala não existe ou já começou.");
     }
@@ -179,8 +190,11 @@ export function createRoomManager(send) {
         room.state = "selection";
         broadcastRoom(room);
         room.players.forEach((player) => {
-          const member = [...clients].find((candidate) => candidate.id === player.id);
-          if (member) sendTo(member, { type: "selection-started", room: snapshot(room) });
+          const member = [...clients].find(
+            (candidate) => candidate.id === player.id,
+          );
+          if (member)
+            sendTo(member, { type: "selection-started", room: snapshot(room) });
         });
         broadcastRooms();
         break;
@@ -196,7 +210,8 @@ export function createRoomManager(send) {
         }
         if (
           room.players.some(
-            (player) => player.id !== client.id && player.color === message.color,
+            (player) =>
+              player.id !== client.id && player.color === message.color,
           )
         ) {
           return error(client, "Outro jogador já escolheu essa cor.");
@@ -215,11 +230,16 @@ export function createRoomManager(send) {
         }
         player.ready = true;
         broadcastRoom(room);
-        if (room.players.length >= 2 && room.players.every((entry) => entry.ready)) {
+        if (
+          room.players.length >= 2 &&
+          room.players.every((entry) => entry.ready)
+        ) {
           room.state = "match";
           const startMessage = { type: "game:start", room: snapshot(room) };
           room.players.forEach((entry) => {
-            const member = [...clients].find((candidate) => candidate.id === entry.id);
+            const member = [...clients].find(
+              (candidate) => candidate.id === entry.id,
+            );
             if (member) sendTo(member, startMessage);
           });
           broadcastRooms();
@@ -241,8 +261,11 @@ export function createRoomManager(send) {
         player.y = Math.max(0, Math.min(10000, message.y));
         room.players.forEach((entry) => {
           if (entry.id === client.id) return;
-          const member = [...clients].find((candidate) => candidate.id === entry.id);
-          if (member) sendTo(member, { type: "player:position", player: { ...player } });
+          const member = [...clients].find(
+            (candidate) => candidate.id === entry.id,
+          );
+          if (member)
+            sendTo(member, { type: "player:position", player: { ...player } });
         });
         break;
       }
@@ -255,23 +278,37 @@ export function createRoomManager(send) {
         }
         room.gameState.carrierId = client.id;
         room.players.forEach((player) => {
-          const member = [...clients].find((candidate) => candidate.id === player.id);
+          const member = [...clients].find(
+            (candidate) => candidate.id === player.id,
+          );
           if (member) {
-            sendTo(member, { type: "package:state", gameState: room.gameState });
+            sendTo(member, {
+              type: "package:state",
+              gameState: room.gameState,
+            });
           }
         });
         break;
       }
       case "package:deliver": {
         const room = roomFor(client);
-        if (!room || room.state !== "match" || room.gameState.carrierId !== client.id) {
-          return error(client, "Somente quem está com o pacote pode entregá-lo.");
+        if (
+          !room ||
+          room.state !== "match" ||
+          room.gameState.carrierId !== client.id
+        ) {
+          return error(
+            client,
+            "Somente quem está com o pacote pode entregá-lo.",
+          );
         }
         room.gameState.deliveredBy = client.id;
         room.state = "finished";
         const result = { type: "package:delivered", winnerId: client.id };
         room.players.forEach((player) => {
-          const member = [...clients].find((candidate) => candidate.id === player.id);
+          const member = [...clients].find(
+            (candidate) => candidate.id === player.id,
+          );
           if (member) sendTo(member, result);
         });
         broadcastRooms();

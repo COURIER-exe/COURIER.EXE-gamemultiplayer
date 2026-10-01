@@ -27,7 +27,9 @@ const server = createServer(async (request, response) => {
 
   let relativePath;
   try {
-    relativePath = decodeURIComponent(url.pathname === "/" ? "/index.html" : url.pathname);
+    relativePath = decodeURIComponent(
+      url.pathname === "/" ? "/index.html" : url.pathname,
+    );
   } catch {
     response.writeHead(400).end("Bad request");
     return;
@@ -41,7 +43,8 @@ const server = createServer(async (request, response) => {
   try {
     const content = await readFile(filePath);
     response.writeHead(200, {
-      "content-type": mimeTypes[extname(filePath)] ?? "application/octet-stream",
+      "content-type":
+        mimeTypes[extname(filePath)] ?? "application/octet-stream",
       "cache-control": "no-cache",
     });
     response.end(content);
@@ -74,7 +77,9 @@ webSockets.on("connection", (socket) => {
     try {
       roomManager.handleMessage(client, JSON.parse(rawMessage.toString()));
     } catch {
-      socket.send(JSON.stringify({ type: "error", message: "Mensagem inválida." }));
+      socket.send(
+        JSON.stringify({ type: "error", message: "Mensagem inválida." }),
+      );
     }
   });
   socket.on("close", () => roomManager.disconnect(client));

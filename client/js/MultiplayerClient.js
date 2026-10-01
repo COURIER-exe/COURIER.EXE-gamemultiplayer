@@ -19,7 +19,9 @@ export class MultiplayerClient {
         return;
       }
       if (message.type === "connected") this.playerId = message.playerId;
-      this.listeners.get(message.type)?.forEach((listener) => listener(message));
+      this.listeners
+        .get(message.type)
+        ?.forEach((listener) => listener(message));
     });
   }
 

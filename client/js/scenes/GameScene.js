@@ -983,7 +983,10 @@ export class GameScene extends Phaser.Scene {
         window.setJoystickVisible?.(false);
         window.setCoordinatesVisible?.(false);
         this.scene.get("InteriorScene")?.finishMultiplayerMatch(winnerId);
-        if (this.networkData.room.players.length && winnerId !== network.playerId) {
+        if (
+          this.networkData.room.players.length &&
+          winnerId !== network.playerId
+        ) {
           this.showNotification("Outro jogador entregou o pacote!");
         }
       }),
@@ -1057,8 +1060,16 @@ export class GameScene extends Phaser.Scene {
       this.nextPositionUpdate = this.time.now + 100;
     }
     this.remotePlayers.forEach((remote) => {
-      remote.sprite.x = Phaser.Math.Linear(remote.sprite.x, remote.targetX, 0.35);
-      remote.sprite.y = Phaser.Math.Linear(remote.sprite.y, remote.targetY, 0.35);
+      remote.sprite.x = Phaser.Math.Linear(
+        remote.sprite.x,
+        remote.targetX,
+        0.35,
+      );
+      remote.sprite.y = Phaser.Math.Linear(
+        remote.sprite.y,
+        remote.targetY,
+        0.35,
+      );
     });
 
     const movingHorizontal = velocityX !== 0;
@@ -1232,10 +1243,7 @@ export class GameScene extends Phaser.Scene {
     );
     const roboSpeed = touchingTrail ? this.robo.speed * 0.5 : this.robo.speed;
 
-    this.robo.body.setVelocity(
-      directionX * roboSpeed,
-      directionY * roboSpeed,
-    );
+    this.robo.body.setVelocity(directionX * roboSpeed, directionY * roboSpeed);
 
     if (Math.abs(directionX) > 0.05) {
       this.robo.setFlipX(directionX < 0);

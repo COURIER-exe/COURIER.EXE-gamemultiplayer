@@ -69,15 +69,14 @@ export class CharacterSelect extends Phaser.Scene {
           (player) =>
             player.id !== window.multiplayer.playerId && player.color === color,
         );
-      const character = this.add
-        .rectangle(
-          x,
-          365,
-          170,
-          190,
-          this.selectedColor === color ? this.colors[color] : 0xffffff,
-          this.selectedColor === color ? 0.14 : 0,
-        );
+      const character = this.add.rectangle(
+        x,
+        365,
+        170,
+        190,
+        this.selectedColor === color ? this.colors[color] : 0xffffff,
+        this.selectedColor === color ? 0.14 : 0,
+      );
       if (!ownedByOther) character.setInteractive({ useHandCursor: true });
       character.on("pointerover", () => {
         if (!ownedByOther) character.setFillStyle(this.colors[color], 0.12);

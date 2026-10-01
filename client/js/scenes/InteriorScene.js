@@ -242,7 +242,14 @@ export class InteriorScene extends Phaser.Scene {
 
     if (this.isDeliveryHouse) {
       this.deliveryTrigger = this.add
-        .rectangle(420, 330, markerSize * 0.59, markerSize * 0.985, 0x00e5ff, 0.22)
+        .rectangle(
+          420,
+          330,
+          markerSize * 0.59,
+          markerSize * 0.985,
+          0x00e5ff,
+          0.22,
+        )
         .setStrokeStyle(2, 0x00e5ff, 0.9);
       this.objectiveGroup.add(this.deliveryTrigger);
       this.physics.add.overlap(
@@ -263,7 +270,14 @@ export class InteriorScene extends Phaser.Scene {
       this.multiplayerCarrierId === null
     ) {
       this.pickupTrigger = this.add
-        .rectangle(120, 300, markerSize * 0.36, markerSize * 0.39, 0x00e5ff, 0.22)
+        .rectangle(
+          120,
+          300,
+          markerSize * 0.36,
+          markerSize * 0.39,
+          0x00e5ff,
+          0.22,
+        )
         .setStrokeStyle(2, 0x00e5ff, 0.9);
       this.objectiveGroup.add(this.pickupTrigger);
       this.physics.add.overlap(
@@ -359,7 +373,10 @@ export class InteriorScene extends Phaser.Scene {
       this.scene.get("GameScene")?.networkData &&
       !window.multiplayer.send("package:collect")
     ) {
-      this.showObjectiveMessage("SEM CONEXÃO", "Não foi possível coletar o pacote.");
+      this.showObjectiveMessage(
+        "SEM CONEXÃO",
+        "Não foi possível coletar o pacote.",
+      );
       return;
     }
 
@@ -417,7 +434,10 @@ export class InteriorScene extends Phaser.Scene {
     }
   }
 
-  showCompletionScreen(title = "DESAFIO CONCLUÍDO", subtitle = "Pacote entregue com sucesso.") {
+  showCompletionScreen(
+    title = "DESAFIO CONCLUÍDO",
+    subtitle = "Pacote entregue com sucesso.",
+  ) {
     this.interfaceBlocked = true;
     this.player.body.setVelocity(0, 0);
     window.setInteriorExitButtonVisible?.(false);

@@ -290,11 +290,10 @@ Como o jogo será utilizado em uma feira de jogos, os jogadores recebem **tijoli
 
 °Participação: x tijolinho
 
-
 ## Monetização
 
-### Para vender o jogo: 
+### Para vender o jogo:
 
 Venda de mapas, habilidades e acessórios de sobrevivências.
 
-### Orçamento do jogo: 
+### Orçamento do jogo:

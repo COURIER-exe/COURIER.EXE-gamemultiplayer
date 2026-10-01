@@ -247,7 +247,9 @@ export class RoomScene extends Phaser.Scene {
       160,
     );
     this.room.players.forEach((player, index) => {
-      const color = player.color ? player.color.toUpperCase() : "ESCOLHENDO COR";
+      const color = player.color
+        ? player.color.toUpperCase()
+        : "ESCOLHENDO COR";
       this.addButton(
         640,
         220 + index * 54,
@@ -271,7 +273,8 @@ export class RoomScene extends Phaser.Scene {
     colorOptions.forEach(([color, colorValue, x]) => {
       const selected = ownPlayer?.color === color;
       const unavailable = this.room.players.some(
-        (player) => player.id !== this.network.playerId && player.color === color,
+        (player) =>
+          player.id !== this.network.playerId && player.color === color,
       );
       const option = this.addButton(
         x,
@@ -316,11 +319,19 @@ export class RoomScene extends Phaser.Scene {
     } else {
       this.addLabel("AGUARDANDO O CRIADOR INICIAR", 565);
     }
-    this.addButton(640, 640, 180, 50, "SAIR", () => {
-      this.network.send("room:leave");
-      this.room = null;
-      this.showMainMenu();
-    }, 0xff4d5a);
+    this.addButton(
+      640,
+      640,
+      180,
+      50,
+      "SAIR",
+      () => {
+        this.network.send("room:leave");
+        this.room = null;
+        this.showMainMenu();
+      },
+      0xff4d5a,
+    );
     this.addMessage(695);
   }
 
