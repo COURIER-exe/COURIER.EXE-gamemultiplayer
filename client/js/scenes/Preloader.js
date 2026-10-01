@@ -36,23 +36,33 @@ export class Preloader extends Phaser.Scene {
     );
     const loadingContext = loadingTexture.getContext();
     const bar = {
-      x: 198,
-      y: 224,
-      width: 403,
-      height: 50,
+      x: 204,
+      y: 228,
+      height: 42,
+      segmentWidth: 21,
+      segmentGap: 10,
+      segmentCount: 13,
     };
     const drawLoadingScreen = (progress = 0) => {
       loadingContext.clearRect(0, 0, loadingImage.width, loadingImage.height);
       loadingContext.drawImage(loadingImage, 0, 0);
-      loadingContext.fillStyle = "#071217";
-      loadingContext.fillRect(bar.x, bar.y, bar.width, bar.height);
-      loadingContext.fillStyle = "#00e5ff";
-      loadingContext.fillRect(
-        bar.x,
-        bar.y,
-        bar.width * progress,
-        bar.height,
+      const visibleSegments = Math.max(
+        1,
+        Math.ceil(progress * bar.segmentCount),
       );
+      for (let index = 0; index < visibleSegments; index += 1) {
+        loadingContext.drawImage(
+          loadingImage,
+          bar.x,
+          bar.y,
+          bar.segmentWidth,
+          bar.height,
+          bar.x + index * (bar.segmentWidth + bar.segmentGap),
+          bar.y,
+          bar.segmentWidth,
+          bar.height,
+        );
+      }
       loadingTexture.refresh();
     };
 
