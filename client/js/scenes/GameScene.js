@@ -393,7 +393,12 @@ export class GameScene extends Phaser.Scene {
         return tile && tile.index !== -1;
       });
     this.hasMapTileAt = hasMapTileAt;
-    this.roboMapBounds = { left: mapLeft, top: mapTop, width: mapWidth, height: mapHeight };
+    this.roboMapBounds = {
+      left: mapLeft,
+      top: mapTop,
+      width: mapWidth,
+      height: mapHeight,
+    };
     const randomMapPosition = () => {
       for (let attempt = 0; attempt < 1000; attempt += 1) {
         const position = {
@@ -998,6 +1003,8 @@ export class GameScene extends Phaser.Scene {
 
     if (this.player.vidaAtual <= 0) {
       this.showNotification("Você foi derrotado! Reiniciando...");
+      this.packagePassword = null;
+      window.resetPasswordProgress?.();
       this.player.vidaAtual = 100;
       this.player.x = 250;
       this.player.y = 250;
@@ -1017,7 +1024,8 @@ export class GameScene extends Phaser.Scene {
 
     if (now >= this.roboAI.modeEndsAt) {
       this.roboAI.mode = this.roboAI.mode === "scatter" ? "chase" : "scatter";
-      this.roboAI.modeEndsAt = now + (this.roboAI.mode === "scatter" ? 7000 : 14000);
+      this.roboAI.modeEndsAt =
+        now + (this.roboAI.mode === "scatter" ? 7000 : 14000);
       this.roboAI.detourEndsAt = 0;
       this.roboAI.target =
         this.roboAI.mode === "scatter" ? this.chooseRoboWanderTarget() : null;
@@ -1110,12 +1118,13 @@ export class GameScene extends Phaser.Scene {
       };
       if (!this.hasMapTileAt(target.x, target.y)) continue;
 
-      const overlapsWall = walls.some(({ body }) =>
-        body &&
-        target.x + 24 > body.x &&
-        target.x - 24 < body.x + body.width &&
-        target.y + 24 > body.y &&
-        target.y - 24 < body.y + body.height,
+      const overlapsWall = walls.some(
+        ({ body }) =>
+          body &&
+          target.x + 24 > body.x &&
+          target.x - 24 < body.x + body.width &&
+          target.y + 24 > body.y &&
+          target.y - 24 < body.y + body.height,
       );
       if (!overlapsWall) return target;
     }
@@ -1152,12 +1161,13 @@ export class GameScene extends Phaser.Scene {
       };
       if (!this.hasMapTileAt(target.x, target.y)) continue;
 
-      const overlapsWall = walls.some(({ body }) =>
-        body &&
-        target.x + 24 > body.x &&
-        target.x - 24 < body.x + body.width &&
-        target.y + 24 > body.y &&
-        target.y - 24 < body.y + body.height,
+      const overlapsWall = walls.some(
+        ({ body }) =>
+          body &&
+          target.x + 24 > body.x &&
+          target.x - 24 < body.x + body.width &&
+          target.y + 24 > body.y &&
+          target.y - 24 < body.y + body.height,
       );
       if (!overlapsWall) return target;
     }
@@ -1195,10 +1205,7 @@ export class GameScene extends Phaser.Scene {
       )
       .setBackgroundColor(0x101722)
       .setRoundPixels(true);
-    this.minimapCamera.ignore([
-      this.notificationText,
-      this.joystickGraphics,
-    ]);
+    this.minimapCamera.ignore([this.notificationText, this.joystickGraphics]);
     this.cameras.main.ignore([
       this.minimapPlayerMarker,
       this.minimapRoboMarker,

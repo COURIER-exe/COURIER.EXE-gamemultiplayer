@@ -174,6 +174,12 @@ window.resetObjectiveProgress = () => {
   objectivePassword.textContent = "Senha: ----";
 };
 
+window.resetPasswordProgress = () => {
+  objectiveChecks[0].checked = false;
+  objectivePassword.textContent = "Senha: ----";
+  terminalCode.replaceChildren();
+};
+
 window.updateObjectiveProgress = (objectiveNumber, completed, password) => {
   const checkbox = objectiveChecks[objectiveNumber - 1];
   if (checkbox) checkbox.checked = completed;
