@@ -1,7 +1,10 @@
 export class CharacterSelect extends Phaser.Scene {
   constructor() {
     super("CharacterSelect");
-    this.selectedColor = "ciano";
+    this.selectedColor = null;
+    this.multiplayer = false;
+    this.room = null;
+    this.gameData = null;
     this.colors = {
       roxo: 0xb36bff,
       ciano: 0x00e5ff,
@@ -10,14 +13,49 @@ export class CharacterSelect extends Phaser.Scene {
     };
   }
 
+  init(data = {}) {
+    this.multiplayer = data.multiplayer === true;
+    this.room = data.room ?? null;
+    const ownPlayer = this.room?.players.find(
+      (player) => player.id === window.multiplayer?.playerId,
+    );
+    this.selectedColor = ownPlayer?.color ?? null;
+    this.gameData = null;
+  }
+
   create() {
     window.setJoystickVisible?.(false);
     window.setCoordinatesVisible?.(false);
-    this.add.image(640, 360, "imagemdepersonagem").setDisplaySize(1280, 720);
+    if (this.multiplayer) {
+      const network = window.multiplayer;
+      this.unsubscribers = [
+        network.on("room", ({ room }) => {
+          this.room = room;
+          const ownPlayer = room.players.find(
+            (player) => player.id === network.playerId,
+          );
+          this.selectedColor = ownPlayer?.color ?? null;
+          this.createColorButtons();
+        }),
+        network.on("error", ({ message }) => {
+          this.selectionError = message;
+          this.createColorButtons();
+        }),
+        network.on("game:start", ({ room }) => {
+          this.gameData = { multiplayer: true, room };
+          this.showObjectiveScreen();
+        }),
+      ];
+      this.events.once("shutdown", () =>
+        this.unsubscribers.forEach((unsubscribe) => unsubscribe()),
+      );
+    }
     this.createColorButtons();
   }
 
   createColorButtons() {
+    this.children.removeAll(true);
+    this.add.image(640, 360, "imagemdepersonagem").setDisplaySize(1280, 720);
     const options = [
       ["ciano", 256],
       ["roxo", 512],
@@ -25,20 +63,88 @@ export class CharacterSelect extends Phaser.Scene {
       ["branco", 976],
     ];
     options.forEach(([color, x]) => {
+      const ownedByOther =
+        this.multiplayer &&
+        this.room?.players.some(
+          (player) =>
+            player.id !== window.multiplayer.playerId && player.color === color,
+        );
       const character = this.add
-        .rectangle(x, 365, 170, 190, 0xffffff, 0)
-        .setInteractive({ useHandCursor: true });
+        .rectangle(
+          x,
+          365,
+          170,
+          190,
+          this.selectedColor === color ? this.colors[color] : 0xffffff,
+          this.selectedColor === color ? 0.14 : 0,
+        );
+      if (!ownedByOther) character.setInteractive({ useHandCursor: true });
       character.on("pointerover", () => {
-        character.setFillStyle(this.colors[color], 0.12);
+        if (!ownedByOther) character.setFillStyle(this.colors[color], 0.12);
       });
       character.on("pointerout", () => {
-        character.setFillStyle(0xffffff, 0);
+        character.setFillStyle(
+          this.selectedColor === color ? this.colors[color] : 0xffffff,
+          this.selectedColor === color ? 0.14 : 0,
+        );
       });
       character.on("pointerdown", () => {
+        if (ownedByOther) return;
         this.selectedColor = color;
-        this.showObjectiveScreen();
+        if (this.multiplayer) {
+          this.selectionError = "";
+          window.multiplayer.send("player:select-color", { color });
+          this.createColorButtons();
+        } else {
+          this.showObjectiveScreen();
+        }
       });
     });
+
+    if (this.multiplayer) {
+      const allReady = this.room?.players.every((player) => player.ready);
+      this.add
+        .text(
+          640,
+          545,
+          allReady ? "TODOS PRONTOS" : "ESCOLHA UMA COR E CONFIRME",
+          {
+            fontFamily: "Arial",
+            fontSize: "22px",
+            fontStyle: "bold",
+            color: "#00e5ff",
+            align: "center",
+          },
+        )
+        .setOrigin(0.5);
+      if (this.selectedColor) {
+        const readyButton = this.add
+          .rectangle(1070, 615, 180, 72, 0xffffff, 0)
+          .setStrokeStyle(2, 0x00e5ff)
+          .setInteractive({ useHandCursor: true });
+        this.add
+          .text(1070, 615, "PRONTO", {
+            fontFamily: "Arial",
+            fontSize: "20px",
+            fontStyle: "bold",
+            color: "#ffffff",
+          })
+          .setOrigin(0.5);
+        readyButton.on("pointerdown", () =>
+          window.multiplayer.send("player:ready"),
+        );
+      }
+      if (this.selectionError) {
+        this.add
+          .text(640, 590, this.selectionError, {
+            fontFamily: "Arial",
+            fontSize: "18px",
+            color: "#ff4d5a",
+            align: "center",
+          })
+          .setOrigin(0.5);
+      }
+    }
   }
 
   showObjectiveScreen() {
@@ -68,7 +174,10 @@ export class CharacterSelect extends Phaser.Scene {
       .setInteractive({ useHandCursor: true });
     skipButton.once("pointerdown", () => {
       skipButton.disableInteractive();
-      this.scene.start("GameScene", { color: this.selectedColor });
+      this.scene.start("GameScene", {
+        color: this.selectedColor ?? "ciano",
+        ...this.gameData,
+      });
     });
   }
 }

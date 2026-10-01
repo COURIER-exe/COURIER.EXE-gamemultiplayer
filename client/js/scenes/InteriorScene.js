@@ -29,7 +29,9 @@ export class InteriorScene extends Phaser.Scene {
     this.isTargetHouse = data.isTargetHouse === true;
     this.isDeliveryHouse = data.isDeliveryHouse === true;
     this.hasPassword = data.hasPassword === true;
-    this.packagePassword = this.scene.get("GameScene")?.packagePassword ?? null;
+    const gameScene = this.scene.get("GameScene");
+    this.packagePassword = gameScene?.packagePassword ?? null;
+    this.multiplayerCarrierId = gameScene?.packageCarrierId ?? null;
   }
 
   create() {
@@ -57,6 +59,13 @@ export class InteriorScene extends Phaser.Scene {
     this.player.setSize(24, 20).setOffset(20, 38);
     this.player.setCollideWorldBounds(true);
     this.physics.add.collider(this.player, this.walls);
+    if (window.multiplayer && this.scene.get("GameScene")?.networkData) {
+      this.networkUnsubscribe = window.multiplayer.on(
+        "package:state",
+        ({ gameState }) => this.applyPackageState(gameState),
+      );
+      this.events.once("shutdown", () => this.networkUnsubscribe?.());
+    }
     this.createComputerTrigger();
 
     if (this.isTargetHouse || this.isDeliveryHouse) {
@@ -248,7 +257,11 @@ export class InteriorScene extends Phaser.Scene {
         .setDisplaySize(markerSize, markerSize);
     }
 
-    if (this.isTargetHouse && !this.player.carregandoPacote) {
+    if (
+      this.isTargetHouse &&
+      !this.player.carregandoPacote &&
+      this.multiplayerCarrierId === null
+    ) {
       this.pickupTrigger = this.add
         .rectangle(120, 300, markerSize * 0.36, markerSize * 0.39, 0x00e5ff, 0.22)
         .setStrokeStyle(2, 0x00e5ff, 0.9);
@@ -342,6 +355,13 @@ export class InteriorScene extends Phaser.Scene {
 
   unlockPackage() {
     if (this.player.carregandoPacote || !this.pickup?.active) return;
+    if (
+      this.scene.get("GameScene")?.networkData &&
+      !window.multiplayer.send("package:collect")
+    ) {
+      this.showObjectiveMessage("SEM CONEXÃO", "Não foi possível coletar o pacote.");
+      return;
+    }
 
     this.player.carregandoPacote = true;
     if (this.mainPlayer) this.mainPlayer.carregandoPacote = true;
@@ -356,6 +376,10 @@ export class InteriorScene extends Phaser.Scene {
 
   completeDelivery() {
     if (!this.player.carregandoPacote || !this.deliveryTrigger?.active) return;
+    if (this.scene.get("GameScene")?.networkData) {
+      window.multiplayer.send("package:deliver");
+      return;
+    }
 
     this.player.carregandoPacote = false;
     if (this.mainPlayer) this.mainPlayer.carregandoPacote = false;
@@ -365,7 +389,35 @@ export class InteriorScene extends Phaser.Scene {
     this.showCompletionScreen();
   }
 
-  showCompletionScreen() {
+  applyPackageState(gameState) {
+    this.multiplayerCarrierId = gameState.carrierId;
+    const isCarrier = gameState.carrierId === window.multiplayer?.playerId;
+    if (this.player) this.player.carregandoPacote = isCarrier;
+    if (this.mainPlayer) this.mainPlayer.carregandoPacote = isCarrier;
+    if (gameState.carrierId && this.pickup?.active) {
+      this.pickup.destroy();
+      this.pickupTrigger?.destroy();
+    }
+  }
+
+  finishMultiplayerMatch(winnerId) {
+    this.interfaceBlocked = true;
+    this.player?.body?.setVelocity(0, 0);
+    window.setInteriorExitButtonVisible?.(false);
+    window.setJoystickVisible?.(false);
+    window.setCoordinatesVisible?.(false);
+    window.setInteriorCoordinatesVisible?.(false);
+    if (winnerId === window.multiplayer?.playerId) {
+      this.showCompletionScreen();
+    } else {
+      this.showCompletionScreen(
+        "PARTIDA ENCERRADA",
+        "Outro jogador entregou o pacote.",
+      );
+    }
+  }
+
+  showCompletionScreen(title = "DESAFIO CONCLUÍDO", subtitle = "Pacote entregue com sucesso.") {
     this.interfaceBlocked = true;
     this.player.body.setVelocity(0, 0);
     window.setInteriorExitButtonVisible?.(false);
@@ -379,7 +431,7 @@ export class InteriorScene extends Phaser.Scene {
       .setDepth(100);
 
     this.add
-      .text(640, 255, "DESAFIO CONCLUÍDO", {
+      .text(640, 255, title, {
         fontFamily: "Arial",
         fontSize: "42px",
         fontStyle: "bold",
@@ -390,7 +442,7 @@ export class InteriorScene extends Phaser.Scene {
       .setDepth(101);
 
     this.add
-      .text(640, 315, "Pacote entregue com sucesso.", {
+      .text(640, 315, subtitle, {
         fontFamily: "Arial",
         fontSize: "22px",
         color: "#d1d5db",
@@ -423,7 +475,10 @@ export class InteriorScene extends Phaser.Scene {
 
   returnToMainMenu() {
     this.scene.stop("GameScene");
-    this.scene.start("CharacterSelect");
+    if (this.scene.get("GameScene")?.networkData) {
+      window.multiplayer?.send("room:leave");
+    }
+    this.scene.start("RoomScene");
   }
 
   updateObjectiveArrow() {

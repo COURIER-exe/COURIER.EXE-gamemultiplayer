@@ -1,7 +1,9 @@
 import { Preloader } from "./scenes/Preloader.js";
+import { RoomScene } from "./scenes/RoomScene.js";
 import { CharacterSelect } from "./scenes/CharacterSelect.js";
 import { GameScene } from "./scenes/GameScene.js";
 import { InteriorScene } from "./scenes/InteriorScene.js";
+import { MultiplayerClient } from "./MultiplayerClient.js";
 
 window.directionalInput = new Set();
 window.joystickInput = { x: 0, y: 0 };
@@ -24,6 +26,7 @@ const startGame = () => {
 
   gameStarted = true;
   introScreen.remove();
+  window.multiplayer = new MultiplayerClient();
   window.game = new Phaser.Game(config);
 };
 
@@ -258,7 +261,7 @@ const config = {
     autoCenter: Phaser.Scale.CENTER_BOTH,
     fullscreenTarget: document.body,
   },
-  scene: [Preloader, CharacterSelect, GameScene, InteriorScene],
+  scene: [Preloader, RoomScene, CharacterSelect, GameScene, InteriorScene],
 };
 
 window.addEventListener("load", () => {

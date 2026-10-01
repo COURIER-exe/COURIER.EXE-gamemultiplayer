@@ -1,5 +1,18 @@
 # COURIER.EXE
 
+## Executar Multiplayer
+
+Requer Node.js 20 ou superior. Na raiz do projeto, instale as dependências e inicie o servidor:
+
+```sh
+npm install
+npm start
+```
+
+Abra `http://localhost:3000`. Para outra pessoa entrar pela rede, disponibilize o endereço do mesmo servidor; salas e partidas existem enquanto o processo estiver ativo. A porta padrão é `3000` e pode ser alterada pela variável `PORT`.
+
+Execute `npm test` para validar o gerenciamento de salas.
+
 ## Premissa
 
 Invada uma rede digital controlada por grandes corporações. Encontre o terminal, quebre a criptografia e entregue o Data Core antes dos seus adversários.

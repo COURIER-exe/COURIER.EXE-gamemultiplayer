@@ -30,6 +30,15 @@ export class GameScene extends Phaser.Scene {
     this.arrowTriggerList = [];
     this.joystickGraphics = null;
     this.darkOverlay = null;
+    this.networkData = null;
+    this.remotePlayers = new Map();
+    this.nextPositionUpdate = 0;
+    this.matchFinished = false;
+  }
+
+  init(data = {}) {
+    this.networkData = data.multiplayer ? data : null;
+    this.matchFinished = false;
   }
 
   create() {
@@ -703,6 +712,7 @@ export class GameScene extends Phaser.Scene {
     this.playerBody.setOffset(20, 38);
 
     this.playerBody.setCollideWorldBounds(true);
+    this.setupMultiplayerPlayers();
 
     this.robo = this.add.sprite(
       980,
@@ -755,19 +765,35 @@ export class GameScene extends Phaser.Scene {
     this.createManualConstructionTrigger(680, 1945);
     this.createManualConstructionTrigger(769, 725);
     this.createManualConstructionTrigger(1068, 1706);
+    const roomId = this.networkData?.room.id;
+    let objectiveSeed = roomId
+      ? [...roomId].reduce(
+          (seed, character) =>
+            (Math.imul(seed, 31) + character.charCodeAt(0)) >>> 0,
+          2166136261,
+        )
+      : 0;
+    const objectiveRandom = () => {
+      objectiveSeed = (Math.imul(objectiveSeed, 1664525) + 1013904223) >>> 0;
+      return objectiveSeed / 0x100000000;
+    };
+    const objectiveBetween = (minimum, maximum) =>
+      roomId
+        ? minimum + Math.floor(objectiveRandom() * (maximum - minimum + 1))
+        : Phaser.Math.Between(minimum, maximum);
     const houseIds = Array.from(
       { length: this.arrowTriggerList.length },
       (_, index) => index,
     );
     for (let index = houseIds.length - 1; index > 0; index -= 1) {
-      const randomIndex = Phaser.Math.Between(0, index);
+      const randomIndex = objectiveBetween(0, index);
       [houseIds[index], houseIds[randomIndex]] = [
         houseIds[randomIndex],
         houseIds[index],
       ];
     }
     this.pickupHouseId = houseIds.length
-      ? houseIds[Phaser.Math.Between(0, houseIds.length - 1)]
+      ? houseIds[objectiveBetween(0, houseIds.length - 1)]
       : 0;
     this.passwordHouseIds = new Set(
       houseIds.filter((houseId) => houseId !== this.pickupHouseId).slice(0, 8),
@@ -776,7 +802,7 @@ export class GameScene extends Phaser.Scene {
       code.toString(2).padStart(4, "0"),
     );
     for (let index = housePasswordCodes.length - 1; index > 0; index -= 1) {
-      const randomIndex = Phaser.Math.Between(0, index);
+      const randomIndex = objectiveBetween(0, index);
       [housePasswordCodes[index], housePasswordCodes[randomIndex]] = [
         housePasswordCodes[randomIndex],
         housePasswordCodes[index],
@@ -792,7 +818,7 @@ export class GameScene extends Phaser.Scene {
       (houseId) => houseId !== this.pickupHouseId,
     );
     this.deliveryHouseId = deliveryHouseIds.length
-      ? deliveryHouseIds[Phaser.Math.Between(0, deliveryHouseIds.length - 1)]
+      ? deliveryHouseIds[objectiveBetween(0, deliveryHouseIds.length - 1)]
       : null;
     const getHouseCoordinates = (houseId) => {
       const coordinates =
@@ -879,7 +905,102 @@ export class GameScene extends Phaser.Scene {
     this.createMinimap({ mapLeft, mapTop, mapWidth, mapHeight });
   }
 
+  setupMultiplayerPlayers() {
+    const room = this.networkData?.room;
+    const network = window.multiplayer;
+    if (!room || !network) return;
+
+    let spawnOffset = 1;
+    room.players.forEach((player) => {
+      if (player.id === network.playerId) return;
+      const color = player.color ?? "ciano";
+      const x = player.x ?? this.player.x + spawnOffset * 42;
+      const y = player.y ?? this.player.y + spawnOffset * 42;
+      const sprite = this.add
+        .sprite(x, y, `player-${color}`, 247)
+        .setScale(0.5)
+        .setDepth(11);
+      const animation = `player-walk-${color}`;
+      if (!this.anims.exists(animation)) {
+        this.anims.create({
+          key: animation,
+          frames: this.anims.generateFrameNumbers(`player-${color}`, {
+            start: 247,
+            end: 252,
+          }),
+          frameRate: 10,
+          repeat: -1,
+        });
+      }
+      this.remotePlayers.set(player.id, {
+        sprite,
+        animation,
+        targetX: x,
+        targetY: y,
+      });
+      spawnOffset += 1;
+    });
+
+    this.networkUnsubscribers = [
+      network.on("player:position", ({ player }) => {
+        let remote = this.remotePlayers.get(player.id);
+        if (!remote) {
+          const color = player.color ?? "ciano";
+          const animation = `player-walk-${color}`;
+          if (!this.anims.exists(animation)) {
+            this.anims.create({
+              key: animation,
+              frames: this.anims.generateFrameNumbers(`player-${color}`, {
+                start: 247,
+                end: 252,
+              }),
+              frameRate: 10,
+              repeat: -1,
+            });
+          }
+          const sprite = this.add
+            .sprite(player.x, player.y, `player-${color}`, 247)
+            .setScale(0.5)
+            .setDepth(11);
+          remote = { sprite, animation, targetX: player.x, targetY: player.y };
+          this.remotePlayers.set(player.id, remote);
+        }
+        remote.targetX = player.x;
+        remote.targetY = player.y;
+      }),
+      network.on("player-left", ({ playerId }) => {
+        this.remotePlayers.get(playerId)?.sprite.destroy();
+        this.remotePlayers.delete(playerId);
+      }),
+      network.on("package:state", ({ gameState }) => {
+        this.packageCarrierId = gameState.carrierId;
+        this.player.carregandoPacote = gameState.carrierId === network.playerId;
+        this.scene.get("InteriorScene")?.applyPackageState(gameState);
+      }),
+      network.on("package:delivered", ({ winnerId }) => {
+        this.matchFinished = true;
+        this.playerBody.setVelocity(0, 0);
+        window.setJoystickVisible?.(false);
+        window.setCoordinatesVisible?.(false);
+        this.scene.get("InteriorScene")?.finishMultiplayerMatch(winnerId);
+        if (this.networkData.room.players.length && winnerId !== network.playerId) {
+          this.showNotification("Outro jogador entregou o pacote!");
+        }
+      }),
+    ];
+    this.events.once("shutdown", () => {
+      this.networkUnsubscribers.forEach((unsubscribe) => unsubscribe());
+      this.remotePlayers.forEach(({ sprite }) => sprite.destroy());
+      this.remotePlayers.clear();
+    });
+  }
+
   update() {
+    if (this.matchFinished) {
+      this.playerBody?.setVelocity(0, 0);
+      return;
+    }
+
     const speed = 300;
 
     let velocityX = 0;
@@ -928,6 +1049,17 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.playerBody.setVelocity(velocityX, velocityY);
+    if (this.networkData && this.time.now >= this.nextPositionUpdate) {
+      window.multiplayer.send("player:position", {
+        x: this.player.x,
+        y: this.player.y,
+      });
+      this.nextPositionUpdate = this.time.now + 100;
+    }
+    this.remotePlayers.forEach((remote) => {
+      remote.sprite.x = Phaser.Math.Linear(remote.sprite.x, remote.targetX, 0.35);
+      remote.sprite.y = Phaser.Math.Linear(remote.sprite.y, remote.targetY, 0.35);
+    });
 
     const movingHorizontal = velocityX !== 0;
     const movingVertical = velocityY !== 0;

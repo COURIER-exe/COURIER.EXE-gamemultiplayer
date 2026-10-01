@@ -8,6 +8,8 @@ export class Preloader extends Phaser.Scene {
     this.load.image("imagemdepersonagem", "assets/imagemdepersonagem.png");
     this.load.image("imagemdeobjetivo", "assets/imagemdeobjetivo.png");
     this.load.image("imagemdeloading", "assets/imagemdeloading.png");
+    this.load.image("imagemdeopções", "assets/imagemdeopções.png");
+    this.load.image("imagemdefundo", "assets/imagemdefundo.png");
   }
 
   create() {
@@ -75,7 +77,7 @@ export class Preloader extends Phaser.Scene {
     this.load.on("progress", (value) => {
       drawLoadingScreen(value);
     });
-    this.load.once("complete", () => this.scene.start("CharacterSelect"));
+    this.load.once("complete", () => this.scene.start("RoomScene"));
     this.load.start();
   }
 
