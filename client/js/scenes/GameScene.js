@@ -1016,11 +1016,16 @@ export class GameScene extends Phaser.Scene {
         this.scene.get("InteriorScene")?.applyPackageState(gameState);
       }),
       network.on("package:delivered", ({ winnerId }) => {
+        if (this.matchFinished) return;
         this.matchFinished = true;
         this.playerBody.setVelocity(0, 0);
         window.setJoystickVisible?.(false);
         window.setCoordinatesVisible?.(false);
-        this.scene.get("InteriorScene")?.finishMultiplayerMatch(winnerId);
+        if (this.scene.isActive("InteriorScene")) {
+          this.scene.get("InteriorScene")?.finishMultiplayerMatch(winnerId);
+        } else if (winnerId !== network.playerId) {
+          this.showMultiplayerDefeatScreen();
+        }
         if (
           this.networkData.room.players.length &&
           winnerId !== network.playerId
@@ -1221,6 +1226,43 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.updateMinimap();
+  }
+
+  showMultiplayerDefeatScreen() {
+    const defeatImage = this.add
+      .image(640, 360, "perdeu")
+      .setDisplaySize(1100, 619)
+      .setScrollFactor(0)
+      .setDepth(2000);
+    const returnButton = this.add
+      .rectangle(640, 530, 440, 68, 0x00a9a9)
+      .setStrokeStyle(2, 0x00f5ee)
+      .setScrollFactor(0)
+      .setDepth(2001)
+      .setInteractive({ useHandCursor: true });
+    const buttonText = this.add
+      .text(640, 530, "VOLTAR AO MENU PRINCIPAL", {
+        fontFamily: "Arial",
+        fontSize: "20px",
+        fontStyle: "bold",
+        color: "#ffffff",
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(2002);
+
+    this.minimapCamera?.ignore([defeatImage, returnButton, buttonText]);
+    returnButton.on("pointerover", () =>
+      returnButton.setFillStyle(0x00d4d4),
+    );
+    returnButton.on("pointerout", () =>
+      returnButton.setFillStyle(0x00a9a9),
+    );
+    returnButton.once("pointerdown", () => {
+      window.multiplayer?.send("room:leave");
+      this.scene.stop("InteriorScene");
+      this.scene.start("RoomScene");
+    });
   }
 
   updateRoboAI() {

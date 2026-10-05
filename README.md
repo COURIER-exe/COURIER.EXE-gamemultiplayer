@@ -11,6 +11,12 @@ npm start
 
 Abra `http://localhost:3000`. O cliente MQTT usa WebSocket no mesmo endereço do jogo; não é necessário iniciar um broker separado. Para outra pessoa entrar pela rede, disponibilize o endereço do mesmo servidor; salas, partidas e o broker existem enquanto o processo estiver ativo. A porta padrão é `3000` e pode ser alterada pela variável `PORT`.
 
+## Publicar na internet
+
+O servidor não precisa ficar ligado neste computador depois da publicação. Ele precisa rodar continuamente em um host que aceite aplicações Node.js, conexões WebSocket e HTTPS. Configure a instalação das dependências com `npm ci`, o comando de inicialização com `npm start`, a porta definida pela variável `PORT` e HTTPS/WebSocket no domínio público. Abra o endereço público do serviço; o jogo conecta o MQTT automaticamente em `/mqtt` no mesmo domínio.
+
+As salas ficam na memória do processo. Use uma única instância do serviço; reiniciar ou redeployar apaga as salas e partidas ativas. Hospedagem estática sozinha, como GitHub Pages, não executa o broker: nesse caso é necessário um host Node separado e um proxy WebSocket `/mqtt` no mesmo domínio do site, ou configurar o cliente para usar o endereço público do backend.
+
 Execute `npm test` para validar o gerenciamento de salas.
 
 ## Premissa

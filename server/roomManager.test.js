@@ -47,8 +47,8 @@ test("two players can choose colors in the lobby, ready up, and exchange positio
 
   manager.handleMessage(host, {
     type: "player:position",
-    x: 345,
-    y: 678,
+    x: -345,
+    y: -678,
     moving: true,
     flipX: true,
   });
@@ -57,8 +57,8 @@ test("two players can choose colors in the lobby, ready up, and exchange positio
     name: "JOGADOR 1",
     color: "ciano",
     ready: true,
-    x: 345,
-    y: 678,
+    x: -345,
+    y: -678,
     moving: true,
     flipX: true,
   });
@@ -82,15 +82,15 @@ test("two players can choose colors in the lobby, ready up, and exchange positio
 
   manager.handleMessage(host, {
     type: "robot:position",
-    x: 510,
-    y: 620,
+    x: -510,
+    y: -620,
     moving: true,
     flipX: true,
     frame: 8,
   });
   assert.deepEqual(lastMessage(guest, "robot:position").robot, {
-    x: 510,
-    y: 620,
+    x: -510,
+    y: -620,
     moving: true,
     flipX: true,
     frame: 8,
@@ -99,13 +99,13 @@ test("two players can choose colors in the lobby, ready up, and exchange positio
   host.messages.length = 0;
   manager.handleMessage(guest, {
     type: "player:trail",
-    x: 345,
-    y: 678,
+    x: -345,
+    y: -678,
   });
   assert.deepEqual(lastMessage(host, "player:trail").trail, {
     playerId: "guest",
-    x: 345,
-    y: 678,
+    x: -345,
+    y: -678,
     color: "roxo",
   });
 

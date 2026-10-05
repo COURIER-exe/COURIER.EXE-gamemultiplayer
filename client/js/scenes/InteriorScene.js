@@ -427,11 +427,37 @@ export class InteriorScene extends Phaser.Scene {
     if (winnerId === window.multiplayer?.playerId) {
       this.showCompletionScreen();
     } else {
-      this.showCompletionScreen(
-        "PARTIDA ENCERRADA",
-        "Outro jogador entregou o pacote.",
-      );
+      this.showMultiplayerDefeatScreen();
     }
+  }
+
+  showMultiplayerDefeatScreen() {
+    this.add
+      .image(640, 360, "perdeu")
+      .setDisplaySize(1100, 619)
+      .setScrollFactor(0)
+      .setDepth(100);
+
+    const menuButton = this.add
+      .rectangle(640, 530, 440, 68, 0x00a9a9)
+      .setStrokeStyle(2, 0x00f5ee)
+      .setScrollFactor(0)
+      .setDepth(101)
+      .setInteractive({ useHandCursor: true });
+    this.add
+      .text(640, 530, "VOLTAR AO MENU PRINCIPAL", {
+        fontFamily: "Arial",
+        fontSize: "20px",
+        fontStyle: "bold",
+        color: "#ffffff",
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(102);
+
+    menuButton.on("pointerover", () => menuButton.setFillStyle(0x00d4d4));
+    menuButton.on("pointerout", () => menuButton.setFillStyle(0x00a9a9));
+    menuButton.once("pointerdown", () => this.returnToMainMenu());
   }
 
   showCompletionScreen(

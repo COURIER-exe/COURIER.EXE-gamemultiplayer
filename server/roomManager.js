@@ -2,6 +2,9 @@ import { randomBytes } from "node:crypto";
 
 const COLORS = new Set(["ciano", "roxo", "branco", "vermelho"]);
 const MAX_PLAYERS = 4;
+const MAX_WORLD_COORDINATE = 10000;
+const clampWorldCoordinate = (coordinate) =>
+  Math.max(-MAX_WORLD_COORDINATE, Math.min(MAX_WORLD_COORDINATE, coordinate));
 
 export function createRoomManager(send) {
   const rooms = new Map();
@@ -267,8 +270,8 @@ export function createRoomManager(send) {
         ) {
           return;
         }
-        player.x = Math.max(0, Math.min(10000, message.x));
-        player.y = Math.max(0, Math.min(10000, message.y));
+        player.x = clampWorldCoordinate(message.x);
+        player.y = clampWorldCoordinate(message.y);
         player.moving = message.moving === true;
         player.flipX = message.flipX === true;
         room.players.forEach((entry) => {
@@ -295,8 +298,8 @@ export function createRoomManager(send) {
         }
         const trail = {
           playerId: client.id,
-          x: Math.max(0, Math.min(10000, message.x)),
-          y: Math.max(0, Math.min(10000, message.y)),
+          x: clampWorldCoordinate(message.x),
+          y: clampWorldCoordinate(message.y),
           color: player.color,
         };
         room.players.forEach((entry) => {
@@ -316,8 +319,8 @@ export function createRoomManager(send) {
         }
         if (!Number.isFinite(message.x) || !Number.isFinite(message.y)) return;
         room.robot = {
-          x: Math.max(0, Math.min(10000, message.x)),
-          y: Math.max(0, Math.min(10000, message.y)),
+          x: clampWorldCoordinate(message.x),
+          y: clampWorldCoordinate(message.y),
           moving: message.moving === true,
           flipX: message.flipX === true,
           frame: Number.isInteger(message.frame) ? message.frame : 7,
