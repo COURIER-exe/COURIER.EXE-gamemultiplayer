@@ -20,8 +20,12 @@ export class Preloader extends Phaser.Scene {
       .setInteractive({ useHandCursor: true });
 
     playButton.on("pointerdown", () => {
-      if (!this.scale.isFullScreen) {
-        this.scale.startFullscreen();
+      try {
+        if (!this.scale.isFullScreen) {
+          this.scale.startFullscreen();
+        }
+      } catch (error) {
+        console.error("Error starting fullscreen:", error);
       }
 
       playButton.disableInteractive();
