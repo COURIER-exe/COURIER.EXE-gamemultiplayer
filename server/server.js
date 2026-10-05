@@ -24,22 +24,6 @@ const server = createServer(async (request, response) => {
     response.end(JSON.stringify({ status: "ok" }));
     return;
   }
-  if (url.pathname === "/mqtt.min.js") {
-    try {
-      const script = await readFile(
-        resolve("node_modules/mqtt/dist/mqtt.min.js"),
-      );
-      response.writeHead(200, {
-        "content-type": "text/javascript; charset=utf-8",
-        "cache-control": "no-cache",
-      });
-      response.end(script);
-    } catch {
-      response.writeHead(500).end("MQTT client unavailable");
-    }
-    return;
-  }
-
   let relativePath;
   try {
     relativePath = decodeURIComponent(
