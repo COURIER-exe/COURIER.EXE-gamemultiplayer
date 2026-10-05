@@ -2,14 +2,14 @@
 
 ## Executar Multiplayer
 
-Requer Node.js 20 ou superior. Na raiz do projeto, instale as dependências e inicie o servidor:
+Requer Node.js 20 ou superior. Na raiz do projeto, instale as dependências e inicie o servidor web e o broker MQTT local:
 
 ```sh
 npm install
 npm start
 ```
 
-Abra `http://localhost:3000`. Para outra pessoa entrar pela rede, disponibilize o endereço do mesmo servidor; salas e partidas existem enquanto o processo estiver ativo. A porta padrão é `3000` e pode ser alterada pela variável `PORT`.
+Abra `http://localhost:3000`. O cliente MQTT usa WebSocket no mesmo endereço do jogo; não é necessário iniciar um broker separado. Para outra pessoa entrar pela rede, disponibilize o endereço do mesmo servidor; salas, partidas e o broker existem enquanto o processo estiver ativo. A porta padrão é `3000` e pode ser alterada pela variável `PORT`.
 
 Execute `npm test` para validar o gerenciamento de salas.
 

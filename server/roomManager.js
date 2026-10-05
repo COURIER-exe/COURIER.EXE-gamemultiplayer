@@ -17,14 +17,19 @@ export function createRoomManager(send) {
     hostId: room.hostId,
     state: room.state,
     gameState: room.gameState,
-    players: room.players.map(({ id, name, color, ready, x, y }) => ({
+    robot: room.robot,
+    players: room.players.map(
+      ({ id, name, color, ready, x, y, moving, flipX }) => ({
       id,
       name,
       color,
       ready,
       x,
       y,
-    })),
+      moving: Boolean(moving),
+      flipX: Boolean(flipX),
+      }),
+    ),
   });
 
   const broadcastRoom = (room) => {
@@ -110,6 +115,8 @@ export function createRoomManager(send) {
       ready: false,
       x: null,
       y: null,
+      moving: false,
+      flipX: false,
     };
     const room = {
       id,
@@ -118,6 +125,7 @@ export function createRoomManager(send) {
       hostId: client.id,
       state: "lobby",
       gameState: { carrierId: null, deliveredBy: null },
+      robot: { x: 980, y: 220, moving: false, flipX: false, frame: 7 },
       players: [player],
     };
 
@@ -155,6 +163,8 @@ export function createRoomManager(send) {
       ready: false,
       x: null,
       y: null,
+      moving: false,
+      flipX: false,
     });
     client.roomId = room.id;
     broadcastRoom(room);
@@ -259,6 +269,8 @@ export function createRoomManager(send) {
         }
         player.x = Math.max(0, Math.min(10000, message.x));
         player.y = Math.max(0, Math.min(10000, message.y));
+        player.moving = message.moving === true;
+        player.flipX = message.flipX === true;
         room.players.forEach((entry) => {
           if (entry.id === client.id) return;
           const member = [...clients].find(
@@ -266,6 +278,57 @@ export function createRoomManager(send) {
           );
           if (member)
             sendTo(member, { type: "player:position", player: { ...player } });
+        });
+        break;
+      }
+      case "player:trail": {
+        const room = roomFor(client);
+        const player = room?.players.find((entry) => entry.id === client.id);
+        if (
+          !room ||
+          room.state !== "match" ||
+          !player?.color ||
+          !Number.isFinite(message.x) ||
+          !Number.isFinite(message.y)
+        ) {
+          return;
+        }
+        const trail = {
+          playerId: client.id,
+          x: Math.max(0, Math.min(10000, message.x)),
+          y: Math.max(0, Math.min(10000, message.y)),
+          color: player.color,
+        };
+        room.players.forEach((entry) => {
+          if (entry.id === client.id) return;
+          const member = [...clients].find(
+            (candidate) => candidate.id === entry.id,
+          );
+          if (member) sendTo(member, { type: "player:trail", trail });
+        });
+        break;
+      }
+      case "robot:position": {
+        const room = roomFor(client);
+        if (!room || room.state !== "match") return;
+        if (room.hostId !== client.id) {
+          return error(client, "Somente o criador controla o robô.");
+        }
+        if (!Number.isFinite(message.x) || !Number.isFinite(message.y)) return;
+        room.robot = {
+          x: Math.max(0, Math.min(10000, message.x)),
+          y: Math.max(0, Math.min(10000, message.y)),
+          moving: message.moving === true,
+          flipX: message.flipX === true,
+          frame: Number.isInteger(message.frame) ? message.frame : 7,
+        };
+        room.players.forEach((entry) => {
+          if (entry.id === client.id) return;
+          const member = [...clients].find(
+            (candidate) => candidate.id === entry.id,
+          );
+          if (member)
+            sendTo(member, { type: "robot:position", robot: room.robot });
         });
         break;
       }

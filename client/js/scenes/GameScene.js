@@ -32,7 +32,11 @@ export class GameScene extends Phaser.Scene {
     this.darkOverlay = null;
     this.networkData = null;
     this.remotePlayers = new Map();
+    this.minimapRemoteMarkers = new Map();
     this.nextPositionUpdate = 0;
+    this.nextRobotUpdate = 0;
+    this.isMultiplayerHost = false;
+    this.robotTarget = null;
     this.matchFinished = false;
   }
 
@@ -45,6 +49,9 @@ export class GameScene extends Phaser.Scene {
     window.setJoystickVisible?.(true);
     window.resetObjectiveProgress?.();
     this.playerColor = this.scene.settings.data?.color ?? "ciano";
+    this.isMultiplayerHost =
+      this.networkData?.room.hostId === window.multiplayer?.playerId;
+    this.robotTarget = this.networkData?.room.robot ?? null;
     const playerColor = this.playerColor;
     const playerTexture = `player-${playerColor}`;
     this.map = this.make.tilemap({ key: "mapaCidade" });
@@ -714,9 +721,10 @@ export class GameScene extends Phaser.Scene {
     this.playerBody.setCollideWorldBounds(true);
     this.setupMultiplayerPlayers();
 
+    const robotStart = this.robotTarget ?? { x: 980, y: 220 };
     this.robo = this.add.sprite(
-      980,
-      220,
+      robotStart.x,
+      robotStart.y,
       "robo-perseguicao",
       this.roboDirectionFrames.down,
     );
@@ -726,6 +734,9 @@ export class GameScene extends Phaser.Scene {
     this.robo.speed = 300;
     this.robo.detectionRadius = 500;
     this.physics.add.existing(this.robo);
+    if (this.networkData && !this.isMultiplayerHost) {
+      this.robo.body.setEnable(false);
+    }
     this.robo.body.setCircle(
       22,
       this.robo.width / 2 - 22,
@@ -937,7 +948,9 @@ export class GameScene extends Phaser.Scene {
         animation,
         targetX: x,
         targetY: y,
+        color,
       });
+      this.createRemoteMinimapMarker(player.id, color, x, y);
       spawnOffset += 1;
     });
 
@@ -963,14 +976,39 @@ export class GameScene extends Phaser.Scene {
             .setScale(0.5)
             .setDepth(11);
           remote = { sprite, animation, targetX: player.x, targetY: player.y };
+          remote.color = color;
           this.remotePlayers.set(player.id, remote);
+          this.createRemoteMinimapMarker(
+            player.id,
+            color,
+            player.x,
+            player.y,
+          );
         }
         remote.targetX = player.x;
         remote.targetY = player.y;
+        remote.sprite.setFlipX(player.flipX);
+        if (player.moving) {
+          remote.sprite.anims.play(remote.animation, true);
+        } else {
+          remote.sprite.anims.stop();
+          remote.sprite.setFrame(247);
+        }
+      }),
+      network.on("player:trail", ({ trail }) => {
+        this.createTrail(trail.x, trail.y, trail.color, false);
+      }),
+      network.on("robot:position", ({ robot }) => {
+        this.robotTarget = robot;
       }),
       network.on("player-left", ({ playerId }) => {
         this.remotePlayers.get(playerId)?.sprite.destroy();
         this.remotePlayers.delete(playerId);
+        this.minimapRemoteMarkers.get(playerId)?.destroy();
+        this.minimapRemoteMarkers.delete(playerId);
+        this.networkData.room.players = this.networkData.room.players.filter(
+          (player) => player.id !== playerId,
+        );
       }),
       network.on("package:state", ({ gameState }) => {
         this.packageCarrierId = gameState.carrierId;
@@ -995,6 +1033,8 @@ export class GameScene extends Phaser.Scene {
       this.networkUnsubscribers.forEach((unsubscribe) => unsubscribe());
       this.remotePlayers.forEach(({ sprite }) => sprite.destroy());
       this.remotePlayers.clear();
+      this.minimapRemoteMarkers.forEach((marker) => marker.destroy());
+      this.minimapRemoteMarkers.clear();
     });
   }
 
@@ -1056,8 +1096,10 @@ export class GameScene extends Phaser.Scene {
       window.multiplayer.send("player:position", {
         x: this.player.x,
         y: this.player.y,
+        moving: velocityX !== 0 || velocityY !== 0,
+        flipX: this.player.flipX,
       });
-      this.nextPositionUpdate = this.time.now + 100;
+      this.nextPositionUpdate = this.time.now + 50;
     }
     this.remotePlayers.forEach((remote) => {
       remote.sprite.x = Phaser.Math.Linear(
@@ -1127,7 +1169,32 @@ export class GameScene extends Phaser.Scene {
     }
 
     if (this.robo) {
-      this.updateRoboAI();
+      if (!this.networkData || this.isMultiplayerHost) {
+        this.updateRoboAI();
+        if (
+          this.networkData &&
+          this.time.now >= this.nextRobotUpdate
+        ) {
+          window.multiplayer.send("robot:position", {
+            x: this.robo.x,
+            y: this.robo.y,
+            moving: this.robo.anims.isPlaying,
+            flipX: this.robo.flipX,
+            frame: Number(this.robo.frame.name) || this.roboDirectionFrames.down,
+          });
+          this.nextRobotUpdate = this.time.now + 50;
+        }
+      } else if (this.robotTarget) {
+        this.robo.x = Phaser.Math.Linear(this.robo.x, this.robotTarget.x, 0.45);
+        this.robo.y = Phaser.Math.Linear(this.robo.y, this.robotTarget.y, 0.45);
+        this.robo.setFlipX(this.robotTarget.flipX);
+        if (this.robotTarget.moving) {
+          this.robo.anims.play(this.roboAnimation, true);
+        } else {
+          this.robo.anims.stop();
+          this.robo.setFrame(this.robotTarget.frame);
+        }
+      }
       const roboDist = Phaser.Math.Distance.Between(
         this.player.x,
         this.player.y,
@@ -1332,7 +1399,6 @@ export class GameScene extends Phaser.Scene {
     this.minimapRoboMarker = this.add
       .circle(this.robo.x, this.robo.y, 96, 0xff4d5a)
       .setDepth(20);
-
     const minimapWidth = 184;
     const minimapHeight = 134;
     const minimapMargin = 16;
@@ -1360,24 +1426,65 @@ export class GameScene extends Phaser.Scene {
       this.minimapPlayerMarker,
       this.minimapRoboMarker,
     ]);
+    this.networkData?.room.players.forEach((player) => {
+      if (player.id === window.multiplayer?.playerId) return;
+      const remote = this.remotePlayers.get(player.id);
+      this.createRemoteMinimapMarker(
+        player.id,
+        player.color ?? remote?.color,
+        remote?.sprite.x ?? player.x ?? this.player.x,
+        remote?.sprite.y ?? player.y ?? this.player.y,
+      );
+    });
+  }
+
+  createRemoteMinimapMarker(playerId, color, x, y) {
+    if (!this.minimapCamera || this.minimapRemoteMarkers.has(playerId)) return;
+    const marker = this.add
+      .circle(x, y, 96, this.playerTrailColors[color] ?? 0xffffff)
+      .setDepth(20);
+    this.minimapRemoteMarkers.set(playerId, marker);
+    this.cameras.main.ignore(marker);
   }
 
   updateMinimap() {
     this.minimapPlayerMarker.setPosition(this.player.x, this.player.y);
     this.minimapRoboMarker.setPosition(this.robo.x, this.robo.y);
+    this.networkData?.room.players.forEach((player) => {
+      if (player.id === window.multiplayer?.playerId) return;
+      const remote = this.remotePlayers.get(player.id);
+      const x = remote?.sprite.x ?? player.x;
+      const y = remote?.sprite.y ?? player.y;
+      this.createRemoteMinimapMarker(
+        player.id,
+        player.color ?? remote?.color,
+        x ?? this.player.x,
+        y ?? this.player.y,
+      );
+      const marker = this.minimapRemoteMarkers.get(player.id);
+      marker?.setPosition(x ?? this.player.x, y ?? this.player.y);
+    });
   }
 
-  createTrail() {
-    const trailColor = this.playerTrailColors[this.playerColor] ?? 0x00e5ff;
+  createTrail(
+    x = this.lastTrailX,
+    y = this.lastTrailY,
+    color = this.playerColor,
+    broadcast = true,
+  ) {
+    const trailColor = this.playerTrailColors[color] ?? 0x00e5ff;
     const trail = this.add.rectangle(
-      this.lastTrailX,
-      this.lastTrailY,
+      x,
+      y,
       12,
       12,
       trailColor,
     );
 
     this.trail.push(trail);
+    if (broadcast && this.networkData) {
+      window.multiplayer.send("player:trail", { x, y });
+    }
 
     this.tweens.add({
       targets: trail,

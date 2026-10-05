@@ -1,8 +1,8 @@
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
-import { randomUUID } from "node:crypto";
-import { WebSocket, WebSocketServer } from "ws";
+import { Aedes } from "aedes";
+import { WebSocketServer, createWebSocketStream } from "ws";
 import { createRoomManager } from "./roomManager.js";
 
 const clientRoot = resolve("client");
@@ -22,6 +22,21 @@ const server = createServer(async (request, response) => {
   if (url.pathname === "/healthz") {
     response.writeHead(200, { "content-type": "application/json" });
     response.end(JSON.stringify({ status: "ok" }));
+    return;
+  }
+  if (url.pathname === "/mqtt.min.js") {
+    try {
+      const script = await readFile(
+        resolve("node_modules/mqtt/dist/mqtt.min.js"),
+      );
+      response.writeHead(200, {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "no-cache",
+      });
+      response.end(script);
+    } catch {
+      response.writeHead(500).end("MQTT client unavailable");
+    }
     return;
   }
 
@@ -53,36 +68,73 @@ const server = createServer(async (request, response) => {
   }
 });
 
+const broker = await Aedes.createBroker({
+  authorizePublish(client, packet, callback) {
+    if (client && packet.topic === "courier/server") return callback(null);
+    callback(new Error("Publicação MQTT não autorizada."));
+  },
+  authorizeSubscribe(client, subscription, callback) {
+    if (subscription.topic === `courier/client/${client.id}`) {
+      return callback(null, subscription);
+    }
+    callback(new Error("Inscrição MQTT não autorizada."));
+  },
+});
 const roomManager = createRoomManager((client, message) => {
-  if (client.socket.readyState === WebSocket.OPEN) {
-    client.socket.send(JSON.stringify(message));
-  }
+  broker.publish(
+    {
+      cmd: "publish",
+      topic: `courier/client/${client.id}`,
+      payload: Buffer.from(JSON.stringify(message)),
+      qos: 0,
+      retain: false,
+    },
+    (error) => {
+      if (error) console.error("MQTT delivery error:", error);
+    },
+  );
 });
 const webSockets = new WebSocketServer({ noServer: true });
+const activeClients = new Map();
+const gameClientsByConnection = new WeakMap();
 
 server.on("upgrade", (request, socket, head) => {
-  if (new URL(request.url ?? "/", "http://localhost").pathname !== "/ws") {
+  if (new URL(request.url ?? "/", "http://localhost").pathname !== "/mqtt") {
     socket.destroy();
     return;
   }
   webSockets.handleUpgrade(request, socket, head, (webSocket) => {
-    webSockets.emit("connection", webSocket, request);
+    broker.handle(createWebSocketStream(webSocket), request);
   });
 });
 
-webSockets.on("connection", (socket) => {
-  const client = { id: randomUUID(), socket, roomId: null };
+broker.on("clientReady", (mqttClient) => {
+  const client = { id: mqttClient.id, roomId: null };
+  activeClients.set(mqttClient.id, { mqttClient, client });
+  gameClientsByConnection.set(mqttClient, client);
   roomManager.connect(client);
-  socket.on("message", (rawMessage) => {
-    try {
-      roomManager.handleMessage(client, JSON.parse(rawMessage.toString()));
-    } catch {
-      socket.send(
-        JSON.stringify({ type: "error", message: "Mensagem inválida." }),
-      );
-    }
-  });
-  socket.on("close", () => roomManager.disconnect(client));
+});
+
+broker.on("publish", (packet, mqttClient) => {
+  if (!mqttClient || packet.topic !== "courier/server") return;
+  const client = gameClientsByConnection.get(mqttClient);
+  if (!client) return;
+
+  let message;
+  try {
+    message = JSON.parse(packet.payload.toString());
+  } catch {
+    message = null;
+  }
+  roomManager.handleMessage(client, message);
+});
+
+broker.on("clientDisconnect", (mqttClient) => {
+  const activeClient = activeClients.get(mqttClient.id);
+  if (!activeClient || activeClient.mqttClient !== mqttClient) return;
+  activeClients.delete(mqttClient.id);
+  const client = gameClientsByConnection.get(mqttClient);
+  if (client) roomManager.disconnect(client);
 });
 
 const port = Number(process.env.PORT ?? 3000);

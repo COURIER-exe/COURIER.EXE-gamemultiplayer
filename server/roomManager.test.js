@@ -49,6 +49,8 @@ test("two players can choose colors in the lobby, ready up, and exchange positio
     type: "player:position",
     x: 345,
     y: 678,
+    moving: true,
+    flipX: true,
   });
   assert.deepEqual(lastMessage(guest, "player:position").player, {
     id: "host",
@@ -57,6 +59,54 @@ test("two players can choose colors in the lobby, ready up, and exchange positio
     ready: true,
     x: 345,
     y: 678,
+    moving: true,
+    flipX: true,
+  });
+
+  const initialRobot = lastMessage(host, "game:start").room.robot;
+  host.messages.length = 0;
+  guest.messages.length = 0;
+  manager.handleMessage(guest, {
+    type: "robot:position",
+    x: 500,
+    y: 600,
+  });
+  assert.equal(lastMessage(guest, "error").message, "Somente o criador controla o robô.");
+  assert.deepEqual(initialRobot, {
+    x: 980,
+    y: 220,
+    moving: false,
+    flipX: false,
+    frame: 7,
+  });
+
+  manager.handleMessage(host, {
+    type: "robot:position",
+    x: 510,
+    y: 620,
+    moving: true,
+    flipX: true,
+    frame: 8,
+  });
+  assert.deepEqual(lastMessage(guest, "robot:position").robot, {
+    x: 510,
+    y: 620,
+    moving: true,
+    flipX: true,
+    frame: 8,
+  });
+
+  host.messages.length = 0;
+  manager.handleMessage(guest, {
+    type: "player:trail",
+    x: 345,
+    y: 678,
+  });
+  assert.deepEqual(lastMessage(host, "player:trail").trail, {
+    playerId: "guest",
+    x: 345,
+    y: 678,
+    color: "roxo",
   });
 
   manager.handleMessage(host, { type: "package:collect" });
