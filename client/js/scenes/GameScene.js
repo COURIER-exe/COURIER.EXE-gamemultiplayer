@@ -1262,12 +1262,40 @@ export class GameScene extends Phaser.Scene {
 
   updateRoboAI() {
     const now = this.time.now;
-    const playerDistance = Phaser.Math.Distance.Between(
+    const players = [
+      {
+        id: window.multiplayer?.playerId ?? "local",
+        sprite: this.player,
+      },
+      ...Array.from(this.remotePlayers, ([id, remote]) => ({
+        id,
+        sprite: remote.sprite,
+      })),
+    ];
+    let chaseTarget = players[0];
+    chaseTarget.distance = Phaser.Math.Distance.Between(
       this.robo.x,
       this.robo.y,
-      this.player.x,
-      this.player.y,
+      chaseTarget.sprite.x,
+      chaseTarget.sprite.y,
     );
+    players.slice(1).forEach((player) => {
+      const distance = Phaser.Math.Distance.Between(
+        this.robo.x,
+        this.robo.y,
+        player.sprite.x,
+        player.sprite.y,
+      );
+      if (distance < chaseTarget.distance) {
+        chaseTarget = { ...player, distance };
+      }
+    });
+
+    if (this.roboAI.chaseTargetId !== chaseTarget.id) {
+      this.roboAI.chaseTargetId = chaseTarget.id;
+      this.roboAI.detourTarget = null;
+      this.roboAI.detourEndsAt = 0;
+    }
 
     if (now >= this.roboAI.modeEndsAt) {
       this.roboAI.mode = this.roboAI.mode === "scatter" ? "chase" : "scatter";
@@ -1278,7 +1306,7 @@ export class GameScene extends Phaser.Scene {
         this.roboAI.mode === "scatter" ? this.chooseRoboWanderTarget() : null;
     }
 
-    if (playerDistance <= this.robo.detectionRadius) {
+    if (chaseTarget.distance <= this.robo.detectionRadius) {
       if (this.roboAI.mode !== "chase") {
         this.roboAI.detourTarget = null;
         this.roboAI.detourEndsAt = 0;
@@ -1290,7 +1318,9 @@ export class GameScene extends Phaser.Scene {
     const blocked = Object.values(this.robo.body.blocked).some(Boolean);
     if (blocked && now >= this.roboAI.detourEndsAt) {
       if (this.roboAI.mode === "chase") {
-        this.roboAI.detourTarget = this.chooseRoboDetourTarget();
+        this.roboAI.detourTarget = this.chooseRoboDetourTarget(
+          chaseTarget.sprite,
+        );
       } else {
         this.roboAI.target = this.chooseRoboWanderTarget();
       }
@@ -1328,7 +1358,7 @@ export class GameScene extends Phaser.Scene {
         ? this.roboAI.target
         : isDetouring
           ? this.roboAI.detourTarget
-          : this.player;
+          : chaseTarget.sprite;
     const distance = Phaser.Math.Distance.Between(
       this.robo.x,
       this.robo.y,
@@ -1389,12 +1419,12 @@ export class GameScene extends Phaser.Scene {
     };
   }
 
-  chooseRoboDetourTarget() {
+  chooseRoboDetourTarget(target) {
     const angleToPlayer = Phaser.Math.Angle.Between(
       this.robo.x,
       this.robo.y,
-      this.player.x,
-      this.player.y,
+      target.x,
+      target.y,
     );
     const angleOffsets = [
       Math.PI / 4,
