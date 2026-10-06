@@ -278,14 +278,7 @@ export class InteriorScene extends Phaser.Scene {
     }
 
     this.pickupTrigger = this.add
-      .rectangle(
-        120,
-        300,
-        markerSize * 0.36,
-        markerSize * 0.39,
-        0x00e5ff,
-        0.22,
-      )
+      .rectangle(120, 300, markerSize * 0.36, markerSize * 0.39, 0x00e5ff, 0.22)
       .setStrokeStyle(2, 0x00e5ff, 0.9);
     this.objectiveGroup.add(this.pickupTrigger);
     this.physics.add.overlap(

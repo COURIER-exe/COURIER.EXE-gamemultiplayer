@@ -71,7 +71,10 @@ test("two players can choose colors in the lobby, ready up, and exchange positio
     x: 500,
     y: 600,
   });
-  assert.equal(lastMessage(guest, "error").message, "Somente o criador controla o robô.");
+  assert.equal(
+    lastMessage(guest, "error").message,
+    "Somente o criador controla o robô.",
+  );
   assert.deepEqual(initialRobot, {
     x: 980,
     y: 220,

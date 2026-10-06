@@ -23,14 +23,14 @@ export function createRoomManager(send) {
     robot: room.robot,
     players: room.players.map(
       ({ id, name, color, ready, x, y, moving, flipX }) => ({
-      id,
-      name,
-      color,
-      ready,
-      x,
-      y,
-      moving: Boolean(moving),
-      flipX: Boolean(flipX),
+        id,
+        name,
+        color,
+        ready,
+        x,
+        y,
+        moving: Boolean(moving),
+        flipX: Boolean(flipX),
       }),
     ),
   });
