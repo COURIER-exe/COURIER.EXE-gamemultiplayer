@@ -38,6 +38,7 @@ export class GameScene extends Phaser.Scene {
     this.isMultiplayerHost = false;
     this.robotTarget = null;
     this.matchFinished = false;
+    this.matchNoticeVisible = false;
   }
 
   init(data = {}) {
@@ -920,6 +921,43 @@ export class GameScene extends Phaser.Scene {
 
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
     this.createMinimap({ mapLeft, mapTop, mapWidth, mapHeight });
+    this.showMatchNotice();
+  }
+
+  showMatchNotice() {
+    const width = this.scale.width;
+    const height = this.scale.height;
+    const noticeScale = 0.8;
+    this.matchNoticeVisible = true;
+    window.setJoystickVisible?.(false);
+
+    const notice = this.add
+      .image(width / 2, height / 2, "aviso-partida")
+      .setDisplaySize(width * noticeScale, height * noticeScale)
+      .setScrollFactor(0)
+      .setDepth(3000);
+    const skipWidth = width * 0.12 * noticeScale;
+    const skipHeight = height * 0.12 * noticeScale;
+    const skipButton = this.add
+      .rectangle(
+        width / 2 + width * 0.2 * noticeScale,
+        height / 2 + (height * 0.655 - height / 2) * noticeScale,
+        skipWidth,
+        skipHeight,
+        0x000000,
+        0,
+      )
+      .setScrollFactor(0)
+      .setDepth(3001)
+      .setInteractive({ useHandCursor: true });
+    this.minimapCamera?.ignore([notice, skipButton]);
+
+    skipButton.once("pointerdown", () => {
+      this.matchNoticeVisible = false;
+      notice.destroy();
+      skipButton.destroy();
+      window.setJoystickVisible?.(true);
+    });
   }
 
   setupMultiplayerPlayers() {
@@ -1045,7 +1083,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   update() {
-    if (this.matchFinished) {
+    if (this.matchNoticeVisible || this.matchFinished) {
       this.playerBody?.setVelocity(0, 0);
       return;
     }
