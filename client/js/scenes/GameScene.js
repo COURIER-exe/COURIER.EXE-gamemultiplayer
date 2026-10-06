@@ -809,7 +809,9 @@ export class GameScene extends Phaser.Scene {
     }
     this.pickupHouseIds = new Set(houseIds.slice(0, 4));
     this.passwordHouseIds = new Set(
-      houseIds.filter((houseId) => !this.pickupHouseIds.has(houseId)).slice(0, 8),
+      houseIds
+        .filter((houseId) => !this.pickupHouseIds.has(houseId))
+        .slice(0, 8),
     );
     const housePasswordCodes = Array.from({ length: 16 }, (_, code) =>
       code.toString(2).padStart(4, "0"),
@@ -845,7 +847,9 @@ export class GameScene extends Phaser.Scene {
         houseNumber: houseId + 1,
         ...getHouseCoordinates(houseId),
       })),
-      pickups: [...this.pickupHouseIds].map(getHouseCoordinates).filter(Boolean),
+      pickups: [...this.pickupHouseIds]
+        .map(getHouseCoordinates)
+        .filter(Boolean),
       delivery: getHouseCoordinates(this.deliveryHouseId),
     });
     this.packagePassword = null;
@@ -980,12 +984,7 @@ export class GameScene extends Phaser.Scene {
           remote = { sprite, animation, targetX: player.x, targetY: player.y };
           remote.color = color;
           this.remotePlayers.set(player.id, remote);
-          this.createRemoteMinimapMarker(
-            player.id,
-            color,
-            player.x,
-            player.y,
-          );
+          this.createRemoteMinimapMarker(player.id, color, player.x, player.y);
         }
         remote.targetX = player.x;
         remote.targetY = player.y;
@@ -1178,16 +1177,14 @@ export class GameScene extends Phaser.Scene {
     if (this.robo) {
       if (!this.networkData || this.isMultiplayerHost) {
         this.updateRoboAI();
-        if (
-          this.networkData &&
-          this.time.now >= this.nextRobotUpdate
-        ) {
+        if (this.networkData && this.time.now >= this.nextRobotUpdate) {
           window.multiplayer.send("robot:position", {
             x: this.robo.x,
             y: this.robo.y,
             moving: this.robo.anims.isPlaying,
             flipX: this.robo.flipX,
-            frame: Number(this.robo.frame.name) || this.roboDirectionFrames.down,
+            frame:
+              Number(this.robo.frame.name) || this.roboDirectionFrames.down,
           });
           this.nextRobotUpdate = this.time.now + 50;
         }
@@ -1254,12 +1251,8 @@ export class GameScene extends Phaser.Scene {
       .setDepth(2002);
 
     this.minimapCamera?.ignore([defeatImage, returnButton, buttonText]);
-    returnButton.on("pointerover", () =>
-      returnButton.setFillStyle(0x00d4d4),
-    );
-    returnButton.on("pointerout", () =>
-      returnButton.setFillStyle(0x00a9a9),
-    );
+    returnButton.on("pointerover", () => returnButton.setFillStyle(0x00d4d4));
+    returnButton.on("pointerout", () => returnButton.setFillStyle(0x00a9a9));
     returnButton.once("pointerdown", () => {
       window.multiplayer?.send("room:leave");
       this.scene.stop("InteriorScene");
@@ -1517,13 +1510,7 @@ export class GameScene extends Phaser.Scene {
     broadcast = true,
   ) {
     const trailColor = this.playerTrailColors[color] ?? 0x00e5ff;
-    const trail = this.add.rectangle(
-      x,
-      y,
-      12,
-      12,
-      trailColor,
-    );
+    const trail = this.add.rectangle(x, y, 12, 12, trailColor);
 
     this.trail.push(trail);
     if (broadcast && this.networkData) {
