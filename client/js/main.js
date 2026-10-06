@@ -131,20 +131,24 @@ window.setCoordinatesVisible = (visible) => {
   objectivesPanel.style.display = visible ? "block" : "none";
 };
 
-window.setPasswordHouseCoordinates = ({ houses, pickup, delivery }) => {
+window.setPasswordHouseCoordinates = ({ houses, pickups, delivery }) => {
   passwordHouseCoordinates.replaceChildren();
-  if (!houses.length && !pickup && !delivery) {
+  if (!houses.length && !pickups.length && !delivery) {
     passwordHouseCoordinates.hidden = true;
     return;
   }
 
-  if (pickup || delivery) {
+  if (pickups.length || delivery) {
     const objectiveTitle = document.createElement("strong");
     objectiveTitle.textContent = "DESTINOS";
     passwordHouseCoordinates.append(objectiveTitle);
 
     [
-      ["COLETA", pickup, "pickup-coordinate"],
+      ...pickups.map((coordinates, index) => [
+        `COLETA ${index + 1}`,
+        coordinates,
+        "pickup-coordinate",
+      ]),
       ["ENTREGA", delivery, "delivery-coordinate"],
     ].forEach(([label, coordinates, className]) => {
       if (!coordinates) return;

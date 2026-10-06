@@ -795,7 +795,11 @@ export class GameScene extends Phaser.Scene {
     const houseIds = Array.from(
       { length: this.arrowTriggerList.length },
       (_, index) => index,
-    );
+    ).sort((firstId, secondId) => {
+      const first = this.arrowTriggerList[firstId].getData("coordinates");
+      const second = this.arrowTriggerList[secondId].getData("coordinates");
+      return first.x - second.x || first.y - second.y;
+    });
     for (let index = houseIds.length - 1; index > 0; index -= 1) {
       const randomIndex = objectiveBetween(0, index);
       [houseIds[index], houseIds[randomIndex]] = [
@@ -803,11 +807,9 @@ export class GameScene extends Phaser.Scene {
         houseIds[index],
       ];
     }
-    this.pickupHouseId = houseIds.length
-      ? houseIds[objectiveBetween(0, houseIds.length - 1)]
-      : 0;
+    this.pickupHouseIds = new Set(houseIds.slice(0, 4));
     this.passwordHouseIds = new Set(
-      houseIds.filter((houseId) => houseId !== this.pickupHouseId).slice(0, 8),
+      houseIds.filter((houseId) => !this.pickupHouseIds.has(houseId)).slice(0, 8),
     );
     const housePasswordCodes = Array.from({ length: 16 }, (_, code) =>
       code.toString(2).padStart(4, "0"),
@@ -826,7 +828,7 @@ export class GameScene extends Phaser.Scene {
       ]),
     );
     const deliveryHouseIds = houseIds.filter(
-      (houseId) => houseId !== this.pickupHouseId,
+      (houseId) => !this.pickupHouseIds.has(houseId),
     );
     this.deliveryHouseId = deliveryHouseIds.length
       ? deliveryHouseIds[objectiveBetween(0, deliveryHouseIds.length - 1)]
@@ -843,7 +845,7 @@ export class GameScene extends Phaser.Scene {
         houseNumber: houseId + 1,
         ...getHouseCoordinates(houseId),
       })),
-      pickup: getHouseCoordinates(this.pickupHouseId),
+      pickups: [...this.pickupHouseIds].map(getHouseCoordinates).filter(Boolean),
       delivery: getHouseCoordinates(this.deliveryHouseId),
     });
     this.packagePassword = null;
@@ -1586,7 +1588,7 @@ export class GameScene extends Phaser.Scene {
       color: this.scene.settings.data?.color ?? "ciano",
       returnPosition: this.savedExteriorPosition,
       houseId,
-      isTargetHouse: houseId === this.pickupHouseId,
+      isTargetHouse: this.pickupHouseIds.has(houseId),
       isDeliveryHouse: houseId === this.deliveryHouseId,
       hasPassword: this.passwordHouseIds.has(houseId),
     });
