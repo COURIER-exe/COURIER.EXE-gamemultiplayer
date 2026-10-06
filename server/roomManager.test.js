@@ -111,6 +111,12 @@ test("two players can choose colors in the lobby, ready up, and exchange positio
 
   manager.handleMessage(host, { type: "package:collect" });
   assert.equal(lastMessage(guest, "package:state").gameState.carrierId, "host");
+  manager.handleMessage(guest, { type: "package:drop" });
+  assert.equal(lastMessage(guest, "package:state").gameState.carrierId, "host");
+  manager.handleMessage(host, { type: "package:drop" });
+  assert.equal(lastMessage(guest, "package:state").gameState.carrierId, null);
+  manager.handleMessage(host, { type: "package:collect" });
+  assert.equal(lastMessage(guest, "package:state").gameState.carrierId, "host");
   manager.handleMessage(guest, { type: "package:collect" });
   assert.equal(
     lastMessage(guest, "error").message,

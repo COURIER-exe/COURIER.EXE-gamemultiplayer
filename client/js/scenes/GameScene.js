@@ -1218,6 +1218,9 @@ export class GameScene extends Phaser.Scene {
     if (this.player.vidaAtual <= 0) {
       this.showNotification("Você foi derrotado! Reiniciando...");
       this.packagePassword = null;
+      this.player.carregandoPacote = false;
+      if (this.networkData) window.multiplayer.send("package:drop");
+      window.resetObjectiveProgress?.();
       window.resetPasswordProgress?.();
       this.player.vidaAtual = 100;
       this.player.x = 250;

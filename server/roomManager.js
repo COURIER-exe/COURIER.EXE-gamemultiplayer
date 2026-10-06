@@ -356,6 +356,29 @@ export function createRoomManager(send) {
         });
         break;
       }
+      case "package:drop": {
+        const room = roomFor(client);
+        if (
+          !room ||
+          room.state !== "match" ||
+          room.gameState.carrierId !== client.id
+        ) {
+          return;
+        }
+        room.gameState.carrierId = null;
+        room.players.forEach((player) => {
+          const member = [...clients].find(
+            (candidate) => candidate.id === player.id,
+          );
+          if (member) {
+            sendTo(member, {
+              type: "package:state",
+              gameState: room.gameState,
+            });
+          }
+        });
+        break;
+      }
       case "package:deliver": {
         const room = roomFor(client);
         if (

@@ -264,33 +264,40 @@ export class InteriorScene extends Phaser.Scene {
         .setDisplaySize(markerSize, markerSize);
     }
 
+    this.createPackagePickup(markerSize);
+  }
+
+  createPackagePickup(markerSize = 64) {
     if (
-      this.isTargetHouse &&
-      !this.player.carregandoPacote &&
-      this.multiplayerCarrierId === null
+      !this.isTargetHouse ||
+      this.player.carregandoPacote ||
+      this.multiplayerCarrierId !== null ||
+      this.pickup?.active
     ) {
-      this.pickupTrigger = this.add
-        .rectangle(
-          120,
-          300,
-          markerSize * 0.36,
-          markerSize * 0.39,
-          0x00e5ff,
-          0.22,
-        )
-        .setStrokeStyle(2, 0x00e5ff, 0.9);
-      this.objectiveGroup.add(this.pickupTrigger);
-      this.physics.add.overlap(
-        this.player,
-        this.pickupTrigger,
-        this.collectPackage,
-        null,
-        this,
-      );
-      this.pickup = this.add
-        .image(120, 300, "marcador-coleta")
-        .setDisplaySize(markerSize, markerSize);
+      return;
     }
+
+    this.pickupTrigger = this.add
+      .rectangle(
+        120,
+        300,
+        markerSize * 0.36,
+        markerSize * 0.39,
+        0x00e5ff,
+        0.22,
+      )
+      .setStrokeStyle(2, 0x00e5ff, 0.9);
+    this.objectiveGroup.add(this.pickupTrigger);
+    this.physics.add.overlap(
+      this.player,
+      this.pickupTrigger,
+      this.collectPackage,
+      null,
+      this,
+    );
+    this.pickup = this.add
+      .image(120, 300, "marcador-coleta")
+      .setDisplaySize(markerSize, markerSize);
   }
 
   createComputerTrigger() {
@@ -414,6 +421,9 @@ export class InteriorScene extends Phaser.Scene {
     if (gameState.carrierId && this.pickup?.active) {
       this.pickup.destroy();
       this.pickupTrigger?.destroy();
+    } else if (!gameState.carrierId) {
+      window.updateObjectiveProgress?.(2, false);
+      this.createPackagePickup();
     }
   }
 
