@@ -346,6 +346,10 @@ export class InteriorScene extends Phaser.Scene {
   showCodeStageNotice() {
     if (this.codeNoticeShown) return;
     this.codeNoticeShown = true;
+    this.showStageNotice("aviso-codigo");
+  }
+
+  showStageNotice(textureKey) {
     this.interfaceBlocked = true;
     window.setJoystickVisible?.(false);
 
@@ -353,7 +357,7 @@ export class InteriorScene extends Phaser.Scene {
     const height = this.scale.height;
     const noticeScale = 0.8;
     const notice = this.add
-      .image(width / 2, height / 2, "aviso-codigo")
+      .image(width / 2, height / 2, textureKey)
       .setDisplaySize(width * noticeScale, height * noticeScale)
       .setScrollFactor(0)
       .setDepth(3000);
@@ -423,10 +427,7 @@ export class InteriorScene extends Phaser.Scene {
     window.updateObjectiveProgress?.(2, true);
     this.pickup.destroy();
     this.pickupTrigger.destroy();
-    this.showObjectiveMessage(
-      "PACOTE COLETADO!",
-      "Leve até o outro marcador amarelo.",
-    );
+    this.showStageNotice("aviso-coleta");
   }
 
   completeDelivery() {
