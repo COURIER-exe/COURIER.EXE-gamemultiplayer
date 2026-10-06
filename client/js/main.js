@@ -18,6 +18,7 @@ const passwordError = document.querySelector("#password-error");
 const introScreen = document.querySelector("#intro-screen");
 const introVideo = document.querySelector("#intro-video");
 let packagePasswordSubmit = null;
+let terminalCodeCloseCallback = null;
 
 let gameStarted = false;
 
@@ -41,7 +42,8 @@ exitHouseButton.addEventListener("click", () => {
   window.game?.scene.getScene("InteriorScene")?.exitInterior();
 });
 
-window.openTerminalCode = (code) => {
+window.openTerminalCode = (code, onClose) => {
+  terminalCodeCloseCallback = onClose;
   terminalCode.replaceChildren(
     ...code.split("").map((digit) => {
       const slot = document.createElement("span");
@@ -55,6 +57,9 @@ window.openTerminalCode = (code) => {
 const closeTerminal = () => {
   terminalModal.hidden = true;
   window.game?.scene.getScene("InteriorScene")?.setInterfaceBlocked(false);
+  const onClose = terminalCodeCloseCallback;
+  terminalCodeCloseCallback = null;
+  onClose?.();
 };
 
 document

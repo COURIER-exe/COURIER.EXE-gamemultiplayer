@@ -16,6 +16,7 @@ export class InteriorScene extends Phaser.Scene {
     this.interfaceBlocked = false;
     this.computerInteractionLocked = false;
     this.packageInteractionLocked = false;
+    this.codeNoticeShown = false;
   }
 
   init(data) {
@@ -337,7 +338,44 @@ export class InteriorScene extends Phaser.Scene {
     this.packagePassword = gameScene.housePasswords.get(this.houseId);
     gameScene.packagePassword = this.packagePassword;
     window.updateObjectiveProgress?.(1, true, this.packagePassword);
-    window.openTerminalCode?.(this.packagePassword);
+    window.openTerminalCode?.(this.packagePassword, () =>
+      this.showCodeStageNotice(),
+    );
+  }
+
+  showCodeStageNotice() {
+    if (this.codeNoticeShown) return;
+    this.codeNoticeShown = true;
+    this.interfaceBlocked = true;
+    window.setJoystickVisible?.(false);
+
+    const width = this.scale.width;
+    const height = this.scale.height;
+    const noticeScale = 0.8;
+    const notice = this.add
+      .image(width / 2, height / 2, "aviso-codigo")
+      .setDisplaySize(width * noticeScale, height * noticeScale)
+      .setScrollFactor(0)
+      .setDepth(3000);
+    const skipButton = this.add
+      .rectangle(
+        width / 2 + width * 0.2 * noticeScale,
+        height / 2 + (height * 0.655 - height / 2) * noticeScale,
+        width * 0.12 * noticeScale,
+        height * 0.12 * noticeScale,
+        0x000000,
+        0,
+      )
+      .setScrollFactor(0)
+      .setDepth(3001)
+      .setInteractive({ useHandCursor: true });
+
+    skipButton.once("pointerdown", () => {
+      notice.destroy();
+      skipButton.destroy();
+      this.interfaceBlocked = false;
+      window.setJoystickVisible?.(true);
+    });
   }
 
   setInterfaceBlocked(blocked) {
