@@ -71,17 +71,6 @@ export class RoomScene extends Phaser.Scene {
   clearScreen(background = "imagemdefundo") {
     this.children.removeAll(true);
     this.add.image(640, 360, background).setDisplaySize(1280, 720);
-    this.add
-      .text(640, 85, "COURIER.EXE", {
-        fontFamily: "Arial",
-        fontSize: "36px",
-        fontStyle: "bold",
-        color: "#00e5ff",
-        stroke: "#000000",
-        strokeThickness: 5,
-        align: "center",
-      })
-      .setOrigin(0.5);
   }
 
   addButton(x, y, width, height, label, callback, color = 0x00e5ff) {
@@ -259,43 +248,6 @@ export class RoomScene extends Phaser.Scene {
         () => {},
         player.ready ? 0x39d98a : 0x00e5ff,
       );
-    });
-    this.addLabel("ESCOLHA SUA COR", 440);
-    const ownPlayer = this.room.players.find(
-      (player) => player.id === this.network.playerId,
-    );
-    const colorOptions = [
-      ["ciano", 0x00e5ff, 400],
-      ["roxo", 0xb36bff, 560],
-      ["vermelho", 0xff4d5a, 720],
-      ["branco", 0xffffff, 880],
-    ];
-    colorOptions.forEach(([color, colorValue, x]) => {
-      const selected = ownPlayer?.color === color;
-      const unavailable = this.room.players.some(
-        (player) =>
-          player.id !== this.network.playerId && player.color === color,
-      );
-      const option = this.addButton(
-        x,
-        480,
-        110,
-        44,
-        color.toUpperCase(),
-        () => {
-          if (unavailable) return;
-          if (!this.network.send("player:select-color", { color })) {
-            this.message = "Conexão perdida com o servidor.";
-            this.showLobby();
-          }
-        },
-        colorValue,
-      );
-      if (selected) option.button.setFillStyle(colorValue, 0.35);
-      if (unavailable) {
-        option.button.disableInteractive();
-        option.button.setAlpha(0.35);
-      }
     });
 
     const isHost = this.room.hostId === this.network.playerId;
