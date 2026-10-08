@@ -502,10 +502,7 @@ export class InteriorScene extends Phaser.Scene {
     menuButton.once("pointerdown", () => this.returnToMainMenu());
   }
 
-  showCompletionScreen(
-    title = "DESAFIO CONCLUÍDO",
-    subtitle = "Pacote entregue com sucesso.",
-  ) {
+  showCompletionScreen() {
     this.interfaceBlocked = true;
     this.player.body.setVelocity(0, 0);
     window.setInteriorExitButtonVisible?.(false);
@@ -513,51 +510,41 @@ export class InteriorScene extends Phaser.Scene {
     window.setCoordinatesVisible?.(false);
     window.setInteriorCoordinatesVisible?.(false);
 
+    const width = this.scale.width;
+    const height = this.scale.height;
     this.add
-      .rectangle(640, 360, 1280, 720, 0x000000)
+      .image(width / 2, height / 2, "ganhou")
+      .setDisplaySize(width, height)
       .setScrollFactor(0)
       .setDepth(100);
 
-    this.add
-      .text(640, 255, title, {
-        fontFamily: "Arial",
-        fontSize: "42px",
-        fontStyle: "bold",
-        color: "#ffffff",
-      })
-      .setOrigin(0.5)
-      .setScrollFactor(0)
-      .setDepth(101);
-
-    this.add
-      .text(640, 315, subtitle, {
-        fontFamily: "Arial",
-        fontSize: "22px",
-        color: "#d1d5db",
-      })
-      .setOrigin(0.5)
-      .setScrollFactor(0)
-      .setDepth(101);
-
+    const buttonY = height * 0.72;
+    const buttonWidth = Math.min(460, width * 0.9);
     const menuButton = this.add
-      .rectangle(640, 415, 360, 72, 0x00a9a9)
-      .setStrokeStyle(2, 0x00f5ee)
+      .rectangle(width / 2, buttonY, buttonWidth, 64, 0x000000, 0.9)
+      .setStrokeStyle(3, 0x00e5ff)
       .setScrollFactor(0)
       .setDepth(101)
       .setInteractive({ useHandCursor: true });
-    this.add
-      .text(640, 415, "VOLTAR AO MENU PRINCIPAL", {
-        fontFamily: "Arial",
+    const menuButtonText = this.add
+      .text(width / 2, buttonY, "VOLTAR AO MENU PRINCIPAL", {
+        fontFamily: "monospace",
         fontSize: "20px",
         fontStyle: "bold",
-        color: "#ffffff",
+        color: "#00e5ff",
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(102);
 
-    menuButton.on("pointerover", () => menuButton.setFillStyle(0x00d4d4));
-    menuButton.on("pointerout", () => menuButton.setFillStyle(0x00a9a9));
+    menuButton.on("pointerover", () => {
+      menuButton.setFillStyle(0x00e5ff);
+      menuButtonText.setColor("#000000");
+    });
+    menuButton.on("pointerout", () => {
+      menuButton.setFillStyle(0x000000, 0.9);
+      menuButtonText.setColor("#00e5ff");
+    });
     menuButton.once("pointerdown", () => this.returnToMainMenu());
   }
 

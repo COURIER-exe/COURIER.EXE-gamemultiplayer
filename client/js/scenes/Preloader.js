@@ -16,6 +16,7 @@ export class Preloader extends Phaser.Scene {
     this.load.image("perdeu", "assets/perdeu.png");
     this.load.image("perdeucodigo", "assets/perdeucodigo.png");
     this.load.image("perdeucoleta", "assets/perdeucoleta.png");
+    this.load.image("ganhou", "assets/ganhou.png");
   }
 
   create() {
