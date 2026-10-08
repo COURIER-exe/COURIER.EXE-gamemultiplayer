@@ -1265,9 +1265,12 @@ export class GameScene extends Phaser.Scene {
     this.updateHud();
 
     if (this.player.vidaAtual <= 0) {
+      const hadPackage = this.player.carregandoPacote;
       const hadCode = Boolean(this.packagePassword);
-      if (hadCode) {
-        this.showCodeLostNotice();
+      if (hadPackage) {
+        this.showLossNotice("perdeucoleta");
+      } else if (hadCode) {
+        this.showLossNotice("perdeucodigo");
       }
 
       this.showNotification("Você foi derrotado! Reiniciando...");
@@ -1284,7 +1287,7 @@ export class GameScene extends Phaser.Scene {
     this.updateMinimap();
   }
 
-  showCodeLostNotice() {
+  showLossNotice(texture) {
     if (this.lostCodeNoticeVisible) return;
     this.lostCodeNoticeVisible = true;
     this.matchNoticeVisible = true;
@@ -1294,7 +1297,7 @@ export class GameScene extends Phaser.Scene {
     const height = this.scale.height;
     const noticeScale = 0.8;
     const notice = this.add
-      .image(width / 2, height / 2, "perdeucodigo")
+      .image(width / 2, height / 2, texture)
       .setDisplaySize(width * noticeScale, height * noticeScale)
       .setScrollFactor(0)
       .setDepth(3000);
