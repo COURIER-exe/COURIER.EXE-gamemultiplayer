@@ -39,6 +39,7 @@ export class GameScene extends Phaser.Scene {
     this.robotTarget = null;
     this.matchFinished = false;
     this.matchNoticeVisible = false;
+    this.lostCodeNoticeVisible = false;
   }
 
   init(data = {}) {
@@ -1083,7 +1084,11 @@ export class GameScene extends Phaser.Scene {
   }
 
   update() {
-    if (this.matchNoticeVisible || this.matchFinished) {
+    if (
+      this.matchNoticeVisible ||
+      this.lostCodeNoticeVisible ||
+      this.matchFinished
+    ) {
       this.playerBody?.setVelocity(0, 0);
       return;
     }
@@ -1254,6 +1259,11 @@ export class GameScene extends Phaser.Scene {
     this.updateHud();
 
     if (this.player.vidaAtual <= 0) {
+      const hadCode = Boolean(this.packagePassword);
+      if (hadCode) {
+        this.showCodeLostNotice();
+      }
+
       this.showNotification("Você foi derrotado! Reiniciando...");
       this.packagePassword = null;
       this.player.carregandoPacote = false;
@@ -1266,6 +1276,45 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.updateMinimap();
+  }
+
+  showCodeLostNotice() {
+    if (this.lostCodeNoticeVisible) return;
+    this.lostCodeNoticeVisible = true;
+    this.matchNoticeVisible = true;
+    window.setJoystickVisible?.(false);
+
+    const width = this.scale.width;
+    const height = this.scale.height;
+    const noticeScale = 0.8;
+    const notice = this.add
+      .image(width / 2, height / 2, "perdeucodigo")
+      .setDisplaySize(width * noticeScale, height * noticeScale)
+      .setScrollFactor(0)
+      .setDepth(3000);
+    const skipWidth = width * 0.12 * noticeScale;
+    const skipHeight = height * 0.12 * noticeScale;
+    const skipButton = this.add
+      .rectangle(
+        width / 2 + width * 0.2 * noticeScale,
+        height / 2 + (height * 0.655 - height / 2) * noticeScale,
+        skipWidth,
+        skipHeight,
+        0x000000,
+        0,
+      )
+      .setScrollFactor(0)
+      .setDepth(3001)
+      .setInteractive({ useHandCursor: true });
+    this.minimapCamera?.ignore([notice, skipButton]);
+
+    skipButton.once("pointerdown", () => {
+      this.lostCodeNoticeVisible = false;
+      this.matchNoticeVisible = false;
+      notice.destroy();
+      skipButton.destroy();
+      window.setJoystickVisible?.(true);
+    });
   }
 
   showMultiplayerDefeatScreen() {
