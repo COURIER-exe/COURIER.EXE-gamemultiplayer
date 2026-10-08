@@ -1,3 +1,6 @@
+const NETWORK_UPDATE_INTERVAL = 1000 / 15;
+const TRAIL_BROADCAST_INTERVAL = 40;
+
 export class GameScene extends Phaser.Scene {
   constructor() {
     super("GameScene");
@@ -35,6 +38,7 @@ export class GameScene extends Phaser.Scene {
     this.minimapRemoteMarkers = new Map();
     this.nextPositionUpdate = 0;
     this.nextRobotUpdate = 0;
+    this.nextTrailBroadcast = 0;
     this.isMultiplayerHost = false;
     this.robotTarget = null;
     this.matchFinished = false;
@@ -1053,7 +1057,9 @@ export class GameScene extends Phaser.Scene {
       network.on("package:state", ({ gameState }) => {
         this.packageCarrierId = gameState.carrierId;
         this.player.carregandoPacote = gameState.carrierId === network.playerId;
-        this.scene.get("InteriorScene")?.applyPackageState(gameState);
+        if (this.scene.isActive("InteriorScene")) {
+          this.scene.get("InteriorScene")?.applyPackageState(gameState);
+        }
       }),
       network.on("package:delivered", ({ winnerId }) => {
         if (this.matchFinished) return;
@@ -1148,7 +1154,7 @@ export class GameScene extends Phaser.Scene {
         moving: velocityX !== 0 || velocityY !== 0,
         flipX: this.player.flipX,
       });
-      this.nextPositionUpdate = this.time.now + 50;
+      this.nextPositionUpdate = this.time.now + NETWORK_UPDATE_INTERVAL;
     }
     this.remotePlayers.forEach((remote) => {
       remote.sprite.x = Phaser.Math.Linear(
@@ -1229,7 +1235,7 @@ export class GameScene extends Phaser.Scene {
             frame:
               Number(this.robo.frame.name) || this.roboDirectionFrames.down,
           });
-          this.nextRobotUpdate = this.time.now + 50;
+          this.nextRobotUpdate = this.time.now + NETWORK_UPDATE_INTERVAL;
         }
       } else if (this.robotTarget) {
         this.robo.x = Phaser.Math.Linear(this.robo.x, this.robotTarget.x, 0.45);
@@ -1633,8 +1639,13 @@ export class GameScene extends Phaser.Scene {
     const trail = this.add.rectangle(x, y, 12, 12, trailColor);
 
     this.trail.push(trail);
-    if (broadcast && this.networkData) {
+    if (
+      broadcast &&
+      this.networkData &&
+      this.time.now >= this.nextTrailBroadcast
+    ) {
       window.multiplayer.send("player:trail", { x, y });
+      this.nextTrailBroadcast = this.time.now + TRAIL_BROADCAST_INTERVAL;
     }
 
     this.tweens.add({
