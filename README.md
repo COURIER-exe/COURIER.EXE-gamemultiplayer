@@ -2,7 +2,7 @@
 
 ## Premissa
 
-Invada uma rede digital controlada por grandes corporações. Encontre o terminal, quebre a criptografia e entregue os Dados antes dos seus adversários.
+Invada uma rede digital controlada por grandes corporações. Encontre o terminal, quebre a criptografia e entregue os dados antes dos seus adversários.
 
 Assim que os dados forem obtidos, corra para realizar a entrega antes dos seus adversários. Mas cuidado com os obstáculos que iram aparecer no seu caminho.
 
