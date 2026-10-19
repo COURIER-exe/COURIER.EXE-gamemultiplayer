@@ -302,8 +302,14 @@ test("leaderboard ranks recent wins by time and drops results older than 24 hour
       password: "1234",
       name: "GUES",
     });
-    manager.handleMessage(host, { type: "player:select-color", color: "ciano" });
-    manager.handleMessage(guest, { type: "player:select-color", color: "roxo" });
+    manager.handleMessage(host, {
+      type: "player:select-color",
+      color: "ciano",
+    });
+    manager.handleMessage(guest, {
+      type: "player:select-color",
+      color: "roxo",
+    });
     manager.handleMessage(host, { type: "room:start-selection" });
     manager.handleMessage(host, { type: "player:ready" });
     manager.handleMessage(guest, { type: "player:ready" });

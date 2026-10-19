@@ -31,7 +31,9 @@ function saveScores(scores) {
       );
       await rename(temporaryScoreboardPath, scoreboardPath);
     })
-    .catch((error) => console.error("Could not save leaderboard scores:", error));
+    .catch((error) =>
+      console.error("Could not save leaderboard scores:", error),
+    );
 }
 
 const initialScores = await loadScores();
