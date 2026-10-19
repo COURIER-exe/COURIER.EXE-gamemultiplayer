@@ -282,6 +282,13 @@ export class RoomScene extends Phaser.Scene {
 
   renderLeaderboard() {
     this.clearScreen("placares");
+    const skipButton = this.add
+      .image(632, 558, "botao-skip")
+      .setCrop(262, 142, 276, 146)
+      .setDisplaySize(138, 73)
+      .setInteractive({ useHandCursor: true });
+    skipButton.on("pointerdown", () => this.showMainMenu());
+
     if (!this.leaderboardEntries.length) {
       this.add
         .text(640, 375, "AINDA SEM REGISTROS", {
