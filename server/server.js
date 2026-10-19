@@ -1,11 +1,40 @@
 import { createServer } from "node:http";
-import { readFile } from "node:fs/promises";
+import { readFile, rename, writeFile } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
 import { Aedes } from "aedes";
 import { WebSocketServer, createWebSocketStream } from "ws";
 import { createRoomManager } from "./roomManager.js";
 
 const clientRoot = resolve("client");
+const scoreboardPath = resolve("server", "scores.json");
+const temporaryScoreboardPath = `${scoreboardPath}.tmp`;
+
+async function loadScores() {
+  try {
+    const scores = JSON.parse(await readFile(scoreboardPath, "utf8"));
+    return Array.isArray(scores) ? scores : [];
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      console.error("Could not read leaderboard scores:", error);
+    }
+    return [];
+  }
+}
+
+let scoreWriteQueue = Promise.resolve();
+function saveScores(scores) {
+  scoreWriteQueue = scoreWriteQueue
+    .then(async () => {
+      await writeFile(
+        temporaryScoreboardPath,
+        `${JSON.stringify(scores, null, 2)}\n`,
+      );
+      await rename(temporaryScoreboardPath, scoreboardPath);
+    })
+    .catch((error) => console.error("Could not save leaderboard scores:", error));
+}
+
+const initialScores = await loadScores();
 const mimeTypes = {
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
@@ -64,20 +93,23 @@ const broker = await Aedes.createBroker({
     callback(new Error("Inscrição MQTT não autorizada."));
   },
 });
-const roomManager = createRoomManager((client, message) => {
-  broker.publish(
-    {
-      cmd: "publish",
-      topic: `courier/client/${client.id}`,
-      payload: Buffer.from(JSON.stringify(message)),
-      qos: 0,
-      retain: false,
-    },
-    (error) => {
-      if (error) console.error("MQTT delivery error:", error);
-    },
-  );
-});
+const roomManager = createRoomManager(
+  (client, message) => {
+    broker.publish(
+      {
+        cmd: "publish",
+        topic: `courier/client/${client.id}`,
+        payload: Buffer.from(JSON.stringify(message)),
+        qos: 0,
+        retain: false,
+      },
+      (error) => {
+        if (error) console.error("MQTT delivery error:", error);
+      },
+    );
+  },
+  { initialScores, onScoresChanged: saveScores },
+);
 const webSockets = new WebSocketServer({ noServer: true });
 const activeClients = new Map();
 const gameClientsByConnection = new WeakMap();

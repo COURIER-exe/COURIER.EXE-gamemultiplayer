@@ -23,7 +23,11 @@ test("two players can choose colors in the lobby, ready up, and exchange positio
   const guest = makeClient("guest");
   const manager = createHarness(host, guest);
 
-  manager.handleMessage(host, { type: "room:create", password: "" });
+  manager.handleMessage(host, {
+    type: "room:create",
+    password: "",
+    name: "HOST",
+  });
   const roomId = lastMessage(host, "room").room.id;
   assert.equal(lastMessage(guest, "rooms").rooms[0].id, roomId);
   manager.handleMessage(host, { type: "player:select-color", color: "ciano" });
@@ -54,7 +58,7 @@ test("two players can choose colors in the lobby, ready up, and exchange positio
   });
   assert.deepEqual(lastMessage(guest, "player:position").player, {
     id: "host",
-    name: "JOGADOR 1",
+    name: "HOST",
     color: "ciano",
     ready: true,
     x: -345,
@@ -147,6 +151,7 @@ test("private rooms reject incorrect passwords and stay out of public listings",
   manager.handleMessage(host, {
     type: "room:create",
     password: "0042",
+    name: "HOST",
   });
   const roomId = lastMessage(host, "room").room.id;
   assert.equal(lastMessage(host, "room").room.visibility, "private");
@@ -175,7 +180,11 @@ test("private rooms require a four-letter name without offensive roots", () => {
   const host = makeClient("host");
   const guest = makeClient("guest");
   const manager = createHarness(host, guest);
-  manager.handleMessage(host, { type: "room:create", password: "1234" });
+  manager.handleMessage(host, {
+    type: "room:create",
+    password: "1234",
+    name: "HOST",
+  });
   const roomId = lastMessage(host, "room").room.id;
 
   for (const name of [
@@ -227,6 +236,101 @@ test("private room passwords must contain at most four digits", () => {
     "A senha deve conter de 1 a 4 dígitos.",
   );
 
-  manager.handleMessage(host, { type: "room:create", password: "0000" });
+  manager.handleMessage(host, {
+    type: "room:create",
+    password: "0000",
+    name: "HOST",
+  });
   assert.equal(lastMessage(host, "room").room.visibility, "private");
+});
+
+test("room creation rejects offensive host names and stores valid names", () => {
+  const host = makeClient("host");
+  const manager = createHarness(host);
+
+  for (const name of ["FODA", "FÓDE", "FODI", "PICA"]) {
+    manager.handleMessage(host, {
+      type: "room:create",
+      password: "1234",
+      name,
+    });
+    assert.equal(
+      lastMessage(host, "error").message,
+      "O nome deve ter 4 letras e não pode ser ofensivo.",
+    );
+    assert.equal(lastMessage(host, "room"), undefined);
+  }
+
+  manager.handleMessage(host, {
+    type: "room:create",
+    password: "1234",
+    name: "JOÃO",
+  });
+  assert.equal(lastMessage(host, "room").room.players[0].name, "JOÃO");
+});
+
+test("leaderboard ranks recent wins by time and drops results older than 24 hours", () => {
+  let currentTime = 1000;
+  let savedScores = [];
+  const clients = [
+    makeClient("host-one"),
+    makeClient("guest-one"),
+    makeClient("host-two"),
+    makeClient("guest-two"),
+  ];
+  const manager = createRoomManager(
+    (client, message) => client.messages.push(message),
+    {
+      now: () => currentTime,
+      onScoresChanged: (scores) => {
+        savedScores = scores;
+      },
+    },
+  );
+  clients.forEach((client) => manager.connect(client));
+
+  const startMatch = (host, guest) => {
+    manager.handleMessage(host, {
+      type: "room:create",
+      password: "1234",
+      name: "HOST",
+    });
+    const roomId = lastMessage(host, "room").room.id;
+    manager.handleMessage(guest, {
+      type: "room:join",
+      roomId,
+      password: "1234",
+      name: "GUES",
+    });
+    manager.handleMessage(host, { type: "player:select-color", color: "ciano" });
+    manager.handleMessage(guest, { type: "player:select-color", color: "roxo" });
+    manager.handleMessage(host, { type: "room:start-selection" });
+    manager.handleMessage(host, { type: "player:ready" });
+    manager.handleMessage(guest, { type: "player:ready" });
+  };
+
+  startMatch(clients[0], clients[1]);
+  currentTime = 11000;
+  manager.handleMessage(clients[0], { type: "package:collect" });
+  manager.handleMessage(clients[0], { type: "package:deliver" });
+
+  currentTime = 20000;
+  startMatch(clients[2], clients[3]);
+  currentTime = 22500;
+  manager.handleMessage(clients[3], { type: "package:collect" });
+  manager.handleMessage(clients[3], { type: "package:deliver" });
+
+  manager.handleMessage(clients[3], { type: "leaderboard:list" });
+  assert.deepEqual(lastMessage(clients[3], "leaderboard").entries, [
+    { name: "GUES", durationMs: 2500 },
+    { name: "HOST", durationMs: 10000 },
+  ]);
+  assert.equal(savedScores.length, 2);
+
+  currentTime = 24 * 60 * 60 * 1000 + 11001;
+  manager.handleMessage(clients[3], { type: "leaderboard:list" });
+  assert.deepEqual(lastMessage(clients[3], "leaderboard").entries, [
+    { name: "GUES", durationMs: 2500 },
+  ]);
+  assert.equal(savedScores.length, 1);
 });

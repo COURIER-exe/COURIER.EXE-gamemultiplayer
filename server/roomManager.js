@@ -48,6 +48,7 @@ const BLOCKED_NAME_ROOTS = new Set([
   "xota",
 ]);
 const MAX_PLAYERS = 4;
+const SCORE_WINDOW_MS = 24 * 60 * 60 * 1000;
 const MAX_WORLD_COORDINATE = 10000;
 const clampWorldCoordinate = (coordinate) =>
   Math.max(-MAX_WORLD_COORDINATE, Math.min(MAX_WORLD_COORDINATE, coordinate));
@@ -71,9 +72,19 @@ function normalizePlayerName(name) {
   return normalized;
 }
 
-export function createRoomManager(send) {
+export function createRoomManager(
+  send,
+  { now = Date.now, initialScores = [], onScoresChanged = () => {} } = {},
+) {
   const rooms = new Map();
   const clients = new Set();
+  const scores = initialScores.filter(
+    (score) =>
+      typeof score.name === "string" &&
+      Number.isFinite(score.durationMs) &&
+      score.durationMs >= 0 &&
+      Number.isFinite(score.completedAt),
+  );
 
   const sendTo = (client, message) => send(client, message);
 
@@ -131,6 +142,27 @@ export function createRoomManager(send) {
 
   const error = (client, message) => sendTo(client, { type: "error", message });
 
+  const pruneScores = () => {
+    const cutoff = now() - SCORE_WINDOW_MS;
+    const recentScores = scores.filter((score) => score.completedAt >= cutoff);
+    if (recentScores.length !== scores.length) {
+      scores.splice(0, scores.length, ...recentScores);
+      onScoresChanged(scores.map((score) => ({ ...score })));
+    }
+  };
+
+  const leaderboard = () => {
+    pruneScores();
+    return [...scores]
+      .sort(
+        (first, second) =>
+          first.durationMs - second.durationMs ||
+          first.completedAt - second.completedAt,
+      )
+      .slice(0, 3)
+      .map(({ name, durationMs }) => ({ name, durationMs }));
+  };
+
   const leaveRoom = (client) => {
     const room = roomFor(client);
     if (!room) return;
@@ -162,13 +194,17 @@ export function createRoomManager(send) {
     broadcastRooms();
   };
 
-  const createRoom = (client, password) => {
+  const createRoom = (client, password, submittedName) => {
     if (client.roomId) return error(client, "Você já está em uma sala.");
     if (
       typeof password !== "string" ||
       (password !== "" && !/^\d{1,4}$/.test(password))
     ) {
       return error(client, "A senha deve conter de 1 a 4 dígitos.");
+    }
+    const name = normalizePlayerName(submittedName);
+    if (!name) {
+      return error(client, "O nome deve ter 4 letras e não pode ser ofensivo.");
     }
 
     let id;
@@ -178,7 +214,7 @@ export function createRoomManager(send) {
 
     const player = {
       id: client.id,
-      name: "JOGADOR 1",
+      name,
       color: null,
       ready: false,
       x: null,
@@ -255,8 +291,11 @@ export function createRoomManager(send) {
       case "rooms:list":
         broadcastRooms();
         break;
+      case "leaderboard:list":
+        sendTo(client, { type: "leaderboard", entries: leaderboard() });
+        break;
       case "room:create":
-        createRoom(client, message.password ?? "");
+        createRoom(client, message.password ?? "", message.name);
         break;
       case "room:join":
         joinRoom(client, message.roomId, message.password, message.name);
@@ -320,6 +359,7 @@ export function createRoomManager(send) {
           room.players.every((entry) => entry.ready)
         ) {
           room.state = "match";
+          room.startedAt = now();
           const startMessage = { type: "game:start", room: snapshot(room) };
           room.players.forEach((entry) => {
             const member = [...clients].find(
@@ -465,6 +505,15 @@ export function createRoomManager(send) {
         }
         room.gameState.deliveredBy = client.id;
         room.state = "finished";
+        const completedAt = now();
+        const winner = room.players.find((player) => player.id === client.id);
+        scores.push({
+          name: winner.name,
+          durationMs: Math.max(0, completedAt - room.startedAt),
+          completedAt,
+        });
+        pruneScores();
+        onScoresChanged(scores.map((score) => ({ ...score })));
         const result = { type: "package:delivered", winnerId: client.id };
         room.players.forEach((player) => {
           const member = [...clients].find(

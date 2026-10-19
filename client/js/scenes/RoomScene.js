@@ -13,6 +13,8 @@ export class RoomScene extends Phaser.Scene {
     this.activeInput = null;
     this.message = "";
     this.joinPending = false;
+    this.createPending = false;
+    this.leaderboardEntries = [];
   }
 
   create() {
@@ -22,6 +24,7 @@ export class RoomScene extends Phaser.Scene {
     this.unsubscribers = [
       this.network.on("room", ({ room }) => {
         this.joinPending = false;
+        this.createPending = false;
         this.room = room;
         this.message = "";
         this.showLobby();
@@ -30,8 +33,13 @@ export class RoomScene extends Phaser.Scene {
         this.rooms = rooms;
         if (this.screen === "public") this.showPublicRooms();
       }),
+      this.network.on("leaderboard", ({ entries }) => {
+        this.leaderboardEntries = entries;
+        if (this.screen === "leaderboard") this.renderLeaderboard();
+      }),
       this.network.on("error", ({ message }) => {
         this.joinPending = false;
+        this.createPending = false;
         this.message = message;
         this.refreshScreen();
       }),
@@ -60,6 +68,12 @@ export class RoomScene extends Phaser.Scene {
       const fields = ["name", "joinPassword", "roomId"];
       const index = fields.indexOf(this.activeInput);
       this.activeInput = fields[(index + 1) % fields.length];
+      this.refreshScreen();
+      return;
+    }
+    if (event.key === "Tab" && this.screen === "create") {
+      event.preventDefault();
+      this.activeInput = this.activeInput === "name" ? "password" : "name";
       this.refreshScreen();
       return;
     }
@@ -93,6 +107,7 @@ export class RoomScene extends Phaser.Scene {
       this.inputValues[this.activeInput] += character;
       this.refreshScreen();
       if (this.screen === "private") this.maybeJoinPrivateRoom();
+      if (this.screen === "create") this.maybeCreateRoom();
       return;
     }
     this.refreshScreen();
@@ -146,6 +161,7 @@ export class RoomScene extends Phaser.Scene {
     [
       [632, 246, () => this.showCreate()],
       [632, 342, () => this.showPrivateJoin()],
+      [632, 438, () => this.showLeaderboard()],
     ].forEach(([x, y, callback]) => {
       const button = this.add
         .rectangle(x, y, 202, 76, 0xffffff, 0)
@@ -155,31 +171,61 @@ export class RoomScene extends Phaser.Scene {
   }
 
   showCreate() {
+    if (this.screen !== "create") this.activeInput = "name";
     this.screen = "create";
-    this.clearScreen();
-    this.addTitle("CRIAR SALA");
-    this.addInput("password", "SENHA (1 A 4 DÍGITOS)", 280);
-    this.addButton(640, 410, 330, 68, "CRIAR SALA", () =>
-      this.createProtectedRoom(),
-    );
-    this.addButton(640, 510, 200, 56, "VOLTAR", () => this.showMainMenu());
-    this.addMessage();
+    this.clearScreen("criarsala");
+    this.addPrivateInput("name", 264);
+    this.addPrivateInput("password", 364);
+    const createButton = this.add
+      .rectangle(632, 156, 202, 76, 0xffffff, 0)
+      .setInteractive({ useHandCursor: true });
+    createButton.on("pointerdown", () => this.createProtectedRoom());
+    const skipButton = this.add
+      .image(632, 558, "botao-skip")
+      .setCrop(262, 142, 276, 146)
+      .setDisplaySize(138, 73)
+      .setInteractive({ useHandCursor: true });
+    skipButton.on("pointerdown", () => {
+      this.createPending = false;
+      this.showMainMenu();
+    });
+    this.addMessage(500);
+  }
+
+  maybeCreateRoom() {
+    const name = this.inputValues.name.trim();
+    const password = this.inputValues.password.trim();
+    if (
+      /^(?:(?=\p{Script=Latin})\p{Letter}){4}$/u.test(name) &&
+      /^\d{4}$/.test(password)
+    ) {
+      this.createProtectedRoom();
+    }
   }
 
   createProtectedRoom() {
-    const password = this.inputValues.password.trim();
-    if (!/^\d{1,4}$/.test(password)) {
-      this.message = "A senha deve conter de 1 a 4 dígitos.";
+    if (this.createPending) return;
+    const name = this.inputValues.name.trim().toLocaleUpperCase("pt-BR");
+    if (!/^(?:(?=\p{Script=Latin})\p{Letter}){4}$/u.test(name)) {
+      this.message = "O nome deve ter exatamente 4 letras.";
       this.refreshScreen();
       return;
     }
-    this.createRoom(password);
+    const password = this.inputValues.password.trim();
+    if (!/^\d{4}$/.test(password)) {
+      this.message = "A senha deve conter exatamente 4 dígitos.";
+      this.refreshScreen();
+      return;
+    }
+    this.createRoom(password, name);
   }
 
-  createRoom(password) {
-    if (!this.network.send("room:create", { password })) {
+  createRoom(password, name) {
+    if (!this.network.send("room:create", { name, password })) {
       this.message = "Servidor indisponível. Inicie o servidor multiplayer.";
       this.refreshScreen();
+    } else {
+      this.createPending = true;
     }
   }
 
@@ -216,6 +262,65 @@ export class RoomScene extends Phaser.Scene {
     );
     this.addButton(900, 590, 215, 58, "VOLTAR", () => this.showMainMenu());
     this.addMessage(660);
+  }
+
+  showLeaderboard() {
+    this.screen = "leaderboard";
+    this.leaderboardEntries = [];
+    this.renderLeaderboard();
+    if (!this.network.send("leaderboard:list")) {
+      this.add
+        .text(640, 520, "SERVIDOR INDISPONÍVEL", {
+          fontFamily: "monospace",
+          fontSize: "18px",
+          color: "#ff4d5a",
+          align: "center",
+        })
+        .setOrigin(0.5);
+    }
+  }
+
+  renderLeaderboard() {
+    this.clearScreen("placares");
+    if (!this.leaderboardEntries.length) {
+      this.add
+        .text(640, 375, "SEM VITÓRIAS NAS ÚLTIMAS 24H", {
+          fontFamily: "monospace",
+          fontSize: "20px",
+          fontStyle: "bold",
+          color: "#ffffff",
+          align: "center",
+        })
+        .setOrigin(0.5);
+      return;
+    }
+
+    const rowPositions = [318, 378, 438];
+    this.leaderboardEntries.forEach((entry, index) => {
+      const totalHundredths = Math.floor(entry.durationMs / 10);
+      const minutes = Math.floor(totalHundredths / 6000);
+      const seconds = Math.floor(totalHundredths / 100) % 60;
+      const hundredths = totalHundredths % 100;
+      const duration = `${minutes}:${String(seconds).padStart(2, "0")}.${String(hundredths).padStart(2, "0")}`;
+      this.add
+        .text(510, rowPositions[index], entry.name, {
+          fontFamily: "monospace",
+          fontSize: "22px",
+          fontStyle: "bold",
+          color: "#ffffff",
+          align: "center",
+        })
+        .setOrigin(0.5);
+      this.add
+        .text(800, rowPositions[index], duration, {
+          fontFamily: "monospace",
+          fontSize: "22px",
+          fontStyle: "bold",
+          color: "#ffffff",
+          align: "center",
+        })
+        .setOrigin(0.5);
+    });
   }
 
   showPrivateJoin() {
@@ -416,6 +521,7 @@ export class RoomScene extends Phaser.Scene {
     if (this.screen === "create") this.showCreate();
     else if (this.screen === "private") this.showPrivateJoin();
     else if (this.screen === "public") this.showPublicRooms();
+    else if (this.screen === "leaderboard") this.renderLeaderboard();
     else if (this.screen === "lobby") this.showLobby();
   }
 }

@@ -61,3 +61,5 @@ crash.log
 /[Pp]rojectSettings/AudioManager.asset
 /[Pp]rojectSettings/ProjectSettings.asset
 node_modules/
+/server/scores.json
+/server/scores.json.tmp

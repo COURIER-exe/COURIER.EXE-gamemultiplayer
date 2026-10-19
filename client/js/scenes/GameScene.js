@@ -57,6 +57,7 @@ export class GameScene extends Phaser.Scene {
     this.playerColor = this.scene.settings.data?.color ?? "ciano";
     this.isMultiplayerHost =
       this.networkData?.room.hostId === window.multiplayer?.playerId;
+    this.packageCarrierId = this.networkData?.room.gameState?.carrierId ?? null;
     this.robotTarget = this.networkData?.room.robot ?? null;
     const playerColor = this.playerColor;
     const playerTexture = `player-${playerColor}`;
