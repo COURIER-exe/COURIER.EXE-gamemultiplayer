@@ -63,7 +63,9 @@ function normalizePlayerName(name) {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLocaleLowerCase("pt-BR");
-  if ([...BLOCKED_NAME_ROOTS].some((blockedRoot) => root.includes(blockedRoot))) {
+  if (
+    [...BLOCKED_NAME_ROOTS].some((blockedRoot) => root.includes(blockedRoot))
+  ) {
     return null;
   }
   return normalized;
