@@ -332,7 +332,7 @@ export class RoomScene extends Phaser.Scene {
     this.addPrivateInput("joinPassword", 364);
     this.addPrivateInput("roomId", 456);
     const skipButton = this.add
-        .image(632, 558, "botao-x")
+      .image(632, 558, "botao-x")
       .setCrop(262, 142, 276, 146)
       .setDisplaySize(138, 73)
       .setInteractive({ useHandCursor: true });
