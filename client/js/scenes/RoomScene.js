@@ -107,7 +107,6 @@ export class RoomScene extends Phaser.Scene {
       this.inputValues[this.activeInput] += character;
       this.refreshScreen();
       if (this.screen === "private") this.maybeJoinPrivateRoom();
-      if (this.screen === "create") this.maybeCreateRoom();
       return;
     }
     this.refreshScreen();
@@ -181,26 +180,21 @@ export class RoomScene extends Phaser.Scene {
       .setInteractive({ useHandCursor: true });
     createButton.on("pointerdown", () => this.createProtectedRoom());
     const skipButton = this.add
-      .image(632, 558, "botao-skip")
-      .setCrop(262, 142, 276, 146)
+      .image(632, 545, "botoes-sala")
+      .setCrop(262, 188, 276, 146)
       .setDisplaySize(138, 73)
       .setInteractive({ useHandCursor: true });
     skipButton.on("pointerdown", () => {
       this.createPending = false;
       this.showMainMenu();
     });
+    const playButton = this.add
+      .image(632, 457, "botoes-sala")
+      .setCrop(262, 12, 276, 146)
+      .setDisplaySize(138, 72)
+      .setInteractive({ useHandCursor: true });
+    playButton.on("pointerdown", () => this.createProtectedRoom());
     this.addMessage(500);
-  }
-
-  maybeCreateRoom() {
-    const name = this.inputValues.name.trim();
-    const password = this.inputValues.password.trim();
-    if (
-      /^(?:(?=\p{Script=Latin})\p{Letter}){4}$/u.test(name) &&
-      /^\d{4}$/.test(password)
-    ) {
-      this.createProtectedRoom();
-    }
   }
 
   createProtectedRoom() {
@@ -283,7 +277,7 @@ export class RoomScene extends Phaser.Scene {
   renderLeaderboard() {
     this.clearScreen("placares");
     const skipButton = this.add
-      .image(632, 558, "botao-skip")
+      .image(632, 558, "botao-x")
       .setCrop(262, 142, 276, 146)
       .setDisplaySize(138, 73)
       .setInteractive({ useHandCursor: true });
@@ -338,7 +332,7 @@ export class RoomScene extends Phaser.Scene {
     this.addPrivateInput("joinPassword", 364);
     this.addPrivateInput("roomId", 456);
     const skipButton = this.add
-      .image(632, 558, "botao-skip")
+        .image(632, 558, "botao-x")
       .setCrop(262, 142, 276, 146)
       .setDisplaySize(138, 73)
       .setInteractive({ useHandCursor: true });
