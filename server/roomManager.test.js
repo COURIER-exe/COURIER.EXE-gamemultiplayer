@@ -157,6 +157,7 @@ test("private rooms reject incorrect passwords and stay out of public listings",
     type: "room:join",
     roomId,
     password: "9999",
+    name: "ANNA",
   });
   assert.equal(lastMessage(guest, "error").message, "ID ou senha incorretos.");
 
@@ -164,8 +165,49 @@ test("private rooms reject incorrect passwords and stay out of public listings",
     type: "room:join",
     roomId,
     password: "0042",
+    name: "ANNA",
   });
   assert.equal(lastMessage(guest, "room").room.players.length, 2);
+  assert.equal(lastMessage(guest, "room").room.players[1].name, "ANNA");
+});
+
+test("private rooms require a four-letter name without offensive roots", () => {
+  const host = makeClient("host");
+  const guest = makeClient("guest");
+  const manager = createHarness(host, guest);
+  manager.handleMessage(host, { type: "room:create", password: "1234" });
+  const roomId = lastMessage(host, "room").room.id;
+
+  for (const name of [
+    undefined,
+    "ANA",
+    "ABCDE",
+    "1234",
+    "FODA",
+    "FÓDE",
+    "FODI",
+    "FDPX",
+    "PICA",
+  ]) {
+    manager.handleMessage(guest, {
+      type: "room:join",
+      roomId,
+      password: "1234",
+      name,
+    });
+    assert.equal(
+      lastMessage(guest, "error").message,
+      "O nome deve ter 4 letras e não pode ser ofensivo.",
+    );
+  }
+
+  manager.handleMessage(guest, {
+    type: "room:join",
+    roomId,
+    password: "1234",
+    name: "JOÃO",
+  });
+  assert.equal(lastMessage(guest, "room").room.players[1].name, "JOÃO");
 });
 
 test("private room passwords must contain at most four digits", () => {

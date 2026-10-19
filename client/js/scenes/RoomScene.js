@@ -4,9 +4,15 @@ export class RoomScene extends Phaser.Scene {
     this.room = null;
     this.rooms = [];
     this.screen = "menu";
-    this.inputValues = { password: "", roomId: "", joinPassword: "" };
+    this.inputValues = {
+      name: "",
+      password: "",
+      roomId: "",
+      joinPassword: "",
+    };
     this.activeInput = null;
     this.message = "";
+    this.joinPending = false;
   }
 
   create() {
@@ -15,6 +21,7 @@ export class RoomScene extends Phaser.Scene {
     this.network = window.multiplayer;
     this.unsubscribers = [
       this.network.on("room", ({ room }) => {
+        this.joinPending = false;
         this.room = room;
         this.message = "";
         this.showLobby();
@@ -24,6 +31,7 @@ export class RoomScene extends Phaser.Scene {
         if (this.screen === "public") this.showPublicRooms();
       }),
       this.network.on("error", ({ message }) => {
+        this.joinPending = false;
         this.message = message;
         this.refreshScreen();
       }),
@@ -47,11 +55,26 @@ export class RoomScene extends Phaser.Scene {
       return;
     }
     if (!this.activeInput) return;
+    if (event.key === "Tab" && this.screen === "private") {
+      event.preventDefault();
+      const fields = ["name", "joinPassword", "roomId"];
+      const index = fields.indexOf(this.activeInput);
+      this.activeInput = fields[(index + 1) % fields.length];
+      this.refreshScreen();
+      return;
+    }
     event.preventDefault();
     const value = this.inputValues[this.activeInput];
-    const isPasswordInput =
-      this.activeInput === "password" || this.activeInput === "joinPassword";
-    const maxLength = isPasswordInput ? 4 : 32;
+    const fieldRules = {
+      name: {
+        maxLength: 4,
+        pattern: /^(?=\p{Script=Latin})\p{Letter}$/u,
+      },
+      password: { maxLength: 4, pattern: /^\d$/ },
+      joinPassword: { maxLength: 4, pattern: /^\d$/ },
+      roomId: { maxLength: 6, pattern: /^[a-f\d]$/i },
+    };
+    const { maxLength, pattern } = fieldRules[this.activeInput];
     if (event.key === "Backspace") {
       this.inputValues[this.activeInput] = value.slice(0, -1);
     } else if (event.key === "Enter") {
@@ -60,10 +83,17 @@ export class RoomScene extends Phaser.Scene {
       return;
     } else if (
       event.key.length === 1 &&
-      value.length < maxLength &&
-      (!isPasswordInput || /^\d$/.test(event.key))
+      [...value].length < maxLength &&
+      pattern.test(event.key)
     ) {
-      this.inputValues[this.activeInput] += event.key;
+      const character =
+        this.activeInput === "name" || this.activeInput === "roomId"
+          ? event.key.toLocaleUpperCase("pt-BR")
+          : event.key;
+      this.inputValues[this.activeInput] += character;
+      this.refreshScreen();
+      if (this.screen === "private") this.maybeJoinPrivateRoom();
+      return;
     }
     this.refreshScreen();
   }
@@ -114,10 +144,9 @@ export class RoomScene extends Phaser.Scene {
     this.activeInput = null;
     this.clearScreen("imagemdeopções");
     [
-      [632, 246, "SALA COM SENHA", () => this.showCreate()],
-      [632, 342, "SALA PÚBLICA", () => this.openPublicRooms()],
-      [632, 438, "SALA PRIVADA", () => this.showPrivateJoin()],
-    ].forEach(([x, y, label, callback]) => {
+      [632, 246, () => this.showCreate()],
+      [632, 342, () => this.showPrivateJoin()],
+    ].forEach(([x, y, callback]) => {
       const button = this.add
         .rectangle(x, y, 202, 76, 0xffffff, 0)
         .setInteractive({ useHandCursor: true });
@@ -190,21 +219,52 @@ export class RoomScene extends Phaser.Scene {
   }
 
   showPrivateJoin() {
+    if (this.screen !== "private") this.activeInput = "name";
     this.screen = "private";
-    this.clearScreen();
-    this.addTitle("ENTRAR EM SALA PRIVADA");
-    this.addInput("roomId", "ID DA SALA", 230);
-    this.addInput("joinPassword", "SENHA (1 A 4 DÍGITOS)", 330);
-    this.addButton(640, 445, 300, 64, "ENTRAR NA SALA", () =>
-      this.joinPrivateRoom(),
-    );
-    this.addButton(640, 535, 200, 56, "VOLTAR", () => this.showMainMenu());
-    this.addMessage(620);
+    this.clearScreen("salaprivada");
+    this.addPrivateInput("name", 264);
+    this.addPrivateInput("joinPassword", 364);
+    this.addPrivateInput("roomId", 456);
+    const skipButton = this.add
+      .image(632, 558, "botao-skip")
+      .setCrop(262, 142, 276, 146)
+      .setDisplaySize(138, 73)
+      .setInteractive({ useHandCursor: true });
+    skipButton.on("pointerdown", () => {
+      this.joinPending = false;
+      this.showMainMenu();
+    });
+    this.addMessage(510);
+  }
+
+  maybeJoinPrivateRoom() {
+    const name = this.inputValues.name.trim();
+    const password = this.inputValues.joinPassword.trim();
+    const roomId = this.inputValues.roomId.trim();
+    if (
+      /^(?:(?=\p{Script=Latin})\p{Letter}){4}$/u.test(name) &&
+      /^\d{1,4}$/.test(password) &&
+      /^[A-F\d]{6}$/.test(roomId)
+    ) {
+      this.joinPrivateRoom();
+    }
   }
 
   joinPrivateRoom() {
+    if (this.joinPending) return;
+    const name = this.inputValues.name.trim().toLocaleUpperCase("pt-BR");
+    if (!/^(?:(?=\p{Script=Latin})\p{Letter}){4}$/u.test(name)) {
+      this.message = "O nome deve ter exatamente 4 letras.";
+      this.refreshScreen();
+      return;
+    }
     if (!this.inputValues.roomId.trim()) {
-      this.message = "Digite o ID da sala.";
+      this.message = "Digite o ID da sala com 6 caracteres.";
+      this.refreshScreen();
+      return;
+    }
+    if (!/^[A-F\d]{6}$/.test(this.inputValues.roomId)) {
+      this.message = "O ID da sala deve ter 6 caracteres.";
       this.refreshScreen();
       return;
     }
@@ -214,14 +274,16 @@ export class RoomScene extends Phaser.Scene {
       this.refreshScreen();
       return;
     }
-    if (
-      !this.network.send("room:join", {
-        roomId: this.inputValues.roomId,
-        password,
-      })
-    ) {
+    const sent = this.network.send("room:join", {
+      name,
+      roomId: this.inputValues.roomId,
+      password,
+    });
+    if (!sent) {
       this.message = "Servidor indisponível. Inicie o servidor multiplayer.";
       this.refreshScreen();
+    } else {
+      this.joinPending = true;
     }
   }
 
@@ -326,6 +388,28 @@ export class RoomScene extends Phaser.Scene {
       },
       active ? 0xb36bff : 0x00e5ff,
     );
+  }
+
+  addPrivateInput(key, y) {
+    const active = this.activeInput === key;
+    const value = this.inputValues[key];
+    const input = this.add
+      .rectangle(632, y, 330, 68, 0xffffff, 0)
+      .setInteractive({ useHandCursor: true });
+    this.add
+      .text(632, y, `${value}${active ? "|" : ""}`, {
+        fontFamily: "monospace",
+        fontSize: "20px",
+        fontStyle: "bold",
+        color: active ? "#00e5ff" : "#ffffff",
+        align: "center",
+      })
+      .setOrigin(0.5);
+    input.on("pointerdown", () => {
+      this.activeInput = key;
+      this.message = "";
+      this.refreshScreen();
+    });
   }
 
   refreshScreen() {

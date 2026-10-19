@@ -1,10 +1,73 @@
 import { randomBytes } from "node:crypto";
 
 const COLORS = new Set(["ciano", "roxo", "branco", "vermelho"]);
+const BLOCKED_NAME_ROOTS = new Set([
+  "anal",
+  "bixa",
+  "bich",
+  "bost",
+  "buc",
+  "buce",
+  "caga",
+  "cago",
+  "caral",
+  "chup",
+  "coco",
+  "crlh",
+  "cuza",
+  "fdp",
+  "fod",
+  "foda",
+  "fode",
+  "fudi",
+  "fudo",
+  "fude",
+  "goza",
+  "goze",
+  "krl",
+  "mast",
+  "merd",
+  "pica",
+  "pnh",
+  "piro",
+  "punh",
+  "porr",
+  "puta",
+  "pute",
+  "puti",
+  "puto",
+  "putz",
+  "rola",
+  "sexy",
+  "sexo",
+  "tesa",
+  "trep",
+  "vead",
+  "viad",
+  "xere",
+  "xota",
+]);
 const MAX_PLAYERS = 4;
 const MAX_WORLD_COORDINATE = 10000;
 const clampWorldCoordinate = (coordinate) =>
   Math.max(-MAX_WORLD_COORDINATE, Math.min(MAX_WORLD_COORDINATE, coordinate));
+
+function normalizePlayerName(name) {
+  if (typeof name !== "string") return null;
+  const normalized = name.trim().toLocaleUpperCase("pt-BR");
+  if (!/^(?:(?=\p{Script=Latin})\p{Letter}){4}$/u.test(normalized)) {
+    return null;
+  }
+
+  const root = normalized
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("pt-BR");
+  if ([...BLOCKED_NAME_ROOTS].some((blockedRoot) => root.includes(blockedRoot))) {
+    return null;
+  }
+  return normalized;
+}
 
 export function createRoomManager(send) {
   const rooms = new Map();
@@ -138,7 +201,7 @@ export function createRoomManager(send) {
     broadcastRooms();
   };
 
-  const joinRoom = (client, roomId, password = "") => {
+  const joinRoom = (client, roomId, password = "", submittedName) => {
     if (client.roomId) return error(client, "Você já está em uma sala.");
     const room = rooms.get(
       String(roomId ?? "")
@@ -151,6 +214,13 @@ export function createRoomManager(send) {
     if (room.players.length >= MAX_PLAYERS) {
       return error(client, "A sala está cheia.");
     }
+    const name = normalizePlayerName(submittedName);
+    if (
+      (room.visibility === "private" && !name) ||
+      (submittedName !== undefined && !name)
+    ) {
+      return error(client, "O nome deve ter 4 letras e não pode ser ofensivo.");
+    }
     const submittedPassword = String(password ?? "");
     if (submittedPassword && !/^\d{1,4}$/.test(submittedPassword)) {
       return error(client, "A senha deve conter de 1 a 4 dígitos.");
@@ -161,7 +231,7 @@ export function createRoomManager(send) {
 
     room.players.push({
       id: client.id,
-      name: `JOGADOR ${room.players.length + 1}`,
+      name: name ?? `JOGADOR ${room.players.length + 1}`,
       color: null,
       ready: false,
       x: null,
@@ -187,7 +257,7 @@ export function createRoomManager(send) {
         createRoom(client, message.password ?? "");
         break;
       case "room:join":
-        joinRoom(client, message.roomId, message.password);
+        joinRoom(client, message.roomId, message.password, message.name);
         break;
       case "room:leave":
         leaveRoom(client);
