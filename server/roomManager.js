@@ -48,7 +48,6 @@ const BLOCKED_NAME_ROOTS = new Set([
   "xota",
 ]);
 const MAX_PLAYERS = 4;
-const SCORE_WINDOW_MS = 24 * 60 * 60 * 1000;
 const MAX_WORLD_COORDINATE = 10000;
 const clampWorldCoordinate = (coordinate) =>
   Math.max(-MAX_WORLD_COORDINATE, Math.min(MAX_WORLD_COORDINATE, coordinate));
@@ -142,17 +141,7 @@ export function createRoomManager(
 
   const error = (client, message) => sendTo(client, { type: "error", message });
 
-  const pruneScores = () => {
-    const cutoff = now() - SCORE_WINDOW_MS;
-    const recentScores = scores.filter((score) => score.completedAt >= cutoff);
-    if (recentScores.length !== scores.length) {
-      scores.splice(0, scores.length, ...recentScores);
-      onScoresChanged(scores.map((score) => ({ ...score })));
-    }
-  };
-
   const leaderboard = () => {
-    pruneScores();
     return [...scores]
       .sort(
         (first, second) =>
@@ -512,7 +501,6 @@ export function createRoomManager(
           durationMs: Math.max(0, completedAt - room.startedAt),
           completedAt,
         });
-        pruneScores();
         onScoresChanged(scores.map((score) => ({ ...score })));
         const result = { type: "package:delivered", winnerId: client.id };
         room.players.forEach((player) => {

@@ -269,7 +269,7 @@ test("room creation rejects offensive host names and stores valid names", () => 
   assert.equal(lastMessage(host, "room").room.players[0].name, "JOÃO");
 });
 
-test("leaderboard ranks recent wins by time and drops results older than 24 hours", () => {
+test("leaderboard ranks wins by time and keeps results after 24 hours and reload", () => {
   let currentTime = 1000;
   let savedScores = [];
   const clients = [
@@ -337,6 +337,19 @@ test("leaderboard ranks recent wins by time and drops results older than 24 hour
   manager.handleMessage(clients[3], { type: "leaderboard:list" });
   assert.deepEqual(lastMessage(clients[3], "leaderboard").entries, [
     { name: "GUES", durationMs: 2500 },
+    { name: "HOST", durationMs: 10000 },
   ]);
-  assert.equal(savedScores.length, 1);
+  assert.equal(savedScores.length, 2);
+
+  const reloadedClient = makeClient("reloaded");
+  const reloadedManager = createRoomManager(
+    (client, message) => client.messages.push(message),
+    { now: () => currentTime, initialScores: savedScores },
+  );
+  reloadedManager.connect(reloadedClient);
+  reloadedManager.handleMessage(reloadedClient, { type: "leaderboard:list" });
+  assert.deepEqual(lastMessage(reloadedClient, "leaderboard").entries, [
+    { name: "GUES", durationMs: 2500 },
+    { name: "HOST", durationMs: 10000 },
+  ]);
 });

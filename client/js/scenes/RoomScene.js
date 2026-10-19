@@ -284,7 +284,7 @@ export class RoomScene extends Phaser.Scene {
     this.clearScreen("placares");
     if (!this.leaderboardEntries.length) {
       this.add
-        .text(640, 375, "SEM VITÓRIAS NAS ÚLTIMAS 24H", {
+        .text(640, 375, "AINDA SEM REGISTROS", {
           fontFamily: "monospace",
           fontSize: "20px",
           fontStyle: "bold",
