@@ -510,6 +510,8 @@ body {
   .terminal-close::before {
     content: "×";
     color: #00f5ee;
-    font: bold 30px/1 Arial, sans-serif;
+    font:
+      bold 30px/1 Arial,
+      sans-serif;
   }
 }
