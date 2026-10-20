@@ -73,10 +73,7 @@ export class RoomScene extends Phaser.Scene {
         "compositionend",
         this.domInputCompositionHandler,
       );
-      this.domInput.removeEventListener(
-        "keydown",
-        this.domInputKeyHandler,
-      );
+      this.domInput.removeEventListener("keydown", this.domInputKeyHandler);
       this.domInput.blur();
       this.domInput.remove();
     });
