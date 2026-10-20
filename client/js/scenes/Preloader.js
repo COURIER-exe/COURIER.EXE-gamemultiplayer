@@ -61,11 +61,11 @@ export class Preloader extends Phaser.Scene {
         return;
       }
 
-      Promise.resolve(
-        request.call(target, { navigationUI: "hide" }),
-      ).catch((error) => {
-        console.warn("Fullscreen request was denied:", error);
-      });
+      Promise.resolve(request.call(target, { navigationUI: "hide" })).catch(
+        (error) => {
+          console.warn("Fullscreen request was denied:", error);
+        },
+      );
     } catch (error) {
       console.error("Error starting fullscreen:", error);
     }
