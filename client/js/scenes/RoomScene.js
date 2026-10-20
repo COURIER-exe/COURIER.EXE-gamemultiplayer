@@ -10,6 +10,20 @@ export class RoomScene extends Phaser.Scene {
       roomId: "",
       joinPassword: "",
     };
+    this.inputRules = {
+      name: {
+        maxLength: 4,
+        pattern: /^(?=\p{Script=Latin})\p{Letter}$/u,
+        inputMode: "text",
+      },
+      password: { maxLength: 4, pattern: /^\d$/, inputMode: "numeric" },
+      joinPassword: {
+        maxLength: 4,
+        pattern: /^\d$/,
+        inputMode: "numeric",
+      },
+      roomId: { maxLength: 6, pattern: /^[a-f\d]$/i, inputMode: "text" },
+    };
     this.activeInput = null;
     this.message = "";
     this.joinPending = false;
@@ -21,10 +35,12 @@ export class RoomScene extends Phaser.Scene {
     window.setJoystickVisible?.(false);
     window.setCoordinatesVisible?.(false);
     this.network = window.multiplayer;
+    this.createTextInput();
     this.unsubscribers = [
       this.network.on("room", ({ room }) => {
         this.joinPending = false;
         this.createPending = false;
+        this.domInput.blur();
         this.room = room;
         this.message = "";
         this.showLobby();
@@ -52,13 +68,132 @@ export class RoomScene extends Phaser.Scene {
     this.events.once("shutdown", () => {
       this.unsubscribers.forEach((unsubscribe) => unsubscribe());
       this.input.keyboard.off("keydown", this.handleKey, this);
+      this.domInput.removeEventListener("input", this.domInputInputHandler);
+      this.domInput.removeEventListener(
+        "compositionend",
+        this.domInputCompositionHandler,
+      );
+      this.domInput.removeEventListener(
+        "keydown",
+        this.domInputKeyHandler,
+      );
+      this.domInput.blur();
+      this.domInput.remove();
     });
     this.showMainMenu();
   }
 
+  createTextInput() {
+    this.domInput = document.createElement("input");
+    this.domInput.type = "text";
+    this.domInput.autocomplete = "off";
+    this.domInput.autocapitalize = "characters";
+    this.domInput.spellcheck = false;
+    this.domInput.setAttribute("aria-label", "Campo de texto do jogo");
+    Object.assign(this.domInput.style, {
+      position: "fixed",
+      left: "-1000px",
+      top: "-1000px",
+      width: "1px",
+      height: "1px",
+      boxSizing: "border-box",
+      padding: "0",
+      margin: "0",
+      border: "0",
+      outline: "0",
+      background: "transparent",
+      color: "transparent",
+      caretColor: "transparent",
+      opacity: "0.01",
+      fontSize: "16px",
+      zIndex: "1000",
+    });
+    this.domInputInputHandler = (event) => {
+      if (!event.isComposing) this.syncTextInput();
+    };
+    this.domInputCompositionHandler = () => this.syncTextInput();
+    this.domInputKeyHandler = (event) => this.handleDomInputKey(event);
+    this.domInput.addEventListener("input", this.domInputInputHandler);
+    this.domInput.addEventListener(
+      "compositionend",
+      this.domInputCompositionHandler,
+    );
+    this.domInput.addEventListener("keydown", this.domInputKeyHandler);
+    document.body.append(this.domInput);
+  }
+
+  focusTextInput(key, y) {
+    const rule = this.inputRules[key];
+    const canvasRect = this.game.canvas.getBoundingClientRect();
+    const scaleX = canvasRect.width / this.scale.gameSize.width;
+    const scaleY = canvasRect.height / this.scale.gameSize.height;
+    this.domInput.maxLength = rule.maxLength;
+    this.domInput.inputMode = rule.inputMode;
+    this.domInput.enterKeyHint = key === "roomId" ? "go" : "done";
+    this.domInput.value = this.inputValues[key];
+    this.domInput.style.left = `${canvasRect.left + 467 * scaleX}px`;
+    this.domInput.style.top = `${canvasRect.top + (y - 34) * scaleY}px`;
+    this.domInput.style.width = `${330 * scaleX}px`;
+    this.domInput.style.height = `${68 * scaleY}px`;
+    this.domInput.focus();
+    this.domInput.setSelectionRange(
+      this.domInput.value.length,
+      this.domInput.value.length,
+    );
+  }
+
+  syncTextInput() {
+    const key = this.activeInput;
+    if (!key) return;
+    const rule = this.inputRules[key];
+    let value = [...this.domInput.value]
+      .filter((character) => rule.pattern.test(character))
+      .slice(0, rule.maxLength)
+      .join("");
+    if (key === "name" || key === "roomId") {
+      value = value.toLocaleUpperCase("pt-BR");
+    }
+    if (this.domInput.value !== value) this.domInput.value = value;
+    this.inputValues[key] = value;
+    this.refreshScreen();
+    if (this.screen === "private") this.maybeJoinPrivateRoom();
+  }
+
+  handleDomInputKey(event) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      this.activeInput = null;
+      this.domInput.blur();
+      this.showMainMenu();
+      return;
+    }
+    if (event.key === "Enter") {
+      event.preventDefault();
+      if (this.screen === "create") this.createProtectedRoom();
+      if (this.screen === "private") this.joinPrivateRoom();
+      return;
+    }
+    if (event.key !== "Tab") return;
+    const fieldsByScreen = {
+      private: ["name", "joinPassword", "roomId"],
+      create: ["name", "password"],
+    };
+    const fields = fieldsByScreen[this.screen];
+    if (!fields) return;
+    event.preventDefault();
+    const index = fields.indexOf(this.activeInput);
+    const key = fields[(index + 1) % fields.length];
+    const y = key === "name" ? 264 : key === "roomId" ? 456 : 364;
+    this.activeInput = key;
+    this.refreshScreen();
+    this.focusTextInput(key, y);
+  }
+
   handleKey(event) {
+    if (event.target === this.domInput) return;
     if (event.key === "Escape") {
       this.activeInput = null;
+      this.domInput.blur();
       this.showMainMenu();
       return;
     }
@@ -79,16 +214,7 @@ export class RoomScene extends Phaser.Scene {
     }
     event.preventDefault();
     const value = this.inputValues[this.activeInput];
-    const fieldRules = {
-      name: {
-        maxLength: 4,
-        pattern: /^(?=\p{Script=Latin})\p{Letter}$/u,
-      },
-      password: { maxLength: 4, pattern: /^\d$/ },
-      joinPassword: { maxLength: 4, pattern: /^\d$/ },
-      roomId: { maxLength: 6, pattern: /^[a-f\d]$/i },
-    };
-    const { maxLength, pattern } = fieldRules[this.activeInput];
+    const { maxLength, pattern } = this.inputRules[this.activeInput];
     if (event.key === "Backspace") {
       this.inputValues[this.activeInput] = value.slice(0, -1);
     } else if (event.key === "Enter") {
@@ -156,6 +282,7 @@ export class RoomScene extends Phaser.Scene {
     this.screen = "menu";
     this.message = "";
     this.activeInput = null;
+    this.domInput?.blur();
     this.clearScreen("imagemdeopções");
     [
       [632, 246, () => this.showCreate()],
@@ -180,21 +307,29 @@ export class RoomScene extends Phaser.Scene {
       .setInteractive({ useHandCursor: true });
     createButton.on("pointerdown", () => this.createProtectedRoom());
     const skipButton = this.add
-      .image(632, 545, "botoes-sala")
-      .setCrop(262, 188, 276, 146)
-      .setDisplaySize(138, 73)
-      .setInteractive({ useHandCursor: true });
+      .image(522, 510, "botao-x")
+      .setCrop(262, 142, 276, 146)
+      .setDisplaySize((90 * 800) / 276, (45 * 450) / 146)
+      .setOrigin(0.5, 215 / 450)
+      .setInteractive(
+        new Phaser.Geom.Rectangle(262, 142, 276, 146),
+        Phaser.Geom.Rectangle.Contains,
+      );
     skipButton.on("pointerdown", () => {
       this.createPending = false;
       this.showMainMenu();
     });
     const playButton = this.add
-      .image(632, 457, "botoes-sala")
-      .setCrop(262, 12, 276, 146)
-      .setDisplaySize(138, 72)
-      .setInteractive({ useHandCursor: true });
+      .image(742, 510, "botao-play")
+      .setCrop(262, 142, 276, 146)
+      .setDisplaySize((90 * 800) / 276, (50 * 450) / 146)
+      .setOrigin(0.5, 215 / 450)
+      .setInteractive(
+        new Phaser.Geom.Rectangle(262, 142, 276, 146),
+        Phaser.Geom.Rectangle.Contains,
+      );
     playButton.on("pointerdown", () => this.createProtectedRoom());
-    this.addMessage(500);
+    this.addMessage(600);
   }
 
   createProtectedRoom() {
@@ -220,6 +355,7 @@ export class RoomScene extends Phaser.Scene {
       this.refreshScreen();
     } else {
       this.createPending = true;
+      this.domInput.blur();
     }
   }
 
@@ -279,8 +415,12 @@ export class RoomScene extends Phaser.Scene {
     const skipButton = this.add
       .image(632, 558, "botao-x")
       .setCrop(262, 142, 276, 146)
-      .setDisplaySize(138, 73)
-      .setInteractive({ useHandCursor: true });
+      .setDisplaySize((90 * 800) / 276, (45 * 450) / 146)
+      .setOrigin(0.5, 215 / 450)
+      .setInteractive(
+        new Phaser.Geom.Rectangle(262, 142, 276, 146),
+        Phaser.Geom.Rectangle.Contains,
+      );
     skipButton.on("pointerdown", () => this.showMainMenu());
 
     if (!this.leaderboardEntries.length) {
@@ -332,14 +472,28 @@ export class RoomScene extends Phaser.Scene {
     this.addPrivateInput("joinPassword", 364);
     this.addPrivateInput("roomId", 456);
     const skipButton = this.add
-      .image(632, 558, "botao-x")
+      .image(522, 558, "botao-x")
       .setCrop(262, 142, 276, 146)
-      .setDisplaySize(138, 73)
-      .setInteractive({ useHandCursor: true });
+      .setDisplaySize((90 * 800) / 276, (45 * 450) / 146)
+      .setOrigin(0.5, 215 / 450)
+      .setInteractive(
+        new Phaser.Geom.Rectangle(262, 142, 276, 146),
+        Phaser.Geom.Rectangle.Contains,
+      );
     skipButton.on("pointerdown", () => {
       this.joinPending = false;
       this.showMainMenu();
     });
+    const playButton = this.add
+      .image(742, 558, "botao-play")
+      .setCrop(262, 142, 276, 146)
+      .setDisplaySize((90 * 800) / 276, (50 * 450) / 146)
+      .setOrigin(0.5, 215 / 450)
+      .setInteractive(
+        new Phaser.Geom.Rectangle(262, 142, 276, 146),
+        Phaser.Geom.Rectangle.Contains,
+      );
+    playButton.on("pointerdown", () => this.joinPrivateRoom());
     this.addMessage(510);
   }
 
@@ -390,6 +544,7 @@ export class RoomScene extends Phaser.Scene {
       this.refreshScreen();
     } else {
       this.joinPending = true;
+      this.domInput.blur();
     }
   }
 
@@ -397,6 +552,7 @@ export class RoomScene extends Phaser.Scene {
     if (!this.room) return;
     this.screen = "lobby";
     this.activeInput = null;
+    this.domInput.blur();
     this.clearScreen();
     this.addTitle("SALA " + this.room.id);
     this.addLabel(
@@ -515,6 +671,7 @@ export class RoomScene extends Phaser.Scene {
       this.activeInput = key;
       this.message = "";
       this.refreshScreen();
+      this.focusTextInput(key, y);
     });
   }
 
