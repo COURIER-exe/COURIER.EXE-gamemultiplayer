@@ -116,27 +116,52 @@ test("two players can choose colors in the lobby, ready up, and exchange positio
     color: "roxo",
   });
 
-  manager.handleMessage(host, { type: "package:collect" });
-  assert.equal(lastMessage(guest, "package:state").gameState.carrierId, "host");
+  manager.handleMessage(host, { type: "package:collect", houseId: 1 });
+  assert.deepEqual(lastMessage(guest, "package:state").gameState, {
+    carriers: { host: 1 },
+    deliveredBy: null,
+    collectedHouseIds: [1],
+  });
+  guest.messages.length = 0;
+  manager.handleMessage(guest, { type: "package:state:request" });
+  assert.deepEqual(lastMessage(guest, "package:state").gameState, {
+    carriers: { host: 1 },
+    deliveredBy: null,
+    collectedHouseIds: [1],
+  });
   manager.handleMessage(guest, { type: "package:drop" });
-  assert.equal(lastMessage(guest, "package:state").gameState.carrierId, "host");
+  assert.deepEqual(lastMessage(guest, "package:state").gameState.carriers, {
+    host: 1,
+  });
   manager.handleMessage(host, { type: "package:drop" });
-  assert.equal(lastMessage(guest, "package:state").gameState.carrierId, null);
-  manager.handleMessage(host, { type: "package:collect" });
-  assert.equal(lastMessage(guest, "package:state").gameState.carrierId, "host");
-  manager.handleMessage(guest, { type: "package:collect" });
-  assert.equal(
-    lastMessage(guest, "error").message,
-    "Outro jogador já está com o pacote.",
-  );
-  assert.equal(lastMessage(guest, "package:state").gameState.carrierId, "host");
+  assert.deepEqual(lastMessage(guest, "package:state").gameState, {
+    carriers: {},
+    deliveredBy: null,
+    collectedHouseIds: [],
+  });
+  manager.handleMessage(host, { type: "package:collect", houseId: 2 });
+  manager.handleMessage(guest, { type: "package:collect", houseId: 2 });
+  assert.equal(lastMessage(guest, "error").message, "Essa coleta já foi realizada.");
+  manager.handleMessage(guest, { type: "package:collect", houseId: 3 });
+  assert.deepEqual(lastMessage(host, "package:state").gameState, {
+    carriers: { host: 2, guest: 3 },
+    deliveredBy: null,
+    collectedHouseIds: [2, 3],
+  });
+  manager.handleMessage(host, { type: "package:drop" });
+  assert.deepEqual(lastMessage(guest, "package:state").gameState, {
+    carriers: { guest: 3 },
+    deliveredBy: null,
+    collectedHouseIds: [3],
+  });
+  manager.handleMessage(host, { type: "package:collect", houseId: 2 });
+  assert.deepEqual(lastMessage(guest, "package:state").gameState, {
+    carriers: { guest: 3, host: 2 },
+    deliveredBy: null,
+    collectedHouseIds: [3, 2],
+  });
   manager.handleMessage(guest, { type: "package:deliver" });
-  assert.equal(
-    lastMessage(guest, "error").message,
-    "Somente quem está com o pacote pode entregá-lo.",
-  );
-  manager.handleMessage(host, { type: "package:deliver" });
-  assert.equal(lastMessage(guest, "package:delivered").winnerId, "host");
+  assert.equal(lastMessage(guest, "package:delivered").winnerId, "guest");
 
   manager.disconnect(guest);
   assert.equal(lastMessage(host, "player-left").playerId, "guest");
@@ -317,13 +342,13 @@ test("leaderboard ranks wins by time and keeps results after 24 hours and reload
 
   startMatch(clients[0], clients[1]);
   currentTime = 11000;
-  manager.handleMessage(clients[0], { type: "package:collect" });
+  manager.handleMessage(clients[0], { type: "package:collect", houseId: 1 });
   manager.handleMessage(clients[0], { type: "package:deliver" });
 
   currentTime = 20000;
   startMatch(clients[2], clients[3]);
   currentTime = 22500;
-  manager.handleMessage(clients[3], { type: "package:collect" });
+  manager.handleMessage(clients[3], { type: "package:collect", houseId: 2 });
   manager.handleMessage(clients[3], { type: "package:deliver" });
 
   manager.handleMessage(clients[3], { type: "leaderboard:list" });

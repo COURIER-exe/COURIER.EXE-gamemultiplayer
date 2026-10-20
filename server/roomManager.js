@@ -89,12 +89,39 @@ export function createRoomManager(
 
   const roomFor = (client) => rooms.get(client.roomId);
 
+  const packageStateSnapshot = (gameState) => ({
+    ...gameState,
+    carriers: { ...gameState.carriers },
+    collectedHouseIds: [...gameState.collectedHouseIds],
+  });
+
+  const broadcastPackageState = (room) => {
+    const message = {
+      type: "package:state",
+      gameState: packageStateSnapshot(room.gameState),
+    };
+    room.players.forEach((player) => {
+      const client = [...clients].find((candidate) => candidate.id === player.id);
+      if (client) sendTo(client, message);
+    });
+  };
+
+  const releasePackage = (room, playerId) => {
+    if (!Object.hasOwn(room.gameState.carriers, playerId)) return false;
+    const houseId = room.gameState.carriers[playerId];
+    delete room.gameState.carriers[playerId];
+    room.gameState.collectedHouseIds = room.gameState.collectedHouseIds.filter(
+      (collectedHouseId) => collectedHouseId !== houseId,
+    );
+    return true;
+  };
+
   const snapshot = (room) => ({
     id: room.id,
     visibility: room.visibility,
     hostId: room.hostId,
     state: room.state,
-    gameState: room.gameState,
+    gameState: packageStateSnapshot(room.gameState),
     robot: room.robot,
     players: room.players.map(
       ({ id, name, color, ready, x, y, moving, flipX }) => ({
@@ -156,21 +183,13 @@ export function createRoomManager(
     const room = roomFor(client);
     if (!room) return;
 
+    const releasedPackage = releasePackage(room, client.id);
     room.players = room.players.filter((player) => player.id !== client.id);
     client.roomId = null;
-    if (room.gameState?.carrierId === client.id) {
-      room.gameState.carrierId = null;
-      room.players.forEach((player) => {
-        const other = [...clients].find(
-          (candidate) => candidate.id === player.id,
-        );
-        if (other)
-          sendTo(other, { type: "package:state", gameState: room.gameState });
-      });
-    }
     if (room.players.length === 0) {
       rooms.delete(room.id);
     } else {
+      if (releasedPackage) broadcastPackageState(room);
       if (room.hostId === client.id) room.hostId = room.players[0].id;
       room.players.forEach((player) => {
         const other = [...clients].find(
@@ -217,7 +236,11 @@ export function createRoomManager(
       visibility: password ? "private" : "public",
       hostId: client.id,
       state: "lobby",
-      gameState: { carrierId: null, deliveredBy: null },
+      gameState: {
+        carriers: {},
+        deliveredBy: null,
+        collectedHouseIds: [],
+      },
       robot: { x: 980, y: 220, moving: false, flipX: false, frame: 7 },
       players: [player],
     };
@@ -436,48 +459,49 @@ export function createRoomManager(
         });
         break;
       }
+      case "package:state:request": {
+        const room = roomFor(client);
+        if (!room || room.state !== "match") return;
+        sendTo(client, {
+          type: "package:state",
+          gameState: packageStateSnapshot(room.gameState),
+        });
+        break;
+      }
       case "package:collect": {
         const room = roomFor(client);
         if (!room || room.state !== "match") return;
-        if (room.gameState.carrierId || room.gameState.deliveredBy) {
-          sendTo(client, { type: "package:state", gameState: room.gameState });
-          return error(client, "Outro jogador já está com o pacote.");
+        const houseId = message.houseId;
+        if (!Number.isInteger(houseId) || houseId < 0 || houseId > 1000) {
+          return error(client, "Casa de coleta inválida.");
         }
-        room.gameState.carrierId = client.id;
-        room.players.forEach((player) => {
-          const member = [...clients].find(
-            (candidate) => candidate.id === player.id,
-          );
-          if (member) {
-            sendTo(member, {
-              type: "package:state",
-              gameState: room.gameState,
-            });
-          }
-        });
+        if (room.gameState.deliveredBy) {
+          return error(client, "A partida já foi concluída.");
+        }
+        if (Object.hasOwn(room.gameState.carriers, client.id)) {
+          sendTo(client, {
+            type: "package:state",
+            gameState: packageStateSnapshot(room.gameState),
+          });
+          return error(client, "Você já está carregando um pacote.");
+        }
+        if (room.gameState.collectedHouseIds.includes(houseId)) {
+          sendTo(client, {
+            type: "package:state",
+            gameState: packageStateSnapshot(room.gameState),
+          });
+          return error(client, "Essa coleta já foi realizada.");
+        }
+        room.gameState.collectedHouseIds.push(houseId);
+        room.gameState.carriers[client.id] = houseId;
+        broadcastPackageState(room);
         break;
       }
       case "package:drop": {
         const room = roomFor(client);
-        if (
-          !room ||
-          room.state !== "match" ||
-          room.gameState.carrierId !== client.id
-        ) {
-          return;
-        }
-        room.gameState.carrierId = null;
-        room.players.forEach((player) => {
-          const member = [...clients].find(
-            (candidate) => candidate.id === player.id,
-          );
-          if (member) {
-            sendTo(member, {
-              type: "package:state",
-              gameState: room.gameState,
-            });
-          }
-        });
+        if (!room || room.state !== "match") return;
+        if (!releasePackage(room, client.id)) return;
+        broadcastPackageState(room);
         break;
       }
       case "package:deliver": {
@@ -485,7 +509,7 @@ export function createRoomManager(
         if (
           !room ||
           room.state !== "match" ||
-          room.gameState.carrierId !== client.id
+          !Object.hasOwn(room.gameState.carriers, client.id)
         ) {
           return error(
             client,

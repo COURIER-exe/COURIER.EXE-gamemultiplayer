@@ -32,7 +32,9 @@ export class InteriorScene extends Phaser.Scene {
     this.hasPassword = data.hasPassword === true;
     const gameScene = this.scene.get("GameScene");
     this.packagePassword = gameScene?.packagePassword ?? null;
-    this.multiplayerCarrierId = gameScene?.packageCarrierId ?? null;
+    this.collectedPickupHouseIds = new Set(
+      gameScene?.collectedPickupHouseIds ?? [],
+    );
   }
 
   create() {
@@ -132,10 +134,13 @@ export class InteriorScene extends Phaser.Scene {
   }
 
   update() {
-    window.updateInteriorCoordinates?.(
-      Math.round(this.player.x),
-      Math.round(this.player.y),
-    );
+    if (this.time.now >= (this.nextInteriorCoordinateUpdate ?? 0)) {
+      window.updateInteriorCoordinates?.(
+        Math.round(this.player.x),
+        Math.round(this.player.y),
+      );
+      this.nextInteriorCoordinateUpdate = this.time.now + 100;
+    }
 
     if (
       this.computerInteractionLocked &&
@@ -271,8 +276,9 @@ export class InteriorScene extends Phaser.Scene {
   createPackagePickup(markerSize = 64) {
     if (
       !this.isTargetHouse ||
-      this.player.carregandoPacote ||
-      this.multiplayerCarrierId !== null ||
+      this.collectedPickupHouseIds.has(this.houseId) ||
+      (!this.scene.get("GameScene")?.networkData &&
+        this.player.carregandoPacote) ||
       this.pickup?.active
     ) {
       return;
@@ -351,7 +357,9 @@ export class InteriorScene extends Phaser.Scene {
 
   showStageNotice(textureKey) {
     this.interfaceBlocked = true;
-    window.setJoystickVisible?.(false);
+    if (textureKey !== "aviso-coleta") {
+      window.setJoystickVisible?.(false);
+    }
 
     const width = this.scale.width;
     const height = this.scale.height;
@@ -360,7 +368,8 @@ export class InteriorScene extends Phaser.Scene {
       .image(width / 2, height / 2, textureKey)
       .setDisplaySize(width * noticeScale, height * noticeScale)
       .setScrollFactor(0)
-      .setDepth(3000);
+      .setDepth(3000)
+      .setInteractive();
     const skipButton = this.add
       .rectangle(
         width / 2 + width * 0.2 * noticeScale,
@@ -374,12 +383,17 @@ export class InteriorScene extends Phaser.Scene {
       .setDepth(3001)
       .setInteractive({ useHandCursor: true });
 
-    skipButton.once("pointerdown", () => {
+    let noticeClosed = false;
+    const closeNotice = () => {
+      if (noticeClosed) return;
+      noticeClosed = true;
       notice.destroy();
       skipButton.destroy();
       this.interfaceBlocked = false;
       window.setJoystickVisible?.(true);
-    });
+    };
+    notice.once("pointerdown", closeNotice);
+    skipButton.once("pointerdown", closeNotice);
   }
 
   setInterfaceBlocked(blocked) {
@@ -413,7 +427,7 @@ export class InteriorScene extends Phaser.Scene {
     if (this.player.carregandoPacote || !this.pickup?.active) return;
     if (
       this.scene.get("GameScene")?.networkData &&
-      !window.multiplayer.send("package:collect")
+      !window.multiplayer.send("package:collect", { houseId: this.houseId })
     ) {
       this.showObjectiveMessage(
         "SEM CONEXÃO",
@@ -446,14 +460,19 @@ export class InteriorScene extends Phaser.Scene {
   }
 
   applyPackageState(gameState) {
-    this.multiplayerCarrierId = gameState.carrierId;
-    const isCarrier = gameState.carrierId === window.multiplayer?.playerId;
+    this.collectedPickupHouseIds = new Set(gameState.collectedHouseIds ?? []);
+    const isCarrier = Object.hasOwn(
+      gameState.carriers ?? {},
+      window.multiplayer?.playerId,
+    );
     if (this.player) this.player.carregandoPacote = isCarrier;
     if (this.mainPlayer) this.mainPlayer.carregandoPacote = isCarrier;
-    if (gameState.carrierId && this.pickup?.active) {
-      this.pickup.destroy();
+    if (this.collectedPickupHouseIds.has(this.houseId)) {
+      this.pickup?.destroy();
       this.pickupTrigger?.destroy();
-    } else if (!gameState.carrierId) {
+      this.pickup = null;
+      this.pickupTrigger = null;
+    } else if (!this.pickup?.active) {
       window.updateObjectiveProgress?.(2, false);
       this.createPackagePickup();
     }

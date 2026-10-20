@@ -257,6 +257,9 @@ const config = {
   type: Phaser.AUTO,
   width: 1280,
   height: 720,
+  pixelArt: true,
+  roundPixels: true,
+  antialias: false,
   backgroundColor: "#05050a",
   parent: "game-container",
   physics: {

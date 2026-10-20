@@ -131,9 +131,9 @@ export class Preloader extends Phaser.Scene {
     this.load.image("interiorTileset1", "texturas/Interiors_32x32_1.png");
     this.load.image("interiorTileset2", "texturas/Interiors_32x32_2.png");
     this.load.image("seta-construcao", "assets/seta-construcao.svg");
-    this.load.image("computador", "assets/Computador.png");
+    this.load.image("computador", "assets/Computador-256.png");
     this.load.image("marcador-coleta", "assets/Coleta.png");
-    this.load.image("marcador-entrega", "assets/Entrega.png");
+    this.load.image("marcador-entrega", "assets/Entrega-256.png");
 
     const images = {
       ground_grass_edge: "map/Grounds/ground_grass_edge.png",

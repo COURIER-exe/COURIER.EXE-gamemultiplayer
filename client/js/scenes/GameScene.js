@@ -52,12 +52,24 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
+    this.input.keyboard.resetKeys();
+    this.game.canvas.tabIndex = 0;
+    this.game.canvas.focus({ preventScroll: true });
+    this.events.once("shutdown", () => {
+      this.input.keyboard.resetKeys();
+      window.directionalInput?.clear();
+    });
     window.setJoystickVisible?.(true);
     window.resetObjectiveProgress?.();
     this.playerColor = this.scene.settings.data?.color ?? "ciano";
     this.isMultiplayerHost =
       this.networkData?.room.hostId === window.multiplayer?.playerId;
-    this.packageCarrierId = this.networkData?.room.gameState?.carrierId ?? null;
+    this.packageCarriers = {
+      ...(this.networkData?.room.gameState?.carriers ?? {}),
+    };
+    this.collectedPickupHouseIds = new Set(
+      this.networkData?.room.gameState?.collectedHouseIds ?? [],
+    );
     this.robotTarget = this.networkData?.room.robot ?? null;
     const playerColor = this.playerColor;
     const playerTexture = `player-${playerColor}`;
@@ -1056,8 +1068,14 @@ export class GameScene extends Phaser.Scene {
         );
       }),
       network.on("package:state", ({ gameState }) => {
-        this.packageCarrierId = gameState.carrierId;
-        this.player.carregandoPacote = gameState.carrierId === network.playerId;
+        this.packageCarriers = { ...(gameState.carriers ?? {}) };
+        this.collectedPickupHouseIds = new Set(
+          gameState.collectedHouseIds ?? [],
+        );
+        this.player.carregandoPacote = Object.hasOwn(
+          this.packageCarriers,
+          network.playerId,
+        );
         if (this.scene.isActive("InteriorScene")) {
           this.scene.get("InteriorScene")?.applyPackageState(gameState);
         }
@@ -1680,6 +1698,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   updateHud() {
+    if (this.time.now < (this.nextHudUpdate ?? 0)) return;
+    this.nextHudUpdate = this.time.now + 100;
+
     if (this.player) {
       window.updateCoordinates?.(
         Math.round(this.player.x),
@@ -1705,6 +1726,9 @@ export class GameScene extends Phaser.Scene {
     trigger.setData("active", true);
     this.savedExteriorPosition = { x: this.player.x, y: this.player.y };
     const houseId = trigger.getData("houseId");
+    if (this.networkData) {
+      window.multiplayer.send("package:state:request");
+    }
     this.scene.pause("GameScene");
     this.scene.launch("InteriorScene", {
       color: this.scene.settings.data?.color ?? "ciano",
