@@ -325,7 +325,10 @@ export class RoomScene extends Phaser.Scene {
         new Phaser.Geom.Rectangle(262, 142, 276, 146),
         Phaser.Geom.Rectangle.Contains,
       );
-    playButton.on("pointerdown", () => this.createProtectedRoom());
+    playButton.on("pointerdown", () => {
+      this.requestFullscreen();
+      this.createProtectedRoom();
+    });
     this.addMessage(600);
   }
 
@@ -344,6 +347,31 @@ export class RoomScene extends Phaser.Scene {
       return;
     }
     this.createRoom(password, name);
+  }
+
+  requestFullscreen() {
+    if (document.fullscreenElement || document.webkitFullscreenElement) return;
+
+    try {
+      if (this.scale.fullscreen?.available) {
+        this.scale.startFullscreen();
+        return;
+      }
+
+      const target = document.documentElement;
+      const request =
+        target.requestFullscreen ?? target.webkitRequestFullscreen;
+      if (!request) {
+        console.warn("Fullscreen is not supported by this browser.");
+        return;
+      }
+
+      Promise.resolve(request.call(target)).catch((error) => {
+        console.warn("Fullscreen request was denied:", error);
+      });
+    } catch (error) {
+      console.error("Error starting fullscreen:", error);
+    }
   }
 
   createRoom(password, name) {
@@ -490,7 +518,10 @@ export class RoomScene extends Phaser.Scene {
         new Phaser.Geom.Rectangle(262, 142, 276, 146),
         Phaser.Geom.Rectangle.Contains,
       );
-    playButton.on("pointerdown", () => this.joinPrivateRoom());
+    playButton.on("pointerdown", () => {
+      this.requestFullscreen();
+      this.joinPrivateRoom();
+    });
     this.addMessage(510);
   }
 

@@ -32,17 +32,43 @@ export class Preloader extends Phaser.Scene {
       .setInteractive({ useHandCursor: true });
 
     playButton.on("pointerdown", () => {
-      try {
-        if (!this.scale.isFullScreen) {
-          this.scale.startFullscreen();
-        }
-      } catch (error) {
-        console.error("Error starting fullscreen:", error);
-      }
-
+      this.requestFullscreen();
       playButton.disableInteractive();
       this.startLoading();
     });
+  }
+
+  requestFullscreen() {
+    if (
+      this.scale.isFullscreen ||
+      document.fullscreenElement ||
+      document.webkitFullscreenElement
+    ) {
+      return;
+    }
+
+    try {
+      if (this.scale.fullscreen?.available) {
+        this.scale.startFullscreen({ navigationUI: "hide" });
+        return;
+      }
+
+      const target = this.scale.fullscreenTarget ?? document.body;
+      const request =
+        target.requestFullscreen ?? target.webkitRequestFullscreen;
+      if (!request) {
+        console.warn("Fullscreen is not supported by this browser.");
+        return;
+      }
+
+      Promise.resolve(
+        request.call(target, { navigationUI: "hide" }),
+      ).catch((error) => {
+        console.warn("Fullscreen request was denied:", error);
+      });
+    } catch (error) {
+      console.error("Error starting fullscreen:", error);
+    }
   }
 
   startLoading() {
