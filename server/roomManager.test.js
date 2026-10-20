@@ -141,7 +141,10 @@ test("two players can choose colors in the lobby, ready up, and exchange positio
   });
   manager.handleMessage(host, { type: "package:collect", houseId: 2 });
   manager.handleMessage(guest, { type: "package:collect", houseId: 2 });
-  assert.equal(lastMessage(guest, "error").message, "Essa coleta já foi realizada.");
+  assert.equal(
+    lastMessage(guest, "error").message,
+    "Essa coleta já foi realizada.",
+  );
   manager.handleMessage(guest, { type: "package:collect", houseId: 3 });
   assert.deepEqual(lastMessage(host, "package:state").gameState, {
     carriers: { host: 2, guest: 3 },

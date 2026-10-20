@@ -101,7 +101,9 @@ export function createRoomManager(
       gameState: packageStateSnapshot(room.gameState),
     };
     room.players.forEach((player) => {
-      const client = [...clients].find((candidate) => candidate.id === player.id);
+      const client = [...clients].find(
+        (candidate) => candidate.id === player.id,
+      );
       if (client) sendTo(client, message);
     });
   };
