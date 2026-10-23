@@ -52,10 +52,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
+    const gameContainer = this.game.canvas.parentElement;
+    gameContainer.classList.add("gameplay-active");
     this.input.keyboard.resetKeys();
     this.game.canvas.tabIndex = 0;
     this.game.canvas.focus({ preventScroll: true });
     this.events.once("shutdown", () => {
+      gameContainer.classList.remove("gameplay-active");
       this.input.keyboard.resetKeys();
       window.directionalInput?.clear();
     });
