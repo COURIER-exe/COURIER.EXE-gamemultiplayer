@@ -1,4 +1,4 @@
-import { randomBytes } from "node:crypto";
+import { randomInt } from "node:crypto";
 
 const COLORS = new Set(["ciano", "roxo", "branco", "vermelho"]);
 const BLOCKED_NAME_ROOTS = new Set([
@@ -219,7 +219,7 @@ export function createRoomManager(
 
     let id;
     do {
-      id = randomBytes(3).toString("hex").toUpperCase();
+      id = String(randomInt(100000, 1000000));
     } while (rooms.has(id));
 
     const player = {
@@ -255,11 +255,11 @@ export function createRoomManager(
 
   const joinRoom = (client, roomId, password = "", submittedName) => {
     if (client.roomId) return error(client, "Você já está em uma sala.");
-    const room = rooms.get(
-      String(roomId ?? "")
-        .trim()
-        .toUpperCase(),
-    );
+    const roomIdText = String(roomId ?? "").trim();
+    if (!/^\d{6}$/.test(roomIdText)) {
+      return error(client, "O ID da sala deve conter 6 dígitos.");
+    }
+    const room = rooms.get(roomIdText);
     if (!room || room.state !== "lobby") {
       return error(client, "A sala não existe ou já começou.");
     }

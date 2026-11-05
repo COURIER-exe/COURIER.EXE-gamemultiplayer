@@ -22,7 +22,7 @@ export class RoomScene extends Phaser.Scene {
         pattern: /^\d$/,
         inputMode: "numeric",
       },
-      roomId: { maxLength: 6, pattern: /^[a-f\d]$/i, inputMode: "text" },
+      roomId: { maxLength: 6, pattern: /^\d$/, inputMode: "numeric" },
     };
     this.activeInput = null;
     this.message = "";
@@ -532,7 +532,7 @@ export class RoomScene extends Phaser.Scene {
     if (
       /^(?:(?=\p{Script=Latin})\p{Letter}){4}$/u.test(name) &&
       /^\d{1,4}$/.test(password) &&
-      /^[A-F\d]{6}$/.test(roomId)
+      /^\d{6}$/.test(roomId)
     ) {
       this.joinPrivateRoom();
     }
@@ -551,8 +551,8 @@ export class RoomScene extends Phaser.Scene {
       this.refreshScreen();
       return;
     }
-    if (!/^[A-F\d]{6}$/.test(this.inputValues.roomId)) {
-      this.message = "O ID da sala deve ter 6 caracteres.";
+    if (!/^\d{6}$/.test(this.inputValues.roomId)) {
+      this.message = "O ID da sala deve ter 6 dígitos.";
       this.refreshScreen();
       return;
     }

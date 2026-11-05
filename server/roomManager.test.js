@@ -29,6 +29,7 @@ test("two players can choose colors in the lobby, ready up, and exchange positio
     name: "HOST",
   });
   const roomId = lastMessage(host, "room").room.id;
+  assert.match(roomId, /^\d{6}$/);
   assert.equal(lastMessage(guest, "rooms").rooms[0].id, roomId);
   manager.handleMessage(host, { type: "player:select-color", color: "ciano" });
   assert.equal(lastMessage(host, "room").room.players[0].color, "ciano");
