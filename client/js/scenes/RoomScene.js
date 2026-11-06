@@ -316,15 +316,14 @@ export class RoomScene extends Phaser.Scene {
       this.createPending = false;
       this.showMainMenu();
     });
-    const playButton = this.add
+    this.add
       .image(742, 510, "botao-play")
       .setCrop(262, 142, 276, 146)
       .setDisplaySize((90 * 800) / 276, (50 * 450) / 146)
-      .setOrigin(0.5, 215 / 450)
-      .setInteractive(
-        new Phaser.Geom.Rectangle(262, 142, 276, 146),
-        Phaser.Geom.Rectangle.Contains,
-      );
+      .setOrigin(0.5, 215 / 450);
+    const playButton = this.add
+      .rectangle(742, 510, 90, 50, 0xffffff, 0)
+      .setInteractive({ useHandCursor: true });
     playButton.on("pointerdown", () => {
       this.requestFullscreen();
       this.createProtectedRoom();
