@@ -16,6 +16,8 @@ const passwordInput = document.querySelector("#password-input");
 const passwordError = document.querySelector("#password-error");
 const introScreen = document.querySelector("#intro-screen");
 const introVideo = document.querySelector("#intro-video");
+const introAudio = document.querySelector("#intro-audio");
+const introAudioDuration = 7;
 let packagePasswordSubmit = null;
 let terminalCodeCloseCallback = null;
 
@@ -25,6 +27,7 @@ const startGame = () => {
   if (gameStarted) return;
 
   gameStarted = true;
+  introAudio.pause();
   introScreen.remove();
   window.multiplayer = new MultiplayerClient();
   window.game = new Phaser.Game(config);
@@ -32,6 +35,11 @@ const startGame = () => {
 
 introVideo.addEventListener("ended", startGame, { once: true });
 introVideo.addEventListener("error", startGame, { once: true });
+introAudio.addEventListener("timeupdate", () => {
+  if (introAudio.currentTime < introAudioDuration) return;
+  introAudio.pause();
+  introAudio.currentTime = introAudioDuration;
+});
 
 window.openTerminalCode = (code, onClose) => {
   terminalCodeCloseCallback = onClose;
@@ -268,5 +276,8 @@ const config = {
 };
 
 window.addEventListener("load", () => {
-  introVideo.play().catch(startGame);
+  introVideo
+    .play()
+    .then(() => introAudio.play().catch(() => {}))
+    .catch(startGame);
 });
