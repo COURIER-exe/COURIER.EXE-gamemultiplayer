@@ -16,6 +16,7 @@ export class InteriorScene extends Phaser.Scene {
     this.interfaceBlocked = false;
     this.computerInteractionLocked = false;
     this.packageInteractionLocked = false;
+    this.exitDoorTriggered = false;
     this.codeNoticeShown = false;
   }
 
@@ -23,6 +24,7 @@ export class InteriorScene extends Phaser.Scene {
     this.interfaceBlocked = false;
     this.computerInteractionLocked = false;
     this.packageInteractionLocked = false;
+    this.exitDoorTriggered = false;
     this.playerColor = data.color ?? "ciano";
     this.mainPlayer = this.scene.get("GameScene")?.player ?? null;
     this.returnPosition = data.returnPosition ?? { x: 0, y: 0 };
@@ -70,6 +72,7 @@ export class InteriorScene extends Phaser.Scene {
       this.events.once("shutdown", () => this.networkUnsubscribe?.());
     }
     this.createComputerTrigger();
+    this.createExitDoorTrigger();
 
     if (this.isTargetHouse || this.isDeliveryHouse) {
       this.createObjectives();
@@ -325,6 +328,43 @@ export class InteriorScene extends Phaser.Scene {
       null,
       this,
     );
+  }
+
+  createExitDoorTrigger() {
+    this.exitDoorArrow = this.add
+      .image(439, 464, "seta-construcao")
+      .setDisplaySize(42, 32)
+      .setDepth(8);
+    this.exitDoorTrigger = this.add
+      .rectangle(439, 464, 52, 40, 0x00e5ff, 0.22)
+      .setStrokeStyle(2, 0x00e5ff, 0.9)
+      .setDepth(7);
+    this.physics.add.existing(this.exitDoorTrigger, true);
+    this.tweens.add({
+      targets: [this.exitDoorArrow, this.exitDoorTrigger],
+      y: this.exitDoorArrow.y - 7,
+      duration: 650,
+      ease: "Sine.inOut",
+      yoyo: true,
+      repeat: -1,
+    });
+    this.physics.add.overlap(
+      this.player,
+      this.exitDoorTrigger,
+      this.openExitDoor,
+      null,
+      this,
+    );
+  }
+
+  openExitDoor() {
+    if (this.exitDoorTriggered) return;
+
+    this.exitDoorTriggered = true;
+    this.interfaceBlocked = true;
+    this.player.body.setVelocity(0, 0);
+    this.cameras.main.fadeOut(250, 5, 5, 10);
+    this.time.delayedCall(250, () => this.exitInterior());
   }
 
   openComputer() {
