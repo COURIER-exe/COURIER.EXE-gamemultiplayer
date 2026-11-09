@@ -587,15 +587,12 @@ export class RoomScene extends Phaser.Scene {
       160,
     );
     this.room.players.forEach((player, index) => {
-      const color = player.color
-        ? player.color.toUpperCase()
-        : "ESCOLHENDO COR";
       this.addButton(
         640,
         220 + index * 54,
         470,
         46,
-        `${player.name}  |  ${color}  |  ${player.ready ? "PRONTO" : "AGUARDANDO"}`,
+        `${player.name}  |  ${player.ready ? "PRONTO" : "AGUARDANDO"}`,
         () => {},
         player.ready ? 0x39d98a : 0x00e5ff,
       );
