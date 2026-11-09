@@ -531,6 +531,7 @@ export class InteriorScene extends Phaser.Scene {
   }
 
   showMultiplayerDefeatScreen() {
+    this.scene.get("GameScene")?.stopMatchMusic();
     this.add
       .image(640, 360, "perdeu")
       .setDisplaySize(1100, 619)
@@ -560,6 +561,7 @@ export class InteriorScene extends Phaser.Scene {
   }
 
   showCompletionScreen() {
+    this.scene.get("GameScene")?.stopMatchMusic();
     this.interfaceBlocked = true;
     this.player.body.setVelocity(0, 0);
     window.setJoystickVisible?.(false);

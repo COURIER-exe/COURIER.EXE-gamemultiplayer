@@ -125,6 +125,10 @@ export class Preloader extends Phaser.Scene {
   }
 
   loadAssets() {
+    this.load.audio(
+      "match-music",
+      "assets/YTDown.com_YouTube_Media_CjXC8V8rq5U_Stranger-Things-Kids-Juno-60-Modular-Synthesizer_009_128k.mp3",
+    );
     this.load.tilemapTiledJSON("mapaCidade", "assets/jogo.json");
     this.load.tilemapTiledJSON("mapaInterior", "assets/map/interior.json");
     this.load.image("interiorTileset0", "texturas/Interiors_32x32_0.png");

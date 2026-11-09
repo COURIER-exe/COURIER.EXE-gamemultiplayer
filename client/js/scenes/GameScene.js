@@ -44,6 +44,7 @@ export class GameScene extends Phaser.Scene {
     this.matchFinished = false;
     this.matchNoticeVisible = false;
     this.lostCodeNoticeVisible = false;
+    this.matchMusic = null;
   }
 
   init(data = {}) {
@@ -58,6 +59,7 @@ export class GameScene extends Phaser.Scene {
     this.game.canvas.tabIndex = 0;
     this.game.canvas.focus({ preventScroll: true });
     this.events.once("shutdown", () => {
+      this.stopMatchMusic();
       gameContainer.classList.remove("gameplay-active");
       this.input.keyboard.resetKeys();
       window.directionalInput?.clear();
@@ -977,8 +979,20 @@ export class GameScene extends Phaser.Scene {
       this.matchNoticeVisible = false;
       notice.destroy();
       skipButton.destroy();
+      this.startMatchMusic();
       window.setJoystickVisible?.(true);
     });
+  }
+
+  startMatchMusic() {
+    if (!this.matchMusic) {
+      this.matchMusic = this.sound.add("match-music", { loop: true });
+    }
+    if (!this.matchMusic.isPlaying) this.matchMusic.play();
+  }
+
+  stopMatchMusic() {
+    this.matchMusic?.stop();
   }
 
   setupMultiplayerPlayers() {
@@ -1349,6 +1363,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   showMultiplayerDefeatScreen() {
+    this.stopMatchMusic();
     const defeatImage = this.add
       .image(640, 360, "perdeu")
       .setDisplaySize(1100, 619)
