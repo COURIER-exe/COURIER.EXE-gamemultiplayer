@@ -302,11 +302,11 @@ export class InteriorScene extends Phaser.Scene {
 
   createComputerTrigger() {
     this.computerArrow = this.add
-      .image(436, 451, "computador")
+      .image(383, 67, "computador")
       .setDisplaySize(42, 32)
       .setDepth(8);
     this.computerTrigger = this.add
-      .rectangle(436, 451, 52, 40, 0x00e5ff, 0.22)
+      .rectangle(383, 67, 52, 40, 0x00e5ff, 0.22)
       .setStrokeStyle(2, 0x00e5ff, 0.9)
       .setDepth(7);
     this.physics.add.existing(this.computerTrigger, true);
