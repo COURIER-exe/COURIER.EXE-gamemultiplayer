@@ -40,7 +40,6 @@ export class InteriorScene extends Phaser.Scene {
   }
 
   create() {
-    window.setInteriorExitButtonVisible?.(true);
     window.setInteriorCoordinatesVisible?.(true);
     this.cameras.main.fadeIn(250, 5, 5, 10);
     this.map = this.make.tilemap({ key: "mapaInterior" });
@@ -288,7 +287,7 @@ export class InteriorScene extends Phaser.Scene {
     }
 
     this.pickupTrigger = this.add
-      .rectangle(120, 300, markerSize * 0.36, markerSize * 0.39, 0x00e5ff, 0.22)
+      .rectangle(41, 95, markerSize * 0.36, markerSize * 0.39, 0x00e5ff, 0.22)
       .setStrokeStyle(2, 0x00e5ff, 0.9);
     this.objectiveGroup.add(this.pickupTrigger);
     this.physics.add.overlap(
@@ -299,7 +298,7 @@ export class InteriorScene extends Phaser.Scene {
       this,
     );
     this.pickup = this.add
-      .image(120, 300, "marcador-coleta")
+      .image(41, 95, "marcador-coleta")
       .setDisplaySize(markerSize, markerSize);
   }
 
@@ -521,7 +520,6 @@ export class InteriorScene extends Phaser.Scene {
   finishMultiplayerMatch(winnerId) {
     this.interfaceBlocked = true;
     this.player?.body?.setVelocity(0, 0);
-    window.setInteriorExitButtonVisible?.(false);
     window.setJoystickVisible?.(false);
     window.setCoordinatesVisible?.(false);
     window.setInteriorCoordinatesVisible?.(false);
@@ -564,7 +562,6 @@ export class InteriorScene extends Phaser.Scene {
   showCompletionScreen() {
     this.interfaceBlocked = true;
     this.player.body.setVelocity(0, 0);
-    window.setInteriorExitButtonVisible?.(false);
     window.setJoystickVisible?.(false);
     window.setCoordinatesVisible?.(false);
     window.setInteriorCoordinatesVisible?.(false);
@@ -682,7 +679,6 @@ export class InteriorScene extends Phaser.Scene {
   }
 
   exitInterior() {
-    window.setInteriorExitButtonVisible?.(false);
     window.setInteriorCoordinatesVisible?.(false);
     const mainScene = this.scene.get("GameScene");
     mainScene.player.x = this.returnPosition.x;

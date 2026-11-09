@@ -8,7 +8,6 @@ import { MultiplayerClient } from "./MultiplayerClient.js";
 window.directionalInput = new Set();
 window.joystickInput = { x: 0, y: 0 };
 
-const exitHouseButton = document.querySelector("#exit-house-button");
 const terminalModal = document.querySelector("#terminal-modal");
 const terminalCode = document.querySelector("#terminal-code");
 const passwordModal = document.querySelector("#password-modal");
@@ -33,14 +32,6 @@ const startGame = () => {
 
 introVideo.addEventListener("ended", startGame, { once: true });
 introVideo.addEventListener("error", startGame, { once: true });
-
-window.setInteriorExitButtonVisible = (visible) => {
-  exitHouseButton.style.display = visible ? "block" : "none";
-};
-
-exitHouseButton.addEventListener("click", () => {
-  window.game?.scene.getScene("InteriorScene")?.exitInterior();
-});
 
 window.openTerminalCode = (code, onClose) => {
   terminalCodeCloseCallback = onClose;
