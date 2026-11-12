@@ -25,7 +25,7 @@ export class CharacterSelect extends Phaser.Scene {
 
   create() {
     window.setJoystickVisible?.(false);
-    window.setCoordinatesVisible?.(false);
+    window.setObjectivesVisible?.(false);
     if (this.multiplayer) {
       const network = window.multiplayer;
       this.unsubscribers = [

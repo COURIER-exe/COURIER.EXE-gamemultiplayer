@@ -781,7 +781,7 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(999);
 
-    window.setCoordinatesVisible?.(true);
+    window.setObjectivesVisible?.(true);
 
     this.arrowTriggerList = [];
     this.walls = this.physics.add.staticGroup();
@@ -1078,7 +1078,7 @@ export class GameScene extends Phaser.Scene {
         this.matchFinished = true;
         this.playerBody.setVelocity(0, 0);
         window.setJoystickVisible?.(false);
-        window.setCoordinatesVisible?.(false);
+        window.setObjectivesVisible?.(false);
         if (this.scene.isActive("InteriorScene")) {
           this.scene.get("InteriorScene")?.finishMultiplayerMatch(winnerId);
         } else if (winnerId !== network.playerId) {
@@ -1640,13 +1640,6 @@ export class GameScene extends Phaser.Scene {
   updateHud() {
     if (this.time.now < (this.nextHudUpdate ?? 0)) return;
     this.nextHudUpdate = this.time.now + 100;
-
-    if (this.player) {
-      window.updateCoordinates?.(
-        Math.round(this.player.x),
-        Math.round(this.player.y),
-      );
-    }
 
     window.updateHealthBar?.(
       this.player?.vidaAtual ?? 100,

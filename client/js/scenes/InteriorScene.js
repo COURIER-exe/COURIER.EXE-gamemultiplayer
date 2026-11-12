@@ -40,7 +40,6 @@ export class InteriorScene extends Phaser.Scene {
   }
 
   create() {
-    window.setInteriorCoordinatesVisible?.(true);
     this.cameras.main.fadeIn(250, 5, 5, 10);
     this.map = this.make.tilemap({ key: "mapaInterior" });
     const tilesets = [
@@ -136,14 +135,6 @@ export class InteriorScene extends Phaser.Scene {
   }
 
   update() {
-    if (this.time.now >= (this.nextInteriorCoordinateUpdate ?? 0)) {
-      window.updateInteriorCoordinates?.(
-        Math.round(this.player.x),
-        Math.round(this.player.y),
-      );
-      this.nextInteriorCoordinateUpdate = this.time.now + 100;
-    }
-
     if (
       this.computerInteractionLocked &&
       Phaser.Math.Distance.Between(
@@ -521,8 +512,7 @@ export class InteriorScene extends Phaser.Scene {
     this.interfaceBlocked = true;
     this.player?.body?.setVelocity(0, 0);
     window.setJoystickVisible?.(false);
-    window.setCoordinatesVisible?.(false);
-    window.setInteriorCoordinatesVisible?.(false);
+    window.setObjectivesVisible?.(false);
     if (winnerId === window.multiplayer?.playerId) {
       this.showCompletionScreen();
     } else {
@@ -589,8 +579,7 @@ export class InteriorScene extends Phaser.Scene {
     this.interfaceBlocked = true;
     this.player.body.setVelocity(0, 0);
     window.setJoystickVisible?.(false);
-    window.setCoordinatesVisible?.(false);
-    window.setInteriorCoordinatesVisible?.(false);
+    window.setObjectivesVisible?.(false);
 
     const width = this.scale.width;
     const height = this.scale.height;
@@ -739,7 +728,6 @@ export class InteriorScene extends Phaser.Scene {
   }
 
   exitInterior() {
-    window.setInteriorCoordinatesVisible?.(false);
     const mainScene = this.scene.get("GameScene");
     mainScene.player.x = this.returnPosition.x;
     mainScene.player.y = this.returnPosition.y;

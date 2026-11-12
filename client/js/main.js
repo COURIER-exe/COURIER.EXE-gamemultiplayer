@@ -106,10 +106,6 @@ const joystick = document.querySelector("#joystick");
 const joystickKnob = document.querySelector("#joystick-knob");
 const healthTrack = document.querySelector("#health-track");
 const healthFill = document.querySelector("#health-fill");
-const coordinatesDisplay = document.querySelector("#coordinates-display");
-const interiorCoordinatesDisplay = document.querySelector(
-  "#interior-coordinates-display",
-);
 const objectivesPanel = document.querySelector("#objectives-panel");
 const objectivePassword = document.querySelector("#objective-password");
 let joystickPointerId = null;
@@ -126,8 +122,7 @@ window.updateHealthBar = (currentHealth, maximumHealth) => {
   healthTrack.setAttribute("aria-valuenow", String(percentage));
 };
 
-window.setCoordinatesVisible = (visible) => {
-  coordinatesDisplay.style.display = visible ? "block" : "none";
+window.setObjectivesVisible = (visible) => {
   objectivesPanel.style.display = visible ? "block" : "none";
 };
 
@@ -144,18 +139,6 @@ window.updateObjectiveProgress = (objectiveNumber, completed, password) => {
   if (objectiveNumber === 1 && password) {
     objectivePassword.textContent = `Senha: ${password}`;
   }
-};
-
-window.updateCoordinates = (x, y) => {
-  coordinatesDisplay.textContent = `COORDENADAS X: ${x} | Y: ${y}`;
-};
-
-window.setInteriorCoordinatesVisible = (visible) => {
-  interiorCoordinatesDisplay.style.display = visible ? "block" : "none";
-};
-
-window.updateInteriorCoordinates = (x, y) => {
-  interiorCoordinatesDisplay.textContent = `INTERIOR X: ${x} | Y: ${y}`;
 };
 
 const resetJoystick = () => {

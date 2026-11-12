@@ -33,7 +33,7 @@ export class RoomScene extends Phaser.Scene {
 
   create() {
     window.setJoystickVisible?.(false);
-    window.setCoordinatesVisible?.(false);
+    window.setObjectivesVisible?.(false);
     this.network = window.multiplayer;
     this.createTextInput();
     this.unsubscribers = [
