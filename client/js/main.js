@@ -7,6 +7,12 @@ import { MultiplayerClient } from "./MultiplayerClient.js";
 
 window.directionalInput = new Set();
 window.joystickInput = { x: 0, y: 0 };
+window.openEvaluationForm = () =>
+  window.open(
+    "https://docs.google.com/forms/d/e/1FAIpQLSeeleFRJ3PbTeX9nmxFtfqF_3VMD6bBGixNGFODEtqjbHGK9A/viewform?entry.52413313=Courier.exe",
+    "_blank",
+    "noopener,noreferrer",
+  );
 
 const terminalModal = document.querySelector("#terminal-modal");
 const terminalCode = document.querySelector("#terminal-code");
@@ -101,18 +107,10 @@ const joystickKnob = document.querySelector("#joystick-knob");
 const healthTrack = document.querySelector("#health-track");
 const healthFill = document.querySelector("#health-fill");
 const coordinatesDisplay = document.querySelector("#coordinates-display");
-const passwordHouseCoordinates = document.querySelector(
-  "#password-house-coordinates",
-);
 const interiorCoordinatesDisplay = document.querySelector(
   "#interior-coordinates-display",
 );
 const objectivesPanel = document.querySelector("#objectives-panel");
-const objectiveChecks = [
-  document.querySelector("#objective-1-check"),
-  document.querySelector("#objective-2-check"),
-  document.querySelector("#objective-3-check"),
-];
 const objectivePassword = document.querySelector("#objective-password");
 let joystickPointerId = null;
 
@@ -125,8 +123,6 @@ window.updateHealthBar = (currentHealth, maximumHealth) => {
   const ratio = Math.max(0, Math.min(1, currentHealth / maximumHealth));
   const percentage = Math.round(ratio * 100);
   healthFill.style.width = `${percentage}%`;
-  healthFill.style.backgroundColor =
-    percentage <= 25 ? "#ff4d5a" : percentage <= 60 ? "#ffd166" : "#39d98a";
   healthTrack.setAttribute("aria-valuenow", String(percentage));
 };
 
@@ -135,65 +131,16 @@ window.setCoordinatesVisible = (visible) => {
   objectivesPanel.style.display = visible ? "block" : "none";
 };
 
-window.setPasswordHouseCoordinates = ({ houses, pickups, delivery }) => {
-  passwordHouseCoordinates.replaceChildren();
-  if (!houses.length && !pickups.length && !delivery) {
-    passwordHouseCoordinates.hidden = true;
-    return;
-  }
-
-  if (pickups.length || delivery) {
-    const objectiveTitle = document.createElement("strong");
-    objectiveTitle.textContent = "DESTINOS";
-    passwordHouseCoordinates.append(objectiveTitle);
-
-    [
-      ...pickups.map((coordinates, index) => [
-        `COLETA ${index + 1}`,
-        coordinates,
-        "pickup-coordinate",
-      ]),
-      ["ENTREGA", delivery, "delivery-coordinate"],
-    ].forEach(([label, coordinates, className]) => {
-      if (!coordinates) return;
-      const item = document.createElement("div");
-      item.className = className;
-      item.textContent = `${label}: X ${coordinates.x}, Y ${coordinates.y}`;
-      passwordHouseCoordinates.append(item);
-    });
-  }
-
-  if (houses.length) {
-    const title = document.createElement("strong");
-    title.textContent = "CASAS COM SENHA";
-    const list = document.createElement("ol");
-    houses.forEach(({ houseNumber, x, y }) => {
-      const item = document.createElement("li");
-      item.textContent = `X ${x}, Y ${y}`;
-      item.value = houseNumber;
-      list.append(item);
-    });
-    passwordHouseCoordinates.append(title, list);
-  }
-  passwordHouseCoordinates.hidden = false;
-};
-
 window.resetObjectiveProgress = () => {
-  objectiveChecks.forEach((checkbox) => {
-    checkbox.checked = false;
-  });
   objectivePassword.textContent = "Senha: ----";
 };
 
 window.resetPasswordProgress = () => {
-  objectiveChecks[0].checked = false;
   objectivePassword.textContent = "Senha: ----";
   terminalCode.replaceChildren();
 };
 
 window.updateObjectiveProgress = (objectiveNumber, completed, password) => {
-  const checkbox = objectiveChecks[objectiveNumber - 1];
-  if (checkbox) checkbox.checked = completed;
   if (objectiveNumber === 1 && password) {
     objectivePassword.textContent = `Senha: ${password}`;
   }

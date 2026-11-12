@@ -43,7 +43,7 @@ export class CharacterSelect extends Phaser.Scene {
         }),
         network.on("game:start", ({ room }) => {
           this.gameData = { multiplayer: true, room };
-          this.showObjectiveScreen();
+          this.startGame();
         }),
       ];
       this.events.once("shutdown", () =>
@@ -95,7 +95,7 @@ export class CharacterSelect extends Phaser.Scene {
           window.multiplayer.send("player:select-color", { color });
           this.createColorButtons();
         } else {
-          this.showObjectiveScreen();
+          this.startGame();
         }
       });
     });
@@ -146,37 +146,10 @@ export class CharacterSelect extends Phaser.Scene {
     }
   }
 
-  showObjectiveScreen() {
-    this.children.removeAll(true);
-    this.add.image(640, 360, "imagemdeobjetivo").setDisplaySize(1280, 720);
-
-    this.add
-      .text(
-        610,
-        285,
-        "1- Explore o mapa e encontre o terminal.\n2- Memorize o codigo do terminal.\n3- Use o codigo para desbloquear a coleta de dados.\n5- Realize a entrega antes dos seus adversarios.\n6- Cuidado com os robos.",
-        {
-          fontFamily: "Arial",
-          fontSize: "21px",
-          fontStyle: "bold",
-          color: "#ffffff",
-          align: "center",
-          wordWrap: { width: 620 },
-          lineSpacing: 8,
-        },
-      )
-      .setOrigin(0.5)
-      .setDepth(1);
-
-    const skipButton = this.add
-      .rectangle(1070, 615, 150, 72, 0xffffff, 0)
-      .setInteractive({ useHandCursor: true });
-    skipButton.once("pointerdown", () => {
-      skipButton.disableInteractive();
-      this.scene.start("GameScene", {
-        color: this.selectedColor ?? "ciano",
-        ...this.gameData,
-      });
+  startGame() {
+    this.scene.start("GameScene", {
+      color: this.selectedColor ?? "ciano",
+      ...this.gameData,
     });
   }
 }

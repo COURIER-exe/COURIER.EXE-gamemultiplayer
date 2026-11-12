@@ -35,7 +35,6 @@ export class GameScene extends Phaser.Scene {
     this.darkOverlay = null;
     this.networkData = null;
     this.remotePlayers = new Map();
-    this.minimapRemoteMarkers = new Map();
     this.nextPositionUpdate = 0;
     this.nextRobotUpdate = 0;
     this.nextTrailBroadcast = 0;
@@ -859,23 +858,6 @@ export class GameScene extends Phaser.Scene {
     this.deliveryHouseId = deliveryHouseIds.length
       ? deliveryHouseIds[objectiveBetween(0, deliveryHouseIds.length - 1)]
       : null;
-    const getHouseCoordinates = (houseId) => {
-      const coordinates =
-        this.arrowTriggerList[houseId]?.getData("coordinates");
-      return coordinates
-        ? { x: Math.round(coordinates.x), y: Math.round(coordinates.y) }
-        : null;
-    };
-    window.setPasswordHouseCoordinates?.({
-      houses: [...this.passwordHouseIds].map((houseId) => ({
-        houseNumber: houseId + 1,
-        ...getHouseCoordinates(houseId),
-      })),
-      pickups: [...this.pickupHouseIds]
-        .map(getHouseCoordinates)
-        .filter(Boolean),
-      delivery: getHouseCoordinates(this.deliveryHouseId),
-    });
     this.packagePassword = null;
     this.joystickGraphics = this.add
       .graphics()
@@ -943,7 +925,6 @@ export class GameScene extends Phaser.Scene {
     });
 
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
-    this.createMinimap({ mapLeft, mapTop, mapWidth, mapHeight });
     this.showMatchNotice();
   }
 
@@ -973,7 +954,6 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(3001)
       .setInteractive({ useHandCursor: true });
-    this.minimapCamera?.ignore([notice, skipButton]);
 
     skipButton.once("pointerdown", () => {
       this.matchNoticeVisible = false;
@@ -1029,7 +1009,6 @@ export class GameScene extends Phaser.Scene {
         targetY: y,
         color,
       });
-      this.createRemoteMinimapMarker(player.id, color, x, y);
       spawnOffset += 1;
     });
 
@@ -1057,7 +1036,6 @@ export class GameScene extends Phaser.Scene {
           remote = { sprite, animation, targetX: player.x, targetY: player.y };
           remote.color = color;
           this.remotePlayers.set(player.id, remote);
-          this.createRemoteMinimapMarker(player.id, color, player.x, player.y);
         }
         remote.targetX = player.x;
         remote.targetY = player.y;
@@ -1078,8 +1056,6 @@ export class GameScene extends Phaser.Scene {
       network.on("player-left", ({ playerId }) => {
         this.remotePlayers.get(playerId)?.sprite.destroy();
         this.remotePlayers.delete(playerId);
-        this.minimapRemoteMarkers.get(playerId)?.destroy();
-        this.minimapRemoteMarkers.delete(playerId);
         this.networkData.room.players = this.networkData.room.players.filter(
           (player) => player.id !== playerId,
         );
@@ -1120,8 +1096,6 @@ export class GameScene extends Phaser.Scene {
       this.networkUnsubscribers.forEach((unsubscribe) => unsubscribe());
       this.remotePlayers.forEach(({ sprite }) => sprite.destroy());
       this.remotePlayers.clear();
-      this.minimapRemoteMarkers.forEach((marker) => marker.destroy());
-      this.minimapRemoteMarkers.clear();
     });
   }
 
@@ -1320,7 +1294,6 @@ export class GameScene extends Phaser.Scene {
       this.player.y = 250;
     }
 
-    this.updateMinimap();
   }
 
   showLossNotice(texture) {
@@ -1351,7 +1324,6 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(3001)
       .setInteractive({ useHandCursor: true });
-    this.minimapCamera?.ignore([notice, skipButton]);
 
     skipButton.once("pointerdown", () => {
       this.lostCodeNoticeVisible = false;
@@ -1370,15 +1342,31 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(2000);
     const returnButton = this.add
-      .rectangle(640, 530, 440, 68, 0x00a9a9)
+      .rectangle(640, 500, 440, 60, 0x00a9a9)
       .setStrokeStyle(2, 0x00f5ee)
       .setScrollFactor(0)
       .setDepth(2001)
       .setInteractive({ useHandCursor: true });
     const buttonText = this.add
-      .text(640, 530, "VOLTAR AO MENU PRINCIPAL", {
+      .text(640, 500, "VOLTAR AO MENU PRINCIPAL", {
         fontFamily: "Arial",
-        fontSize: "20px",
+        fontSize: "18px",
+        fontStyle: "bold",
+        color: "#ffffff",
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(2002);
+    const evaluationButton = this.add
+      .rectangle(640, 570, 440, 60, 0x00a9a9)
+      .setStrokeStyle(2, 0x00f5ee)
+      .setScrollFactor(0)
+      .setDepth(2001)
+      .setInteractive({ useHandCursor: true });
+    const evaluationButtonText = this.add
+      .text(640, 570, "AVALIAR O JOGO", {
+        fontFamily: "Arial",
+        fontSize: "18px",
         fontStyle: "bold",
         color: "#ffffff",
       })
@@ -1386,7 +1374,6 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(2002);
 
-    this.minimapCamera?.ignore([defeatImage, returnButton, buttonText]);
     returnButton.on("pointerover", () => returnButton.setFillStyle(0x00d4d4));
     returnButton.on("pointerout", () => returnButton.setFillStyle(0x00a9a9));
     returnButton.once("pointerdown", () => {
@@ -1394,6 +1381,15 @@ export class GameScene extends Phaser.Scene {
       this.scene.stop("InteriorScene");
       this.scene.start("RoomScene");
     });
+    evaluationButton.on("pointerover", () =>
+      evaluationButton.setFillStyle(0x00d4d4),
+    );
+    evaluationButton.on("pointerout", () =>
+      evaluationButton.setFillStyle(0x00a9a9),
+    );
+    evaluationButton.once("pointerdown", () =>
+      window.openEvaluationForm?.(),
+    );
   }
 
   updateRoboAI() {
@@ -1593,80 +1589,6 @@ export class GameScene extends Phaser.Scene {
     }
 
     return this.chooseRoboWanderTarget();
-  }
-
-  createMinimap(bounds) {
-    this.minimapPlayerMarker = this.add
-      .circle(this.player.x, this.player.y, 96, 0x00e5ff)
-      .setDepth(20);
-    this.minimapRoboMarker = this.add
-      .circle(this.robo.x, this.robo.y, 96, 0xff4d5a)
-      .setDepth(20);
-    const minimapWidth = 184;
-    const minimapHeight = 134;
-    const minimapMargin = 16;
-    this.minimapCamera = this.cameras.add(
-      this.scale.width - minimapWidth - minimapMargin,
-      this.scale.height - minimapHeight - minimapMargin,
-      minimapWidth,
-      minimapHeight,
-    );
-    this.minimapCamera
-      .setZoom(
-        Math.min(
-          minimapWidth / bounds.mapWidth,
-          minimapHeight / bounds.mapHeight,
-        ),
-      )
-      .centerOn(
-        bounds.mapLeft + bounds.mapWidth / 2,
-        bounds.mapTop + bounds.mapHeight / 2,
-      )
-      .setBackgroundColor(0x101722)
-      .setRoundPixels(true);
-    this.minimapCamera.ignore([this.notificationText, this.joystickGraphics]);
-    this.cameras.main.ignore([
-      this.minimapPlayerMarker,
-      this.minimapRoboMarker,
-    ]);
-    this.networkData?.room.players.forEach((player) => {
-      if (player.id === window.multiplayer?.playerId) return;
-      const remote = this.remotePlayers.get(player.id);
-      this.createRemoteMinimapMarker(
-        player.id,
-        player.color ?? remote?.color,
-        remote?.sprite.x ?? player.x ?? this.player.x,
-        remote?.sprite.y ?? player.y ?? this.player.y,
-      );
-    });
-  }
-
-  createRemoteMinimapMarker(playerId, color, x, y) {
-    if (!this.minimapCamera || this.minimapRemoteMarkers.has(playerId)) return;
-    const marker = this.add
-      .circle(x, y, 96, this.playerTrailColors[color] ?? 0xffffff)
-      .setDepth(20);
-    this.minimapRemoteMarkers.set(playerId, marker);
-    this.cameras.main.ignore(marker);
-  }
-
-  updateMinimap() {
-    this.minimapPlayerMarker.setPosition(this.player.x, this.player.y);
-    this.minimapRoboMarker.setPosition(this.robo.x, this.robo.y);
-    this.networkData?.room.players.forEach((player) => {
-      if (player.id === window.multiplayer?.playerId) return;
-      const remote = this.remotePlayers.get(player.id);
-      const x = remote?.sprite.x ?? player.x;
-      const y = remote?.sprite.y ?? player.y;
-      this.createRemoteMinimapMarker(
-        player.id,
-        player.color ?? remote?.color,
-        x ?? this.player.x,
-        y ?? this.player.y,
-      );
-      const marker = this.minimapRemoteMarkers.get(player.id);
-      marker?.setPosition(x ?? this.player.x, y ?? this.player.y);
-    });
   }
 
   createTrail(

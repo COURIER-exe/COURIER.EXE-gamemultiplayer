@@ -538,16 +538,33 @@ export class InteriorScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(100);
 
+    const buttonY = 500;
     const menuButton = this.add
-      .rectangle(640, 530, 440, 68, 0x00a9a9)
+      .rectangle(640, buttonY, 440, 60, 0x00a9a9)
       .setStrokeStyle(2, 0x00f5ee)
       .setScrollFactor(0)
       .setDepth(101)
       .setInteractive({ useHandCursor: true });
     this.add
-      .text(640, 530, "VOLTAR AO MENU PRINCIPAL", {
+      .text(640, buttonY, "VOLTAR AO MENU PRINCIPAL", {
         fontFamily: "Arial",
-        fontSize: "20px",
+        fontSize: "18px",
+        fontStyle: "bold",
+        color: "#ffffff",
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(102);
+    const evaluationButton = this.add
+      .rectangle(640, 570, 440, 60, 0x00a9a9)
+      .setStrokeStyle(2, 0x00f5ee)
+      .setScrollFactor(0)
+      .setDepth(101)
+      .setInteractive({ useHandCursor: true });
+    this.add
+      .text(640, 570, "AVALIAR O JOGO", {
+        fontFamily: "Arial",
+        fontSize: "18px",
         fontStyle: "bold",
         color: "#ffffff",
       })
@@ -558,6 +575,13 @@ export class InteriorScene extends Phaser.Scene {
     menuButton.on("pointerover", () => menuButton.setFillStyle(0x00d4d4));
     menuButton.on("pointerout", () => menuButton.setFillStyle(0x00a9a9));
     menuButton.once("pointerdown", () => this.returnToMainMenu());
+    evaluationButton.on("pointerover", () =>
+      evaluationButton.setFillStyle(0x00d4d4),
+    );
+    evaluationButton.on("pointerout", () =>
+      evaluationButton.setFillStyle(0x00a9a9),
+    );
+    evaluationButton.once("pointerdown", () => window.openEvaluationForm?.());
   }
 
   showCompletionScreen() {
@@ -576,8 +600,9 @@ export class InteriorScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(100);
 
-    const buttonY = height * 0.72;
+    const buttonY = height * 0.66;
     const buttonWidth = Math.min(460, width * 0.9);
+    const evaluationButtonY = height * 0.79;
     const menuButton = this.add
       .rectangle(width / 2, buttonY, buttonWidth, 64, 0x000000, 0.9)
       .setStrokeStyle(3, 0x00e5ff)
@@ -604,6 +629,39 @@ export class InteriorScene extends Phaser.Scene {
       menuButtonText.setColor("#00e5ff");
     });
     menuButton.once("pointerdown", () => this.returnToMainMenu());
+
+    const evaluationButton = this.add
+      .rectangle(
+        width / 2,
+        evaluationButtonY,
+        buttonWidth,
+        64,
+        0x000000,
+        0.9,
+      )
+      .setStrokeStyle(3, 0x00e5ff)
+      .setScrollFactor(0)
+      .setDepth(101)
+      .setInteractive({ useHandCursor: true });
+    const evaluationButtonText = this.add
+      .text(width / 2, evaluationButtonY, "AVALIAR O JOGO", {
+        fontFamily: "monospace",
+        fontSize: "20px",
+        fontStyle: "bold",
+        color: "#00e5ff",
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(102);
+    evaluationButton.on("pointerover", () => {
+      evaluationButton.setFillStyle(0x00e5ff);
+      evaluationButtonText.setColor("#000000");
+    });
+    evaluationButton.on("pointerout", () => {
+      evaluationButton.setFillStyle(0x000000, 0.9);
+      evaluationButtonText.setColor("#00e5ff");
+    });
+    evaluationButton.once("pointerdown", () => window.openEvaluationForm?.());
   }
 
   returnToMainMenu() {
